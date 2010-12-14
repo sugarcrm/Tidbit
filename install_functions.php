@@ -75,6 +75,7 @@ function processQueries($head, $values)
     foreach($chunks as $chunk)
     {
         $query = $head. implode(', ', $chunk);
+     
         $result = loggedQuery($query);
     }
 }

@@ -17,4 +17,6 @@ SELECT
 FROM
     users
 WHERE
-    id LIKE 'seed-Users%'
+    id LIKE 'seed-Users%' and id NOT IN (select assigned_user_id from user_preferences) 
+    
+    

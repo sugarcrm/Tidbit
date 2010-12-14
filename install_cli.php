@@ -126,7 +126,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:ecothvd', array('allmodules', 'allrelationships'));
+	$opts = getopt('l:u:s:ecothvdn:', array('allmodules', 'allrelationships'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -197,10 +197,13 @@ else
 		elseif($arg == '--allrelationships') {
 			$opts['allrelationships'] = true;
 		}
+		elseif($arg == '-n') {
+			$nextData = 'n';
+		}
 	}
 }
 
-//var_dump($opts);
+
 $allrelationships = false;
 if(isset($opts['allmodules'])) {
 	echo "automatically detecting installed modules\n"; 
@@ -216,6 +219,8 @@ if (isset($opts['allrelationships'])) {
 	echo "automatically generating relationships\n"; 
 	$allrelationships = true;
 }
+$startusersat = !empty($opts['n'])? $opts['n']: 0;
+
 if(isset($opts['l']))
 {
 	if(!is_numeric($opts['l']))
@@ -447,8 +452,13 @@ foreach($module_keys as $module)
 	 * into the DB.  We are using the module and table-name given by
 	 * $module and $bean->table_name. */
 
-
-	for($i = 0; $i < $total; $i++){
+	$start = 0;
+	global $startusersat;
+	if($module === 'Teams' || $module === 'Users'){
+		$start = intval($startusersat);	
+	}
+	for($i = $start; $i < $total + $start; $i++){
+		
 		$ibfd->count = $i;
 		/* Don't turbo Users or Teams */
 		if(!isset($_SESSION['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')){
@@ -504,6 +514,16 @@ foreach($module_keys as $module)
 		unset($GLOBALS['queryHead']);
 		unset($GLOBALS['queries']);
 		echo microtime_diff($dbStart, microtime())."s ";
+	}
+	if(!empty($GLOBALS['relatedQueries'])){
+		foreach($GLOBALS['relatedQueries'] as $data){
+					$head = $data['head'];
+					unset($data['head']);
+					processQueries($head, $data);
+				}
+				$GLOBALS['relatedQueries'] = array();
+				$relQueryCount = 0;
+			
 	}
 
 	if ($module == 'Users') {

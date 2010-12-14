@@ -202,7 +202,9 @@ class DataTool{
          * user1, user2 etc.
          */
         if(!empty($typeData['incname'])){
+        	global $startusersat;
             static $ninc = 0;
+            if($ninc === 0)$ninc = $startusersat;
             $ninc ++;
             return "'".$typeData['incname'].$ninc."'";
         }
@@ -282,7 +284,8 @@ class DataTool{
             	$thisToRelatedRatio = 0;
             }
             if(($typeData['related']['module'] == 'Users') || ($typeData['related']['module'] == 'Teams')){
-            	return "'".'seed-'.$typeData['related']['module'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
+            return  "'".'seed-'.$typeData['related']['module'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
+
             }
             return "'".'seed-'.$typeData['related']['module'].$_SESSION['baseTime'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
         }
@@ -531,9 +534,16 @@ class DataTool{
              * this record is a part of.  Multiplying by $acctToRelatedRatio
              * gives us the starting record for the group of the related type.
              */
-            $n = floor(floor($this->count/$baseToThisRatio)*$baseToRelatedRatio);
-            
+            $count = $this->count;
+            if($relModule === 'Teams')$count = $count - $GLOBALS['startusersat'];
+            $n = floor(floor($count/$baseToThisRatio)*$baseToRelatedRatio);
+       
             $GLOBALS['counters'][$this->module.$relModule]++;
+            if($relModule === 'Users' || $relModule === 'Teams'){
+            	
+            	$n += intval($GLOBALS['startusersat']);	
+            	
+            }
             
             /* There are $acctToRelatedRatio of the related types
              * in the group, so we can just pick one of them.
@@ -615,7 +625,7 @@ class DataTool{
         foreach($GLOBALS['tidbit_relationships'][$this->module] as $relModule=>$relationship){
         	if(!is_dir('modules/' . $this->module) || !is_dir('modules/' . $relModule))continue;
             if(!empty($GLOBALS['modules'][$relModule])){
-                
+               
                 
                 if(!empty($relationship['ratio'])){
                     $thisToRelatedRatio = $relationship['ratio'];
@@ -658,7 +668,7 @@ class DataTool{
                     while($multiply--){
                         $GLOBALS['relatedQueries'][$relationship['table']][] =  $this->generateRelationshipBody($relationship, $baseId, $relId);
                     }
-                    
+                   
                     $_SESSION['allProcessedRecords']++;
                     
                     if(empty($GLOBALS['relatedQueries'][$relationship['table']]['head'])){
@@ -666,9 +676,11 @@ class DataTool{
                     }
                     
                     /* Restore the relationship settings */
-                    if($relOverridesStore){
+                    if(!empty($relOverridesStore)){
                     	$GLOBALS['dataTool'][$relationship['table']] = $relOverridesStore;
                     }
+                     
+                    
                     
                     $relQueryCount++;
                 }
