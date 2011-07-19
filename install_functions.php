@@ -113,5 +113,24 @@ function generate_team_set($primary, $teams) {
 		$teamset->addTeams($teams);
 		array_pop($teams);
 	}
+}
+
+/*
+* This method is meant to ensure that the user is associated with the team_set. The problem was that
+* records would be assigned to a specific user, have an associated team_set_id, but the user was not
+* associated with the team_set_id.
+*/
+function add_team_to_team_set($team_set_id, $user_id){
+    if(!isset($GLOBALS['user_team_checked'][$user_id][$team_set_id])){
+        $result = $GLOBALS['db']->query("SELECT default_team FROM users WHERE id=$user_id");
+        while($row = $GLOBALS['db']->fetchByAssoc($result)){
+            $teamset = new TeamSet();
+            $teams = $teamset->getTeamIds($team_set_id);
+            $teams[] = $row['default_team'];
+            $team_set_id = $teamset->addTeams($teams);
+            $GLOBALS['user_team_checked'][$user_id][$team_set_id] = true;
+        }
+    }
+    return $team_set_id;
 }    
 ?>

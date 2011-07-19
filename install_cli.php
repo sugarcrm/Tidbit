@@ -512,6 +512,8 @@ foreach($module_keys as $module)
 
 	if ($module == 'Teams') {
 		require_once('modules/Teams/TeamSet.php');
+        require_once('modules/Teams/TeamSetManager.php');
+		TeamSetManager::flushBackendCache();
 		$teams_data = array();
 		$result = $GLOBALS['db']->query("SELECT id FROM teams");
 		while($row = $GLOBALS['db']->fetchByAssoc($result)){

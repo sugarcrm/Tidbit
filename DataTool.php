@@ -100,7 +100,11 @@ class DataTool{
     		if(empty($this->fields['team_id']['source'])){
             	$this->installData['team_id'] = "'".$teams[$index]."'";
     		}
-            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";
+            //check if the assigned user is part of the team set, if not then add their default team.
+            if(isset($this->installData['assigned_user_id'])){
+                 $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
+            }
+            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";  
         } 
     }
     
