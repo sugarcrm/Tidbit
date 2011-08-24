@@ -2,33 +2,33 @@
 <?php
 
 /*********************************************************************************
- * Tidbit is a data generation tool for the SugarCRM application.  
+ * Tidbit is a data generation tool for the SugarCRM application.
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
  * Free Software Foundation with the addition of the following permission added
  * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
  * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
  * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with
  * this program; if not, see http://www.gnu.org/licenses or write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- * 
+ *
  * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
  * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
- * 
+ *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
  * Section 5 of the GNU Affero General Public License version 3.
- * 
+ *
  * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
  * these Appropriate Legal Notices must retain the display of the "Powered by
  * SugarCRM" logo. If the display of the logo is not reasonably feasible for
@@ -67,7 +67,7 @@ $usageStr = "Usage: ".$_SERVER['PHP_SELF']." [-l loadFactor] [-u userCount] [-e]
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
-This script populates your instance of SugarCRM with realistic demo data. 
+This script populates your instance of SugarCRM with realistic demo data.
 
 $usageStr
 Options
@@ -90,7 +90,7 @@ Options
                     	removed.  No Data created within the app will be affected,
                     	and the administrator account will not be deleted.  Has no
                     	effect if Obliterate Mode is enabled.
-                    
+
     -t              	Turn Turbo Mode on.  Records are produced in groups of 1000
                     	duplicates.  Users and teams are not affected.
                     	Useful for testing duplicate checking or quickly producing
@@ -102,23 +102,25 @@ Options
                     	Users and Teams.  The number of users that would normally
                     	be created is assumed to be the number of existing users.
                     	Useful for appending data onto an existing data set.
-                    
+
     -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
                     	logged in a file called 'executedQueries.txt' in your
                     	Tidbit folder.
 
     -v              	Display version information.
-    
+
     -h              	Display this help text.
 
+    -f 					Generate favorites. Number is 1/20 of records.
+
     -s             	Specify the number of teams per team set and per record.
-    
+
     --allmodules	Automatically detect all installed modules and generate data for them.
-    
+
     --allrelationships	Automatically detect all relationships and generate data for them.
-    
+
     "Powered by SugarCRM"
-    
+
 
 EOS;
 
@@ -126,7 +128,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:ecothvd', array('allmodules', 'allrelationships'));
+	$opts = getopt('l:u:s:ecothvdf', array('allmodules', 'allrelationships'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -191,6 +193,10 @@ else
 		{
 			$nextData = 's';
 		}
+		elseif($arg === "-f")
+		{
+			$opts['f'] = true;
+		}
 		elseif($arg == '--allmodules') {
 			$opts['allmodules'] = true;
 		}
@@ -203,17 +209,17 @@ else
 //var_dump($opts);
 $allrelationships = false;
 if(isset($opts['allmodules'])) {
-	echo "automatically detecting installed modules\n"; 
+	echo "automatically detecting installed modules\n";
 	foreach($GLOBALS['moduleList'] as $candidate_module) {
 		if(!isset($modules[$candidate_module])) {
 			// TODO: Load for modules not defined in install_config
 			// is the same as for Contacts (4000)
 			$modules[$candidate_module] = 4000;
-		} 
+		}
 	}
 }
 if (isset($opts['allrelationships'])) {
-	echo "automatically generating relationships\n"; 
+	echo "automatically generating relationships\n";
 	$allrelationships = true;
 }
 if(isset($opts['l']))
@@ -237,7 +243,6 @@ if(isset($opts['u']))
 	$modules['Users'] = $opts['u'];
 }
 
-
 if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
 	require_once dirname(__FILE__) . '/../ini_setup.php';
 	set_include_path(
@@ -260,7 +265,17 @@ $_SESSION['startTime'] = microtime();
 $_SESSION['baseTime'] = time();
 $_SESSION['totalRecords'] = 0;
 
-
+//if(isset($opts['f']))
+//{
+//	$class = $beanList['SugarFavorites'];
+//	if (!isset($beanFiles[$class])) {
+//		echo "skipping Favorites\n";
+//	} else {
+//		require_once($beanFiles[$class]);
+//		$favabean = new $class();
+//		$favorites = $modules['SugarFavorites'];
+//	}
+//}
 
 foreach($modules as $records){
 	$_SESSION['totalRecords'] += $records;
@@ -328,7 +343,7 @@ foreach($module_keys as $module)
 		echo "Skipping $module\n";
 		continue;
 	}
-	
+
 	// TODO: fixing emails
 //	if ($module == 'Emails') {
 //		echo "Skipping $module\n";
@@ -356,15 +371,15 @@ foreach($module_keys as $module)
 	}
 	require_once($beanFiles[$class]);
 	$bean = new $class();
-	
+
 	// TODO: if allrelationships is true, pull from relationships
 	// table and add to $GLOBALS['tidbit_relationships']
-	if ($allrelationships && $module != 'Teams' && $module != 'Emails') { // Teams & Emails module relationships handled separately
+	if ($allrelationships && $module != 'Teams' && $module != 'Emails' && $module != 'SugarFavorites') { // Teams & Emails module relationships handled separately
 		$result = $GLOBALS['db']->query(
 		"SELECT * FROM relationships WHERE lhs_module='$module'");
 		global $tidbit_relationships;
 		while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-			if (!isset($row['join_table']) || !isset($row['join_key_lhs']) 
+			if (!isset($row['join_table']) || !isset($row['join_key_lhs'])
 				|| !isset($row['join_key_rhs'])) {
 					continue;
 			}
@@ -437,7 +452,7 @@ foreach($module_keys as $module)
 	}
 	$ibfd = new DataTool();
 	$ibfd->fields = $bean->field_defs;
-	
+
 	$ibfd->table_name = $bean->table_name;
 	$ibfd->module = $module;
 
@@ -467,6 +482,18 @@ foreach($module_keys as $module)
 		//$ibfd->generateTeamSetId();
 		$ibfd->createInserts();
 		$ibfd->generateRelationships();
+
+//		if(!empty($favorites) && $i%$favorites == 0) {
+//			$favdata = new DataTool();
+//			$favdata->fields = $favabean->field_defs;
+//
+//			$favdata->table_name = $favabean->table_name;
+//			$favdata->module = 'SugarFavorites';
+//			updateFavorites($module);
+//			$favdata->generateId();
+//			$favdata->generateData();
+//			$favdata->createInserts();
+//		}
 
 		$_SESSION['processedRecords']++;
 
@@ -502,7 +529,7 @@ foreach($module_keys as $module)
 		processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
 		/* Clear queries */
 		unset($GLOBALS['queryHead']);
-		unset($GLOBALS['queries']);
+ 		unset($GLOBALS['queries']);
 		echo microtime_diff($dbStart, microtime())."s ";
 	}
 
