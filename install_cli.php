@@ -111,8 +111,6 @@ Options
 
     -h              	Display this help text.
 
-    -f 					Generate favorites. Number is 1/20 of records.
-
     -s             	Specify the number of teams per team set and per record.
 
     --allmodules	Automatically detect all installed modules and generate data for them.
@@ -193,10 +191,6 @@ else
 		{
 			$nextData = 's';
 		}
-		elseif($arg === "-f")
-		{
-			$opts['f'] = true;
-		}
 		elseif($arg == '--allmodules') {
 			$opts['allmodules'] = true;
 		}
@@ -206,7 +200,6 @@ else
 	}
 }
 
-//var_dump($opts);
 $allrelationships = false;
 if(isset($opts['allmodules'])) {
 	echo "automatically detecting installed modules\n";
@@ -264,18 +257,6 @@ $_SESSION['modules'] = $modules;
 $_SESSION['startTime'] = microtime();
 $_SESSION['baseTime'] = time();
 $_SESSION['totalRecords'] = 0;
-
-//if(isset($opts['f']))
-//{
-//	$class = $beanList['SugarFavorites'];
-//	if (!isset($beanFiles[$class])) {
-//		echo "skipping Favorites\n";
-//	} else {
-//		require_once($beanFiles[$class]);
-//		$favabean = new $class();
-//		$favorites = $modules['SugarFavorites'];
-//	}
-//}
 
 foreach($modules as $records){
 	$_SESSION['totalRecords'] += $records;
@@ -482,18 +463,6 @@ foreach($module_keys as $module)
 		//$ibfd->generateTeamSetId();
 		$ibfd->createInserts();
 		$ibfd->generateRelationships();
-
-//		if(!empty($favorites) && $i%$favorites == 0) {
-//			$favdata = new DataTool();
-//			$favdata->fields = $favabean->field_defs;
-//
-//			$favdata->table_name = $favabean->table_name;
-//			$favdata->module = 'SugarFavorites';
-//			updateFavorites($module);
-//			$favdata->generateId();
-//			$favdata->generateData();
-//			$favdata->createInserts();
-//		}
 
 		$_SESSION['processedRecords']++;
 
