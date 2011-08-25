@@ -59,11 +59,29 @@ class DataTool{
      * value as an argument to getData.  This is done for each
      * field.
      */
-    function generateData(){
+    function generateData()
+    {
+    	/*
+    	 * Do the defined fields first so we can enforce order
+    	 */
+    	if(isset($GLOBALS['dataTool'][$this->module])) {
+	    	foreach($GLOBALS['dataTool'][$this->module] as $field => $data) {
+	    		if(!isset($this->fields[$field])) continue;
+	    		$GLOBALS['fieldData'] = $data = $this->fields[$field];
+	    		if(!empty($data['source']))continue;
+	    		$type = (!empty($data['dbType']))?$data['dbType']:$data['type'];
+	            $seed = $this->generateSeed($this->module, $field, $this->count);
+	            $value = $this->getData($field, $type, $data['type'], $seed);
+	            if(!empty($value) || $value == '0'){
+	                $this->installData[$field] = $value;
+	            }
+	    	}
+    	}
         /* For each of the fields in this record, we want to generate
          * one element of seed data for it.*/
         foreach($this->fields as $field => $data){
             if(!empty($data['source']))continue;
+            if(!empty($this->installData[$field])) continue; // don't set the data 2nd time
             $type = (!empty($data['dbType']))?$data['dbType']:$data['type'];
             $GLOBALS['fieldData'] = $data;
 
@@ -293,7 +311,7 @@ class DataTool{
         if(!empty($typeData['parent_module'])) {
         	do {
         		$module = array_rand($GLOBALS['modules']);
-        	} while($module == 'Users' || $module == 'Teams' ||  $module == 'SugarFavorites' || $module == 'EmailAddresses');
+        	} while($module == 'Users' || $module == 'Teams' ||  $module == 'SugarFavorites' || $module == 'EmailAddresses' || $module == 'SugarFeed');
         	return "'$module'";
         }
         if(!empty($typeData['parent_ref'])) {
@@ -303,6 +321,14 @@ class DataTool{
         }
         if(!empty($typeData['gibberish'])){
             return "'" . $this->generateGibberish($typeData['gibberish']) . "'";
+        }
+        if(!empty($typeData['format'])) {
+        	$values = array();
+        	foreach($typeData['params'] as $param) {
+        		$values[] = trim($this->handleType($param, $type, $field, $seed), "'");
+        	}
+        	$data = $GLOBALS['db']->quote(vsprintf($typeData['format'], $values));
+        	return "'" . $data . "'";
         }
 
         if(!empty($typeData['meeting_probability'])){
@@ -769,9 +795,6 @@ class DataTool{
     	 */
         return  2*($this->str_sum($this->module . $field) + $this->count + $_SESSION['baseTime']);
     }
-
-
-
 
     function str_sum($str){
     	$sum = 0;

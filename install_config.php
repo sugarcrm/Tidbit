@@ -55,6 +55,7 @@ $modules = array(
     'Notes' => 4000,
 	'Documents'=>1000,
 	'SugarFavorites'=>1000,
+	'SugarFeed'=>100,
 );
 
 $tidbit_relationships['Users'] = array(
