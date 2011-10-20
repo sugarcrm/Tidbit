@@ -48,14 +48,14 @@ chdir('..');
 require_once 'config.php';
 require_once('include/utils.php');
 require_once('include/modules.php');
-require_once('include/database/PearDatabase.php');
+require_once('include/database/DBManagerFactory.php');
 require_once('include/SugarTheme/SugarTheme.php');
 require_once('include/utils/sugar_file_utils.php');
 
 class FakeLogger { public function __call($m, $a) { } }
 $GLOBALS['log'] = new FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
-$GLOBALS['db'] = PearDatabase::getInstance();
+$GLOBALS['db'] = DBManagerFactory::getInstance();
 
 require_once 'include/TimeDate.php';
 require_once 'Tidbit/Registry.php';

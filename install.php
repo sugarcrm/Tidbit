@@ -245,7 +245,7 @@ EOS;
     $GLOBALS['queries'] = array();
     $GLOBALS['relatedQueriesCount'] = 0;
     
-    require_once('include/database/PearDatabase.php');
+    require_once('include/database/DBManagerFactory.php');
     require_once('log4php/LoggerManager.php');
     require_once('Tidbit/Data/DefaultData.php');
     require_once('Tidbit/DataTool.php');
@@ -254,7 +254,7 @@ EOS;
     
     $app_list_strings = return_app_list_strings_language('en_us');
     $GLOBALS['log']= LoggerManager::getLogger('Tidbit');
-    $GLOBALS['db'] = PearDatabase::getInstance();
+    $GLOBALS['db'] = DBManagerFactory::getInstance();
     startTransaction();
 
     $class = $beanList[$module];
