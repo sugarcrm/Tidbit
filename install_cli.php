@@ -298,7 +298,7 @@ if(isset($_SESSION['debug']))
 class FakeLogger { public function __call($m, $a) { } }
 $GLOBALS['log']= new FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
-$GLOBALS['db'] = DBManagerFactory::getInstance();
+$GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
 startTransaction();
 
 //When creating module_keys variable, ensure that Teams is the first element in the Array
