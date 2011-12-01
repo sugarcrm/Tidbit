@@ -121,16 +121,18 @@ function generate_team_set($primary, $teams) {
 * associated with the team_set_id.
 */
 function add_team_to_team_set($team_set_id, $user_id){
-    if(!isset($GLOBALS['user_team_checked'][$user_id][$team_set_id])){
-        $result = $GLOBALS['db']->query("SELECT default_team FROM users WHERE id=$user_id");
-        while($row = $GLOBALS['db']->fetchByAssoc($result)){
-            $teamset = new TeamSet();
-            $teams = $teamset->getTeamIds($team_set_id);
-            $teams[] = $row['default_team'];
-            $team_set_id = $teamset->addTeams($teams);
-            $GLOBALS['user_team_checked'][$user_id][$team_set_id] = true;
-        }
-    }
+//    DMK 2011/12/01 - this function is disabled to allow faster larger data load
+
+//    if(!isset($GLOBALS['user_team_checked'][$user_id][$team_set_id])){
+//        $result = $GLOBALS['db']->query("SELECT default_team FROM users WHERE id=$user_id");
+//        while($row = $GLOBALS['db']->fetchByAssoc($result)){
+//            $teamset = new TeamSet();
+//            $teams = $teamset->getTeamIds($team_set_id);
+//            $teams[] = $row['default_team'];
+//            $team_set_id = $teamset->addTeams($teams);
+//            $GLOBALS['user_team_checked'][$user_id][$team_set_id] = true;
+//        }
+//    }
     return $team_set_id;
 }    
 ?>
