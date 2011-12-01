@@ -35,10 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Calls']['contact_id'] = array('related'=>array('module' => 'Contacts'));
-$GLOBALS['dataTool']['Calls']['parent_id'] = array('related'=>array('module' => 'Accounts'));
-$GLOBALS['dataTool']['Calls']['parent_type'] = array('value'=>"'Accounts'");
-$GLOBALS['dataTool']['Calls']['duration_minutes'] = array('value'=>"'30'");
-/* We want calls to be in the past 90% of the time. */
-$GLOBALS['dataTool']['Calls']['date'] = array('range'=>  array('min'=> -400, 'max'=>36), 'type'=>'date', 'basetime'=>time());
-$GLOBALS['dataTool']['Calls']['status'] = array('meeting_probability'=>true);
+$GLOBALS['dataTool']['SugarFeed']['related_module'] = array('parent_module' => true);
+$GLOBALS['dataTool']['SugarFeed']['related_id'] = array('parent_ref' => "related_module");
+$GLOBALS['dataTool']['SugarFeed']['name'] = array('format' => '<b>{this.CREATED_BY}</b> {SugarFeed.CREATED_CONTACT} [%1$s:%2$s:Seed %2$s]',
+	"params" => array(
+		array('same' => 'related_module'),
+		array('same' => 'related_id'),
+	)
+);
+$GLOBALS['dataTool']['SugarFeed']['description'] = array('gibberish' => "true");
