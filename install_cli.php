@@ -111,6 +111,8 @@ Options
     
     -h              	Display this help text.
 
+    -x                  enable batch commits
+
     -s             	Specify the number of teams per team set and per record.
     
     --allmodules	Automatically detect all installed modules and generate data for them.
@@ -126,7 +128,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:ecothvd', array('allmodules', 'allrelationships'));
+	$opts = getopt('l:u:s:ecothvdx', array('allmodules', 'allrelationships'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -178,6 +180,10 @@ else
 		elseif($arg === '-c')
 		{
 			$opts['c'] = true;
+		}
+		elseif($arg === '-x')
+		{
+			$opts['x'] = true;
 		}
 		elseif($arg === '-t')
 		{
@@ -281,6 +287,10 @@ if(isset($opts['t']))
 {
 	$_SESSION['turbo'] = true;
 }
+if(isset($opts['x']))
+{
+	$_SESSION['transaction'] = true;
+}
 if(isset($opts['d']))
 {
 	$_SESSION['debug'] = true;
@@ -316,6 +326,7 @@ foreach($module_keys as $module)
 }
 echo "With Clean Mode ".(isset($_SESSION['clean'])?"ON":"OFF")."\n";
 echo "With Turbo Mode ".(isset($_SESSION['turbo'])?"ON":"OFF")."\n";
+echo "With Transaction Batch Mode ".(isset($_SESSION['transaction'])?"ON":"OFF")."\n";
 echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
 $obliterated = array();
@@ -491,7 +502,12 @@ foreach($module_keys as $module)
 			unset($GLOBALS['queries']);
 		}
 
-		if($i%1000 == 0)echo '*';
+		if($i%1000 == 0) {
+            echo '*';
+            if (isset($_SESSION['transaction'])) {
+                $GLOBALS['db']->commit();
+            }
+        }
 
 	} //for
 
