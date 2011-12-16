@@ -63,7 +63,7 @@ if(!isset($argc))
 	header("Location: install.php");
 }
 
-$usageStr = "Usage: ".$_SERVER['PHP_SELF']." [-l loadFactor] [-u userCount] [-e] [-c] [-t] [-h] [-v]\n";
+$usageStr = "Usage: ".$_SERVER['PHP_SELF']." [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
@@ -111,7 +111,7 @@ Options
     
     -h              	Display this help text.
 
-    -x                  enable batch commits
+    -x count            How often to commit module records - important on DBs like DB2. Default is no batches.
 
     -s             	Specify the number of teams per team set and per record.
     
@@ -128,7 +128,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:ecothvdx', array('allmodules', 'allrelationships'));
+	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -183,7 +183,7 @@ else
 		}
 		elseif($arg === '-x')
 		{
-			$opts['x'] = true;
+			$nextData = 'x';
 		}
 		elseif($arg === '-t')
 		{
@@ -243,6 +243,15 @@ if(isset($opts['u']))
 	$modules['Users'] = $opts['u'];
 }
 
+if(isset($opts['x']))
+{
+	if(!is_numeric($opts['x']) || $opts['x'] < 1)
+	{
+		die($usageStr);
+	}
+    $_SESSION['txBatchSize'] = $opts['x'];
+
+}
 
 if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
 	require_once dirname(__FILE__) . '/../ini_setup.php';
@@ -287,10 +296,6 @@ if(isset($opts['t']))
 {
 	$_SESSION['turbo'] = true;
 }
-if(isset($opts['x']))
-{
-	$_SESSION['transaction'] = true;
-}
 if(isset($opts['d']))
 {
 	$_SESSION['debug'] = true;
@@ -326,7 +331,7 @@ foreach($module_keys as $module)
 }
 echo "With Clean Mode ".(isset($_SESSION['clean'])?"ON":"OFF")."\n";
 echo "With Turbo Mode ".(isset($_SESSION['turbo'])?"ON":"OFF")."\n";
-echo "With Transaction Batch Mode ".(isset($_SESSION['transaction'])?"ON":"OFF")."\n";
+echo "With Transaction Batch Mode ".(isset($_SESSION['txBatchSize'])?$_SESSION['txBatchSize']:"OFF"). "\n";
 echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
 $obliterated = array();
@@ -502,12 +507,12 @@ foreach($module_keys as $module)
 			unset($GLOBALS['queries']);
 		}
 
-		if($i%1000 == 0) {
-            echo '*';
-            if (isset($_SESSION['transaction'])) {
-                $GLOBALS['db']->commit();
-            }
+        if (isset($_SESSION['txBatchSize']) && $i%$_SESSION['txBatchSize'] == 0) {
+            $GLOBALS['db']->commit();
+            echo "#";
         }
+
+		if($i%1000 == 0) echo '*';
 
 	} //for
 
