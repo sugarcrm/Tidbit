@@ -522,9 +522,21 @@ foreach($module_keys as $module)
 		echo microtime_diff($dbStart, microtime())."s ";
 	}
 
-	if ($module == 'Users') {
-		loggedQuery(file_get_contents(dirname(__FILE__) . '/sql/update-user-preferences.sql'));
-	}
+//	if ($module == 'Users') {
+//		loggedQuery(file_get_contents(dirname(__FILE__) . '/sql/update-user-preferences.sql'));
+//	}
+
+    if ($module == 'Users') {
+        $content = 'YTo0OntzOjg6InRpbWV6b25lIjtzOjE1OiJBbWVyaWNhL1Bob2VuaXgiO3M6MjoidXQiO2k6MTtzOjI0OiJIb21lX1RFQU1OT1RJQ0VfT1JERVJfQlkiO3M6MTA6ImRhdGVfc3RhcnQiO3M6MTI6InVzZXJQcml2R3VpZCI7czozNjoiYTQ4MzYyMTEtZWU4OS0wNzE0LWE0YTItNDY2OTg3YzI4NGY0Ijt9';
+        $result = $GLOBALS['db']->query("SELECT id from users where id LIKE 'seed-Users%'");
+        while($row = $GLOBALS['db']->fetchByAssoc($result)){
+            $hashed_id = md5($row['id']);
+
+            $curdt = $datetime = date('Y-m-d H:i:s') ;
+            $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row[id] . "', '" . $content . "')";
+            loggedQuery($stmt);
+        }
+    }
 
 	if ($module == 'Teams') {
 		require_once('modules/Teams/TeamSet.php');

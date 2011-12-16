@@ -210,6 +210,15 @@ class DataTool{
             $ninc ++;
             return "'".$typeData['incname'].$ninc."'";
         }
+
+        if(!empty($typeData['autoincrement'])){
+            if($GLOBALS['sugar_config']['dbconfig']['db_type'] == 'oci8'
+               || $GLOBALS['sugar_config']['dbconfig']['db_type'] == 'ibm_db2'){
+                return strtoupper($this->table_name. '_' . $field . '_seq') . '.nextval';
+            }else{
+                return '';
+            }
+        }
         if(!empty($typeData['autoincrement'])){
             if($GLOBALS['sugar_config']['dbconfig']['db_type'] != 'oci8'){
                 return '';
