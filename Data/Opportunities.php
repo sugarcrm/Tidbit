@@ -38,3 +38,5 @@
 $GLOBALS['dataTool']['Opportunities']['amount'] = array('range'=>array('min'=>500, 'max'=>1000000));
 $GLOBALS['dataTool']['Opportunities']['amount_usdollar'] = array('range'=>array('min'=>500, 'max'=>1000000));
 $GLOBALS['dataTool']['Opportunities']['account_id'] = array('related'=>array('module'=>'Accounts'));
+$GLOBALS['dataTool']['Opportunities']['probability'] = array('range'=>array('min'=>0, 'max'=>100));  // this is added to deal with IBM SFA customization redefining some type
+

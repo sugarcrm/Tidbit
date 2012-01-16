@@ -190,7 +190,7 @@ class DataTool{
             return $this->installData['team_set_id'] = $keys[$index];
         }        
         
-        if(!empty($typeData['value']) || $typeData['value']=="0"){
+        if(!empty($typeData['value']) || (isset($typeData['value']) && $typeData['value']=="0")){
             return $typeData['value'];
         }
         if(!empty($typeData['increment'])){
