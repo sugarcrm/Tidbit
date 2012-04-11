@@ -37,8 +37,15 @@
 
 $GLOBALS['dataTool']['Users']['modified_user_id'] = array('same' => 'id');
 $GLOBALS['dataTool']['Users']['status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['is_admin'] = array('value' => "0");
+$GLOBALS['dataTool']['Users']['employee_status'] = array('value' => "'Active'");
 $GLOBALS['dataTool']['Users']['system_generated_password'] = array('value' => "0");
+$GLOBALS['dataTool']['Users']['pwd_last_changed'] = array('skip' => true);
+$GLOBALS['dataTool']['Users']['authenticate_id'] = array('skip' => true);
+$GLOBALS['dataTool']['Users']['sugar_login'] = array('value' => '1');
+$GLOBALS['dataTool']['Users']['picture'] = array('skip' => true);
+$GLOBALS['dataTool']['Users']['is_admin'] = array('value' => "0");
+$GLOBALS['dataTool']['Users']['external_auth_only'] = array('value' => "0");
+$GLOBALS['dataTool']['Users']['receive_notifications'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module'=>'Teams'));
 $GLOBALS['dataTool']['Users']['user_name'] = array('incname' => 'user');
 $GLOBALS['dataTool']['Users']['user_hash'] = array('same_hash' => 'user_name');
