@@ -208,7 +208,7 @@ class DataTool{
         if(!empty($typeData['incname'])){
             static $ninc = 0;
             $ninc ++;
-            return "'".$typeData['incname'].$ninc."'";
+            return "'".@trim($typeData['incname'].$ninc)."'";
         }
 
         if(!empty($typeData['autoincrement'])){
@@ -268,14 +268,14 @@ class DataTool{
             if (!empty($typeData['toUpper'])) {
             	$rtn = strtoupper($rtn);
             }
-            return $rtn;
+            return @trim($rtn);
         }
         if(!empty($typeData['same_ref'])){
             /* We aren't going to consider literal values,
              * because you can just use 'same' for that.
              */ 
             //echo "SR: ";
-            return $this->accessRemoteField($typeData['same_ref']['module'], $typeData['same_ref']['field']);
+            return @trim($this->accessRemoteField($typeData['same_ref']['module'], $typeData['same_ref']['field']));
         }
         if(!empty($typeData['same_hash'])){
             if(is_string($typeData['same_hash']) && !empty($this->fields[$typeData['same_hash']])){
@@ -300,7 +300,7 @@ class DataTool{
             return "'".'seed-'.$typeData['related']['module'].$_SESSION['baseTime'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
         }
         if(!empty($typeData['gibberish'])){
-            return "'" . $this->generateGibberish($typeData['gibberish']) . "'";
+            return "'" . @trim($this->generateGibberish($typeData['gibberish'])) . "'";
         }
         
         if(!empty($typeData['meeting_probability'])){
@@ -339,7 +339,7 @@ class DataTool{
                     }
                 }
             }
-            return "'" . $keys[$selected]. "'";
+            return "'" . @trim($keys[$selected]) . "'";
         }
         
         $isQuote = true;
@@ -389,7 +389,7 @@ class DataTool{
                 $keys = array_keys($options);
                 
                 $selected = mt_rand(0, count($keys) - 1);
-                return "'" . $keys[$selected]. "'";
+                return "'" . @trim($keys[$selected]). "'";
                 
             }
         }
@@ -419,7 +419,7 @@ class DataTool{
           $baseValue =  substr($baseValue, 0, $GLOBALS['fieldData']['len']);
        }
         if($isQuote || !empty($typeData['isQuoted']) ){
-            $baseValue = "'".$baseValue . "'";
+            $baseValue = "'".@trim($baseValue) . "'";
         }
        
          $baseValue = db_convert($baseValue, $type);
