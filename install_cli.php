@@ -408,7 +408,7 @@ foreach($module_keys as $module)
 		/* Make sure not to delete the admin! */
 		if($module == 'Users') {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1'");
-			$GLOBALS['db']->query("DELETE FROM user_preferences WHERE 1=1");
+			$GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id != '1'");
 		} else if($module == 'Teams') {
 			$GLOBALS['db']->query("DELETE FROM teams WHERE id != '1'");
 			$GLOBALS['db']->query("DELETE FROM team_sets");
@@ -538,7 +538,7 @@ foreach($module_keys as $module)
             $hashed_id = md5($row['id']);
 
             $curdt = $datetime = date('Y-m-d H:i:s') ;
-            $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row[id] . "', '" . $content . "')";
+            $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
         }
     }
