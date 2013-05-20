@@ -47,8 +47,6 @@ set_time_limit(0);
 $recordsPerPage = 1000;
 $relQueryCount = 0;
 
-require_once('install_config.php');
-
 // TODO: This loads additional definitions into beanList and beanFiles for
 // custom modules
 if(file_exists('custom/application/Ext/Include/modules.ext.php')) {
@@ -73,7 +71,7 @@ $usageStr
 Options
     -l loadFactor   	The number of Accounts to create.  The ratio between
                     	Accounts and the other modules is fixed in
-                    	install_config.php, so the loadFactor determines the number
+                    	config.php, so the loadFactor determines the number
                     	of each type of module to create.
                     	If not specified, defaults to 1000.
 
@@ -212,7 +210,7 @@ if(isset($opts['allmodules'])) {
 	echo "automatically detecting installed modules\n";
 	foreach($GLOBALS['moduleList'] as $candidate_module) {
 		if(!isset($modules[$candidate_module])) {
-			// TODO: Load for modules not defined in install_config
+			// TODO: Load for modules not defined in config.php
 			// is the same as for Contacts (4000)
 			$modules[$candidate_module] = 4000;
 		}
