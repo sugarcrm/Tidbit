@@ -1,6 +1,6 @@
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2014 SugarCRM Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,7 +35,7 @@
 
 Tidbit v2.0
 ===========
-Tidbit is random data generator for SugarCRM versions 5.5 through 6.0.  By optimizing
+Tidbit is random data generator for SugarCRM versions 5.5 through 6.5.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
 
