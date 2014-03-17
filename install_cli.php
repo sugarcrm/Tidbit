@@ -538,7 +538,7 @@ foreach($module_keys as $module)
             $hashed_id = md5($row['id']);
 
             $curdt = $datetime = date('Y-m-d H:i:s') ;
-            $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row[id] . "', '" . $content . "')";
+            $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
         }
     }
