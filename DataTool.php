@@ -416,7 +416,11 @@ class DataTool{
             
         }
        if(!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)){
-          $baseValue =  substr($baseValue, 0, $GLOBALS['fieldData']['len']);
+            $baseLength = (string)$GLOBALS['fieldData']['len'];
+            // Like a pirate!!!
+            $arr = explode(",", $baseLength, 2);
+            $baseLength = $arr[0];
+            $baseValue =  substr($baseValue, 0, $baseLength);
        }
         if($isQuote || !empty($typeData['isQuoted']) ){
             $baseValue = "'".@trim($baseValue) . "'";
