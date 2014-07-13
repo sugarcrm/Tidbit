@@ -3,31 +3,31 @@
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
  * Free Software Foundation with the addition of the following permission added
  * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
  * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
  * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with
  * this program; if not, see http://www.gnu.org/licenses or write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- * 
+ *
  * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
  * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
- * 
+ *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
  * Section 5 of the GNU Affero General Public License version 3.
- * 
+ *
  * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
  * these Appropriate Legal Notices must retain the display of the "Powered by
  * SugarCRM" logo. If the display of the logo is not reasonably feasible for
@@ -37,12 +37,10 @@
 
 if(!defined('sugarEntry'))define('sugarEntry', true);
 
-chdir('..');
-
 $recordsPerPage = 1000;
 $relQueryCount = 0;
 
-require_once('install_config.php');
+require_once('config.php');
 
 
 if(!isset($_REQUEST['factor'])){
@@ -87,7 +85,7 @@ echo "</style>\n";
 
 if(empty($_REQUEST['page'])){
     session_destroy();
-    
+
     $totalRecordEstimate = array_sum($modules) - $modules['Users'] - $modules['Teams'];
     foreach($tidbit_relationships as $m => $rs){
         foreach($rs as $rm => $r){
@@ -95,7 +93,7 @@ if(empty($_REQUEST['page'])){
             $totalRecordEstimate += $recCount;
         }
     }
-    
+
     echo <<<EOS
     <script type='text/javascript'>
         var t=true;
@@ -114,7 +112,7 @@ if(empty($_REQUEST['page'])){
         };
     </script>
 EOS;
-    
+
     echo "<script type='text/javascript'>var lf = {$modules['Accounts']};\n";
     echo "var updateStats = function(value){lf = value; document.getElementById(\"stats\").innerHTML = ";
     echo "\"This script will install records for ";
@@ -136,11 +134,11 @@ EOS;
     echo "document.getElementById(\"teams\").innerHTML = users*".($modules['Teams']/$modules['Users']).";";
     echo "updateTotal();};";
     echo "</script>\n";
-    
+
     echo "<form name='dataTool'><input type='hidden' name='page' value='1'><input type='hidden' name='offset' value='0'>";
-    
+
     echo "<table><tr><th colspan='2'><input name='factor' value='custom' type='checkbox' onclick='toggle()' id='r2' /><label for='r2'>Use Custom Ratios</label></th><th>&nbsp;</th></tr>";
-    
+
     echo "<tr><td style='vertical-align:top;'><div id='stdLoad'>";
     echo "<table><tr><td>Users</td><td><input name='UsersLF' value='{$modules['Users']}' onkeyup='updateUsers(this.value);' onblur='updateUsers(this.value);'></td></tr>";
     echo "<tr><td><label for='eu1'>Use Existing Users</label></td><td><input type='checkbox' name='UseExistUsers' id='eu1' /></td></tr>";
@@ -164,9 +162,9 @@ EOS;
     foreach($modules as $m=>$n){
         echo "<tr><td>$m</td><td><input name='$m' value='$n'></td></tr>";
     }
-    
+
     echo "</table></div></td>\n<td style='vertical-align:top;'><table>";
-    
+
     echo "<tr><td><label for='cb1'><b>Turbo Mode</b></label></td><td><input name='turbo' value='1' type='checkbox' id='cb1'></td></tr>";
     echo "<tr><td colspan='2'><p style='font-size:small;font-style:italic;width:18em;'>In <b>turbo mode</b>, groups of 1000 duplicates will be inserted.  ";
     echo "This allows you to quickly generate a large volume of data.<br /><br /></p></td></tr>";
@@ -181,9 +179,9 @@ EOS;
     echo "<tr><td colspan='2'><p style='font-size:small;font-style:italic;width:18em;'>With <b>debug mode</b> on, all insertion and transactional queries ";
     echo "will be logged to the file <b>executedQueries.txt</b> in the Tidbit directory. <br /><br /></p></td></tr>";
 
-    
+
     echo "</table></td></tr>";
-    
+
     echo "</table><input type='submit' value='Install'></form>";
 }else{
     require_once('include/utils.php');
@@ -210,7 +208,7 @@ EOS;
 
 
     require_once('include/utils/progress_bar_utils.php');
-    
+
     /* Start output buffering so progress bar utils doesn't blow up in php 4.3.0/4.3.1 */
     ob_start();
 
@@ -223,7 +221,7 @@ EOS;
         die('Done <a href="install.php">[More]</a>');
     }
     $module = $module_keys[$page - 1];
-    
+
     if((($module == 'Users') || ($module == 'Teams')) && $_SESSION['UseExistUsers']){
         /* If UseExistUsers is set, just move to the next module */
         $page++;
@@ -235,23 +233,23 @@ EOS;
     echo $module . ' [' . $offset . '-' . $max . ' of ' . $total . ']';
     display_progress_bar('module_progress', $offset ,$total);
 
-    
+
     set_time_limit(3600);
-    
+
     require_once('config.php');
     require_once('include/modules.php');
-    
+
     $GLOBALS['relatedQueries'] = array();
     $GLOBALS['queries'] = array();
     $GLOBALS['relatedQueriesCount'] = 0;
-    
+
     require_once('include/database/DBManagerFactory.php');
     require_once('log4php/LoggerManager.php');
     require_once('Tidbit/Data/DefaultData.php');
     require_once('Tidbit/DataTool.php');
     require_once('Tidbit/install_functions.php');
     require_once('Tidbit/Data/contactSeedData.php');
-    
+
     $app_list_strings = return_app_list_strings_language('en_us');
     $GLOBALS['log']= LoggerManager::getLogger('Tidbit');
     $GLOBALS['db'] = DBManagerFactory::getInstance();
@@ -260,7 +258,7 @@ EOS;
     $class = $beanList[$module];
     require_once($beanFiles[$class]);
     $bean = new $class();
-    
+
     if($_SESSION['obliterate'] && $offset == 0){
         print('OBLITERATING ALL DATA ... SWEEP SWEEP SWEEP...');
         /* Make sure not to delete the admin! */
@@ -291,7 +289,7 @@ EOS;
     if(file_exists('Tidbit/Data/' . $bean->module_dir . '.php')){
         require_once('Tidbit/Data/' . $bean->module_dir . '.php');
     }
-    
+
     // Only open the relationships cache for the tables this module works with?
 //    if(file_exists('relationships.txt')){
 //        //echo file_get_contents('relationships.txt');
@@ -307,7 +305,7 @@ EOS;
     $ibfd->fields = $bean->field_defs;
     $ibfd->table_name = $bean->table_name;
     $ibfd->module = $module;
-    
+
     for($i = $offset; $i < $total && $i < $offset + $recordsPerPage ; $i++){
         $ibfd->count = $i;
         /* Don't turbo Users or Teams */
@@ -319,14 +317,14 @@ EOS;
         $ibfd->generateId();
         $ibfd->createInserts();
         $ibfd->generateRelationships();
-        
+
         $_SESSION['processedRecords']++;
-        
+
         if($i%10 == 0){
-            update_progress_bar('modules_progress', $_SESSION['processedRecords'], $_SESSION['totalRecords']);   
+            update_progress_bar('modules_progress', $_SESSION['processedRecords'], $_SESSION['totalRecords']);
             update_progress_bar('module_progress', $i , $total);
         }
-        
+
         //flush the relatedQueries every 2000, and at the end of each page.
         if(($relQueryCount >= 2000) || ($i == $total-1) || ($i == $offset + $recordsPerPage - 1)){
             echo '.';
@@ -339,21 +337,21 @@ EOS;
             $relQueryCount = 0;
         }
     }
-    
+
     /* Use our query wrapper that makes things fast. */
     processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
-   
+
     /* Clear queries */
     unset($GLOBALS['queryHead']);
     unset($GLOBALS['queries']);
-  
+
     endTransaction();
-    
+
     if(!empty($GLOBALS['queryFP']))
     {
         fclose($GLOBALS['queryFP']);
     }
-    
+
 //    if(($relTable) && !empty($relTable)){
 //        fwrite($rfp, var_export($relTable, true));
 //        fclose($rfp);
@@ -362,7 +360,7 @@ EOS;
 //    	fclose($rfp);
 //        unlink('relationships.txt');
 //    }
-    
+
     /* Send browser to the next page */
     if($i < $total){
         echo "<script>document.location.href='install.php?page=$page&offset=$i';</script>";

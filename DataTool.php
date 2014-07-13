@@ -3,31 +3,31 @@
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
  * Free Software Foundation with the addition of the following permission added
  * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
  * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
  * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with
  * this program; if not, see http://www.gnu.org/licenses or write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- * 
+ *
  * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
  * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
- * 
+ *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
  * Section 5 of the GNU Affero General Public License version 3.
- * 
+ *
  * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
  * these Appropriate Legal Notices must retain the display of the "Powered by
  * SugarCRM" logo. If the display of the logo is not reasonably feasible for
@@ -38,7 +38,7 @@
 require_once('include/utils/db_utils.php');
 /**
  * DataTool randomly generates data to be inserted into the Sugar application
- * A DataTool object corresponds to a Sugar module.  
+ * A DataTool object corresponds to a Sugar module.
  * install_cli.php creates a DataTool object for each Sugar module and
  * initializes its fields based on values from that Sugar module.
  *
@@ -52,7 +52,7 @@ class DataTool{
     var $count = 0;
     static $team_sets_array = array();
     static $relmodule_index = 0;
-    
+
     /**
      * Generate data and store it in the installData array.
      * This function calls generateSeed and passes the return
@@ -60,13 +60,13 @@ class DataTool{
      * field.
      */
     function generateData(){
-        /* For each of the fields in this record, we want to generate 
+        /* For each of the fields in this record, we want to generate
          * one element of seed data for it.*/
         foreach($this->fields as $field => $data){
             if(!empty($data['source']))continue;
             $type = (!empty($data['dbType']))?$data['dbType']:$data['type'];
             $GLOBALS['fieldData'] = $data;
-            
+
             /* There are 3 unique parts to the seed: the Module name,
              * the count of the record, and the name of the field.
              * Using these 3 things should keep our seed unique enough.
@@ -77,13 +77,13 @@ class DataTool{
                 $this->installData[$field] = $value;
             }
         }
-        
+
         /* These fields are filled in once per record. */
         if (!empty($this->fields['deleted'])) {
-        	$this->installData['deleted'] = 0;	
+        	$this->installData['deleted'] = 0;
         }
         if (!empty($this->fields['date_modified'])) {
-        	$this->installData['date_modified'] = db_convert("'".date('Y-m-d H:i:s'). "'", 'datetime');	
+        	$this->installData['date_modified'] = db_convert("'".date('Y-m-d H:i:s'). "'", 'datetime');
         }
         if(!empty($this->fields['date_entered'])) {
         	$this->installData['date_entered'] = $this->installData['date_modified'];
@@ -92,7 +92,7 @@ class DataTool{
            $this->installData['assigned_user_id'] = 1;
         }
         if (!empty($this->fields['modified_user_id'])) {
-        	$this->installData['modified_user_id'] = 1;	
+        	$this->installData['modified_user_id'] = 1;
         }
     	if(!empty($this->fields['team_id'])){
     		$teams = self::$team_sets_array[$this->installData['team_set_id']];
@@ -104,13 +104,13 @@ class DataTool{
             if(isset($this->installData['assigned_user_id'])){
                  $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
             }
-            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";  
-        } 
+            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";
+        }
     }
-    
+
     /**
      * Generate a unique ID based on the module name, system time, and count (defined
-     * in install_config.php for each module), and save the ID in the installData array.
+     * in config.php for each module), and save the ID in the installData array.
      */
     function generateId(){
         if(($this->module == 'Users') || ($this->module == 'Teams')){
@@ -121,18 +121,18 @@ class DataTool{
         if(strlen($this->installData['id']) > 36){
         	$this->installData['id'] = '\'seed-' . substr(md5($this->installData['id']), 0, -1).  "'";
         }
-    }    
+    }
 
     function clean(){
         $this->installData = array();
         $this->count = 0;
     }
-    
-    
+
+
     /**
      * Dispatch to the handleType function based on what values are present in the
-     * global $dataTool array.  This array is populated by the .php files in the 
-     * TidBit/Data directory.     
+     * global $dataTool array.  This array is populated by the .php files in the
+     * TidBit/Data directory.
      * @param $fieldName - name of the field for which data is being generated
      * @param $fieldType - The DB type of the field, if it differs from the Sugar type
      * @param $sugarType - Always the Sugar type of the field
@@ -168,28 +168,28 @@ class DataTool{
     }
 
 	/**
-	 * Returns a randomly generated piece of data for the current module and field.  
+	 * Returns a randomly generated piece of data for the current module and field.
 	 * @param $typeData - An array from a .php file in the Tidbit/Data directory
 	 * @param $type - The type of the current field
 	 * @param $field - The name of the current field
 	 * @param $seed - Number to be used as the seed for mt_srand()
 	 */
     function handleType($typeData, $type, $field, $seed){
-        /* We want all data to be predictable.  $seed should be charactaristic of 
+        /* We want all data to be predictable.  $seed should be charactaristic of
          * this entity or the remote entity we want to simulate
          */
         mt_srand($seed);
-        
+
 //        echo "HT: $typeData, $type, $field, $seed\n";
         if(!empty($typeData['skip']))return '';
-        
-        
+
+
         if(!empty($typeData['teamset'])) {
         	$index = rand(0, count(self::$team_sets_array)-1);
         	$keys = array_keys(self::$team_sets_array);
             return $this->installData['team_set_id'] = $keys[$index];
-        }        
-        
+        }
+
         if(!empty($typeData['value']) || (isset($typeData['value']) && $typeData['value']=="0")){
             return $typeData['value'];
         }
@@ -273,7 +273,7 @@ class DataTool{
         if(!empty($typeData['same_ref'])){
             /* We aren't going to consider literal values,
              * because you can just use 'same' for that.
-             */ 
+             */
             //echo "SR: ";
             return @trim($this->accessRemoteField($typeData['same_ref']['module'], $typeData['same_ref']['field']));
         }
@@ -302,7 +302,7 @@ class DataTool{
         if(!empty($typeData['gibberish'])){
             return "'" . @trim($this->generateGibberish($typeData['gibberish'])) . "'";
         }
-        
+
         if(!empty($typeData['meeting_probability'])){
             /* If this is for meetings, and it's in the past,
              * we need to adjust the probability.
@@ -316,7 +316,7 @@ class DataTool{
                  * computes it if it has not been computed.
                  */
                 $startDate = $this->accessLocalField('date_start');
-                
+
                 $stamp = strtotime(substr($startDate, 1, strlen($startDate)-2));
                 if($stamp >= mktime()){
                     $rn = mt_rand(0, 9);
@@ -341,14 +341,14 @@ class DataTool{
             }
             return "'" . @trim($keys[$selected]) . "'";
         }
-        
+
         $isQuote = true;
         //we have a range then it should either be a number or a date
         $baseValue = '';
         if(!empty($typeData['range'])){
-            
+
             $baseValue = mt_rand($typeData['range']['min'], $typeData['range']['max']);
-            
+
             if(!empty($typeData['multiply'])){
                 $baseValue *= $typeData['multiply'];
             }
@@ -364,7 +364,7 @@ class DataTool{
                     case 'datetime': $baseValue = date('Y-m-d H:i:s', $basetime); break;
                     case 'time': $baseValue = date('H:i:s', $basetime); break;
                 }
-                
+
             }else{
                 $isQuote = false;
             }
@@ -372,25 +372,25 @@ class DataTool{
             $selected = mt_rand(0, count($GLOBALS[$typeData['list']]) - 1);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
-        
+
 
         if(!empty($typeData['suffixlist'])){
             foreach($typeData['suffixlist'] as $suffixlist){
-               
+
                 if(!empty($GLOBALS[$suffixlist])){
                  $selected = mt_rand(0, count($GLOBALS[$suffixlist]) - 1);
                  $baseValue .= ' ' .$GLOBALS[$suffixlist][$selected];
                 }
             }
         }else if($type == 'enum'){
-            
+
             if(!empty($GLOBALS['fieldData']['options']) && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])){
                 $options = $GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']];
                 $keys = array_keys($options);
-                
+
                 $selected = mt_rand(0, count($keys) - 1);
                 return "'" . @trim($keys[$selected]). "'";
-                
+
             }
         }
      	// This is used to associate email addresses with rows in
@@ -407,13 +407,13 @@ class DataTool{
                 }
             }
         }
-       
+
         if(!empty($typeData['suffix'])){
             $baseValue .= $typeData['suffix'];
         }
         if(!empty($typeData['prefix'])){
             $baseValue = $typeData['prefix'] . $baseValue;
-            
+
         }
        if(!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)){
             $baseLength = (string)$GLOBALS['fieldData']['len'];
@@ -425,13 +425,13 @@ class DataTool{
         if($isQuote || !empty($typeData['isQuoted']) ){
             $baseValue = "'".@trim($baseValue) . "'";
         }
-       
+
          $baseValue = db_convert($baseValue, $type);
-        
-        
+
+
         return $baseValue;
     }
-    
+
     /**
      * Returns the value of this module's field called $fieldname.
      * If a value has already been generated, it uses that one, otherwise
@@ -467,10 +467,10 @@ class DataTool{
             return $fieldName;
         }
     }
-    
-    
+
+
     /**
-     * Returns the value of $module's field called $fieldName. 
+     * Returns the value of $module's field called $fieldName.
      * Calls accessLocalField($fieldName) on a separate DataTool object
      * for the remote module.
      * @param $module - Name of remote module to access.
@@ -496,10 +496,10 @@ class DataTool{
          * 3. Identify related count - ?
          * 4. call getData on the one field we want.
          */
-        
+
         /* Should one accidentally refer to itsself, just call local */
         if($module == $this->module) return $this->accessLocalField($fieldName);
-        
+
         /* Check if a cached dataTool object exists. */
         if(!empty($GLOBALS['foreignDataTools']) && !empty($GLOBALS['foreignDataTools'][$module])){
         	$rbfd = $GLOBALS['foreignDataTools'][$module];
@@ -522,9 +522,9 @@ class DataTool{
         $rbfd->count = $this->getRelatedUpId($module);
         return $rbfd->accessLocalField($fieldName);
     }
-    
-    
-    
+
+
+
     /**
      * Generate a 'related' id for use
      * by handleType:'related' and 'generateRelationships'
@@ -533,9 +533,9 @@ class DataTool{
         if(empty($GLOBALS['counters'][$this->module.$relModule])){
         	$GLOBALS['counters'][$this->module.$relModule] = 0;
         }
-        
+
         $c = $GLOBALS['counters'][$this->module.$relModule];
-        
+
         /* All ratios can be determined simply by looking
          * at the relative counts in $GLOBALS['modules']
          */
@@ -543,24 +543,24 @@ class DataTool{
         if(!empty($GLOBALS['modules'][$relModule])){
             $baseToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$baseModule];
             $baseToThisRatio = $GLOBALS['modules'][$this->module] / $GLOBALS['modules'][$baseModule];
-            
+
             /* floor($this->count/$acctToThisRatio) determines what 'group'
              * this record is a part of.  Multiplying by $acctToRelatedRatio
              * gives us the starting record for the group of the related type.
              */
             $n = floor(floor($this->count/$baseToThisRatio)*$baseToRelatedRatio);
-            
+
             $GLOBALS['counters'][$this->module.$relModule]++;
-            
+
             /* There are $acctToRelatedRatio of the related types
              * in the group, so we can just pick one of them.
-             */            
+             */
             return $n + ($c%ceil($baseToRelatedRatio));
         }
     }
-    
-    
-    
+
+
+
     /**
      * Generate a 'parent' id for use
      * by handleType:'parent'
@@ -569,8 +569,8 @@ class DataTool{
         /* The relModule that we point up to should be the base */
         return $this->getRelatedId($relModule,$relModule,$thisToRelatedRatio);
     }
-    
-    
+
+
     /**
      * Generate a 'parent' id for use
      * by handleType:'parent'
@@ -588,13 +588,13 @@ class DataTool{
         }elseif($this->module == 'ProductBundles'){
             $baseModule = 'Quotes';
         }else{
-            $baseModule = 'Accounts'; 
+            $baseModule = 'Accounts';
         }
-        
+
         return $this->getRelatedId($relModule,$baseModule,$thisToRelatedRatio);
     }
-    
-    
+
+
     /**
      * Creates the query head and query bodies, and saves them in global arrays
      * $queryHead and $queries, respectively.
@@ -603,49 +603,49 @@ class DataTool{
         if(empty($GLOBALS['queryHead'])){
             $GLOBALS['queryHead'] = $this->createInsertHead($this->table_name);
         }
-        
+
         $GLOBALS['queries'][] = $this->createInsertBody();
-        
+
         $_SESSION['allProcessedRecords']++;
     }
-    
+
     function createInsertHead($table){
         return 'INSERT INTO ' . $table . ' ( ' .implode(', ',array_keys($this->installData)) . ') VALUES ';
     }
-    
+
     function createInsertBody(){
         return '  (  ' .implode(', ',array_values($this->installData)). ' )';
     }
-    
-    
+
+
     /**
      * Generates and saves queries to create relationships in the Sugar app, based
      * on the contents of the global array $tidbit_relationships.
      */
     function generateRelationships(){
         global $relQueryCount;
-        
+
         $baseId = $this->installData['id'];
-    	
+
         if(empty($GLOBALS['tidbit_relationships'][$this->module]))return;
-        
+
         foreach($GLOBALS['tidbit_relationships'][$this->module] as $relModule=>$relationship){
         	if(!is_dir('modules/' . $this->module) || !is_dir('modules/' . $relModule))continue;
             if(!empty($GLOBALS['modules'][$relModule])){
-                
-                
+
+
                 if(!empty($relationship['ratio'])){
                     $thisToRelatedRatio = $relationship['ratio'];
                 }else{
                 	$thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
                 }
-                
+
                 /* Load any custom feilds for this relationship */
                 if(file_exists('Tidbit/Relationships/' . $relationship['table'] . '.php')){
                 	//echo "\n". 'loading custom fields from ' . 'Tidbit/Relationships/' . $relationship['table'] . '.php' . "\n";
                     require_once('Tidbit/Relationships/' . $relationship['table'] . '.php');
                 }
-                
+
                 /* According to $relationship['ratio'],
                  * we attach that many of the related object to the current object
                  * through $relationship['table']
@@ -657,7 +657,7 @@ class DataTool{
                     }else{
                     	$relId = 'seed-'.$relModule .$_SESSION['baseTime'].$this->getRelatedLinkId($relModule);
                     }
-                    
+
                     $relOverridesStore = array();
                     /* If a repeat factor is specified, then we will process the body multiple times. */
                     if(!empty($GLOBALS['dataTool'][$relationship['table']]) && !empty($GLOBALS['dataTool'][$relationship['table']]['repeat'])){
@@ -670,29 +670,29 @@ class DataTool{
                     }else{
                     	$multiply = 1;
                     }
-                    
+
                     /* Normally $multiply == 1 */
                     while($multiply--){
                         $GLOBALS['relatedQueries'][$relationship['table']][] =  $this->generateRelationshipBody($relationship, $baseId, $relId);
                     }
-                    
+
                     $_SESSION['allProcessedRecords']++;
-                    
+
                     if(empty($GLOBALS['relatedQueries'][$relationship['table']]['head'])){
                         $GLOBALS['relatedQueries'][$relationship['table']]['head'] = $this->generateRelationshipHead($relationship);
                     }
-                    
+
                     /* Restore the relationship settings */
                     if($relOverridesStore){
                     	$GLOBALS['dataTool'][$relationship['table']] = $relOverridesStore;
                     }
-                    
+
                     $relQueryCount++;
                 }
             }
         }
     }
-    
+
     /**
      * Returns the common head shared by all the current relationship queries.
      * @param $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
@@ -709,9 +709,9 @@ class DataTool{
                 . $relationship['self'] . ', ' . $relationship['you']
                 . ',' . 'deleted, date_modified' . $customFields
                 .') VALUES ';
-    
+
     }
-    
+
     /**
      * Returns the body for the current relationship query.
      * @param $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
@@ -726,7 +726,7 @@ class DataTool{
         $relCounter++;
         $date = db_convert("'".date('Y-m-d H:i:s') ."'" , 'datetime') ;
         $customData = '';
-        
+
         if(!empty($GLOBALS['dataTool'][$relationship['table']])){
             foreach($GLOBALS['dataTool'][$relationship['table']] as $field => $typeData){
                 $seed = $this->generateSeed($this->module, $field, $this->count);
@@ -734,10 +734,10 @@ class DataTool{
             }
         }
         return  ' (' ."'seed-rel" . time() . $relCounter . "',$baseId , '$relId' , 0 , $date".$customData." )";
-    
+
     }
-    
-    
+
+
     /**
      * Returns a gibberish string based on a reordering of the base text
      * (Lorem ipsum dolor sit amet, ....)
@@ -747,14 +747,14 @@ class DataTool{
          static $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, in aliquam magna sem.";
          $words = explode(' ', $baseText);
          shuffle($words);
-         
+
          if($wordCount > 0){
             $words = array_slice($words, 0, $wordCount);
          }
          $newText= implode(' ' ,$words );
          return $newText;
     }
-    
+
     /* TODO - OPTIMIZATION - cache sums of $fieldName and $this->module
      * somewhere, sessions maybe.
      */
@@ -771,10 +771,10 @@ class DataTool{
     	 */
         return  2*($this->str_sum($this->module . $field) + $this->count + $_SESSION['baseTime']);
     }
-    
-    
-    
-    
+
+
+
+
     function str_sum($str){
     	$sum = 0;
         for($i = strlen($str);$i--;){

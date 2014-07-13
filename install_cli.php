@@ -2,33 +2,33 @@
 <?php
 
 /*********************************************************************************
- * Tidbit is a data generation tool for the SugarCRM application.  
+ * Tidbit is a data generation tool for the SugarCRM application.
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
  * Free Software Foundation with the addition of the following permission added
  * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
  * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
  * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with
  * this program; if not, see http://www.gnu.org/licenses or write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- * 
+ *
  * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
  * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
- * 
+ *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
  * Section 5 of the GNU Affero General Public License version 3.
- * 
+ *
  * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
  * these Appropriate Legal Notices must retain the display of the "Powered by
  * SugarCRM" logo. If the display of the logo is not reasonably feasible for
@@ -39,15 +39,13 @@
 ini_set('memory_limit', '8096M');
 if(!defined('sugarEntry'))define('sugarEntry', true);
 
-chdir('..');
+require_once('config.php');
 require_once('include/entryPoint.php');
 set_time_limit(0);
 
 /* Are we going to use this? */
 $recordsPerPage = 1000;
 $relQueryCount = 0;
-
-require_once('install_config.php');
 
 // TODO: This loads additional definitions into beanList and beanFiles for
 // custom modules
@@ -67,13 +65,13 @@ $usageStr = "Usage: ".$_SERVER['PHP_SELF']." [-l loadFactor] [-u userCount] [-x 
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
-This script populates your instance of SugarCRM with realistic demo data. 
+This script populates your instance of SugarCRM with realistic demo data.
 
 $usageStr
 Options
     -l loadFactor   	The number of Accounts to create.  The ratio between
                     	Accounts and the other modules is fixed in
-                    	install_config.php, so the loadFactor determines the number
+                    	config.php, so the loadFactor determines the number
                     	of each type of module to create.
                     	If not specified, defaults to 1000.
 
@@ -90,7 +88,7 @@ Options
                     	removed.  No Data created within the app will be affected,
                     	and the administrator account will not be deleted.  Has no
                     	effect if Obliterate Mode is enabled.
-                    
+
     -t              	Turn Turbo Mode on.  Records are produced in groups of 1000
                     	duplicates.  Users and teams are not affected.
                     	Useful for testing duplicate checking or quickly producing
@@ -102,25 +100,25 @@ Options
                     	Users and Teams.  The number of users that would normally
                     	be created is assumed to be the number of existing users.
                     	Useful for appending data onto an existing data set.
-                    
+
     -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
                     	logged in a file called 'executedQueries.txt' in your
                     	Tidbit folder.
 
     -v              	Display version information.
-    
+
     -h              	Display this help text.
 
     -x count            How often to commit module records - important on DBs like DB2. Default is no batches.
 
     -s             	Specify the number of teams per team set and per record.
-    
+
     --allmodules	Automatically detect all installed modules and generate data for them.
-    
+
     --allrelationships	Automatically detect all relationships and generate data for them.
-    
+
     "Powered by SugarCRM"
-    
+
 
 EOS;
 
@@ -209,17 +207,17 @@ else
 //var_dump($opts);
 $allrelationships = false;
 if(isset($opts['allmodules'])) {
-	echo "automatically detecting installed modules\n"; 
+	echo "automatically detecting installed modules\n";
 	foreach($GLOBALS['moduleList'] as $candidate_module) {
 		if(!isset($modules[$candidate_module])) {
-			// TODO: Load for modules not defined in install_config
+			// TODO: Load for modules not defined in config.php
 			// is the same as for Contacts (4000)
 			$modules[$candidate_module] = 4000;
-		} 
+		}
 	}
 }
 if (isset($opts['allrelationships'])) {
-	echo "automatically generating relationships\n"; 
+	echo "automatically generating relationships\n";
 	$allrelationships = true;
 }
 if(isset($opts['l']))
@@ -266,10 +264,10 @@ require_once('config.php');
 require_once('include/modules.php');
 require_once('include/database/DBManagerFactory.php');
 require_once('include/SugarTheme/SugarTheme.php');
-require_once('Tidbit/Data/DefaultData.php');
-require_once('Tidbit/DataTool.php');
-require_once('Tidbit/install_functions.php');
-require_once('Tidbit/Data/contactSeedData.php');
+require_once($tidbit_dir . '/Data/DefaultData.php');
+require_once($tidbit_dir . '/DataTool.php');
+require_once($tidbit_dir . '/install_functions.php');
+require_once($tidbit_dir . '/Data/contactSeedData.php');
 $_SESSION['modules'] = $modules;
 $_SESSION['startTime'] = microtime();
 $_SESSION['baseTime'] = time();
@@ -305,7 +303,7 @@ $_SESSION['allProcessedRecords'] = 0;
 
 if(isset($_SESSION['debug']))
 {
-	$GLOBALS['queryFP'] = fopen('Tidbit/executedQueries.txt', 'w');
+	$GLOBALS['queryFP'] = fopen($tidbit_dir . '/executedQueries.txt', 'w');
 }
 
 
@@ -344,7 +342,7 @@ foreach($module_keys as $module)
 		echo "Skipping $module\n";
 		continue;
 	}
-	
+
 	// TODO: fixing emails
 //	if ($module == 'Emails') {
 //		echo "Skipping $module\n";
@@ -372,7 +370,7 @@ foreach($module_keys as $module)
 	}
 	require_once($beanFiles[$class]);
 	$bean = new $class();
-	
+
 	// TODO: if allrelationships is true, pull from relationships
 	// table and add to $GLOBALS['tidbit_relationships']
 	if ($allrelationships && $module != 'Teams' && $module != 'Emails') { // Teams & Emails module relationships handled separately
@@ -380,7 +378,7 @@ foreach($module_keys as $module)
 		"SELECT * FROM relationships WHERE lhs_module='$module'");
 		global $tidbit_relationships;
 		while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-			if (!isset($row['join_table']) || !isset($row['join_key_lhs']) 
+			if (!isset($row['join_table']) || !isset($row['join_key_lhs'])
 				|| !isset($row['join_key_rhs'])) {
 					continue;
 			}
@@ -448,12 +446,12 @@ foreach($module_keys as $module)
 		echo "DONE\n";
 	}
 
-	if(file_exists('Tidbit/Data/' . $bean->module_dir . '.php')){
-		require_once('Tidbit/Data/' . $bean->module_dir . '.php');
+	if(file_exists($tidbit_dir . '/Data/' . $bean->module_dir . '.php')){
+		require_once($tidbit_dir . '/Data/' . $bean->module_dir . '.php');
 	}
 	$ibfd = new DataTool();
 	$ibfd->fields = $bean->field_defs;
-	
+
 	$ibfd->table_name = $bean->table_name;
 	$ibfd->module = $module;
 
