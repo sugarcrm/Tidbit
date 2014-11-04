@@ -102,7 +102,15 @@ Options
                     	Users and Teams.  The number of users that would normally
                     	be created is assumed to be the number of existing users.
                     	Useful for appending data onto an existing data set.
-                    
+
+    --as_populate       Populate ActivityStream records for each user and module
+
+    --as_number         Works with "--as_populate" key only. Number of
+                        ActivityStream records for each module record (default 10)
+
+    --as_buffer         Works with "--as_populate" key only. Size of ActivityStream
+                        insertion buffer (default 500)
+
     -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
                     	logged in a file called 'executedQueries.txt' in your
                     	Tidbit folder.
@@ -128,7 +136,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships'));
+	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -202,7 +210,13 @@ else
 		}
 		elseif($arg == '--allrelationships') {
 			$opts['allrelationships'] = true;
-		}
+		} elseif($arg === '--as_populate') {
+            $opts['as_populate'] = true;
+        } elseif($arg === '--as_number') {
+            $nextData = 'as_number';
+        } elseif($arg === '--as_buffer') {
+            $nextData = 'as_buffer';
+        }
 	}
 }
 
@@ -300,6 +314,15 @@ if(isset($opts['d']))
 {
 	$_SESSION['debug'] = true;
 }
+if(isset($opts['as_populate'])) {
+    $_SESSION['as_populate'] = true;
+    if(isset($opts['as_number'])) {
+        $_SESSION['as_number'] = $opts['as_number'];
+    }
+    if(isset($opts['as_buffer'])) {
+        $_SESSION['as_buffer'] = $opts['as_buffer'];
+    }
+}
 $_SESSION['processedRecords'] = 0;
 $_SESSION['allProcessedRecords'] = 0;
 
@@ -334,6 +357,7 @@ echo "With Turbo Mode ".(isset($_SESSION['turbo'])?"ON":"OFF")."\n";
 echo "With Transaction Batch Mode ".(isset($_SESSION['txBatchSize'])?$_SESSION['txBatchSize']:"OFF"). "\n";
 echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
+echo "With ActivityStream Polulating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
 $obliterated = array();
 //DataTool::generateTeamSets();
 foreach($module_keys as $module)
@@ -583,6 +607,7 @@ foreach($module_keys as $module)
 
 	echo "DONE\n";
 }
+
 endTransaction();
 
 if(!empty($GLOBALS['queryFP']))
@@ -594,6 +619,71 @@ if(!empty($GLOBALS['queryFP']))
 echo "Total Time: " . microtime_diff($_SESSION['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: ".$_SESSION['processedRecords']."\n";
 echo "Total Records Inserted: ".$_SESSION['allProcessedRecords']."\n";
+
+// BEGIN Activity Stream populating
+if (!empty($_SESSION['as_populate'])) {
+
+    $activityStreamOptions = array(
+        'activities_per_module_record' => !empty($_SESSION['as_number']) ? $_SESSION['as_number'] : 10,
+        'insertion_buffer_size' => !empty($_SESSION['as_buffer']) ? $_SESSION['as_buffer'] : 500,
+    );
+
+    if(!empty($GLOBALS['beanList']['Activities'])) {
+
+        echo "\nPopulating Activity Stream\n";
+        $timer = microtime(1);
+
+        require_once 'Tidbit/Generator/ActivityGenerator.php';
+        $tga = new TidbitActivityGenerator();
+        $GLOBALS['modules']['Users'] += 1; // and admin too
+        $tga->userCount = $GLOBALS['modules']['Users'];
+        $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
+        $tga->modules = $GLOBALS['modules'];
+        $tga->db = $GLOBALS['db'];
+        $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
+
+        $tga->init();
+
+        echo " - user activities per module record: {$tga->activitiesPerModuleRecord}\n";
+        echo " - users: {$tga->userCount}\n";
+        echo " - modules: {$tga->activityModuleCount}\n";
+        echo " - activities per user: {$tga->activitiesPerUser}\n";
+        echo " - total activities to insert: " . ($tga->activitiesPerUser * $tga->userCount) . "\n";
+        echo " - insertion buffer size: {$tga->insertionBufferSize} records\n";
+        if (isset($_SESSION['obliterate'])) {
+            echo "\tObliterating existing Activity Stream data ... ";
+            echo ($tga->obliterateActivities() ? "OK" : "FAIL") . "\n";
+        }
+        echo "\tPopulating .";
+
+        $percentage = 10;
+
+        do {
+            if ($result = $tga->createDataset()) {
+                if (!$tga->flushDataset()) {
+                    echo "FAILED\n";
+                    break;
+                }
+                echo ".";
+                if ($tga->progress > $percentage) {
+                    $percentage += 10;
+                    echo "{$tga->progress}%";
+                }
+            }
+        } while ($result);
+
+        echo "\nInserted activities: {$tga->insertedActivities}\n";
+        $timer = round(microtime(1) - $timer, 2);
+        echo "SQL queries: {$tga->countQuery}, fetch requests: {$tga->countFetch}, time spent: {$timer} seconds\n\n";
+        echo "END Activity Stream populating\n\n";
+
+    } else {
+        echo "Activity Stream doesn't support by SugarCRM instance\n\n";
+    }
+}
+// END Activity Stream populating
+
+
 echo "Done\n\n\n";
 
 ?>
