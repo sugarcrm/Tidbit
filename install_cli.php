@@ -105,11 +105,14 @@ Options
 
     --as_populate       Populate ActivityStream records for each user and module
 
-    --as_number         Works with "--as_populate" key only. Number of
+    --as_last_rec <N>   Works with "--as_populate" key only. Populate last N
+                        records of each module (default: all available)
+
+    --as_number <N>     Works with "--as_populate" key only. Number of
                         ActivityStream records for each module record (default 10)
 
-    --as_buffer         Works with "--as_populate" key only. Size of ActivityStream
-                        insertion buffer (default 500)
+    --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
+                        insertion buffer (default 1000)
 
     -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
                     	logged in a file called 'executedQueries.txt' in your
@@ -136,7 +139,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:'));
+	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -216,6 +219,8 @@ else
             $nextData = 'as_number';
         } elseif($arg === '--as_buffer') {
             $nextData = 'as_buffer';
+        } elseif($arg === '--as_last_rec') {
+            $nextData = 'as_last_rec';
         }
 	}
 }
@@ -321,6 +326,9 @@ if(isset($opts['as_populate'])) {
     }
     if(isset($opts['as_buffer'])) {
         $_SESSION['as_buffer'] = $opts['as_buffer'];
+    }
+    if(isset($opts['as_last_rec'])) {
+        $_SESSION['as_last_rec'] = $opts['as_last_rec'];
     }
 }
 $_SESSION['processedRecords'] = 0;
@@ -625,7 +633,8 @@ if (!empty($_SESSION['as_populate'])) {
 
     $activityStreamOptions = array(
         'activities_per_module_record' => !empty($_SESSION['as_number']) ? $_SESSION['as_number'] : 10,
-        'insertion_buffer_size' => !empty($_SESSION['as_buffer']) ? $_SESSION['as_buffer'] : 500,
+        'insertion_buffer_size' => !empty($_SESSION['as_buffer']) ? $_SESSION['as_buffer'] : 1000,
+        'last_n_records' => !empty($_SESSION['as_last_rec']) ? $_SESSION['as_last_rec'] : 0,
     );
 
     if(!empty($GLOBALS['beanList']['Activities'])) {
@@ -635,20 +644,21 @@ if (!empty($_SESSION['as_populate'])) {
 
         require_once 'Tidbit/Generator/ActivityGenerator.php';
         $tga = new TidbitActivityGenerator();
-        $GLOBALS['modules']['Users'] += 1; // and admin too
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $GLOBALS['modules'];
         $tga->db = $GLOBALS['db'];
         $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
+        $tga->lastNRecords = $activityStreamOptions['last_n_records'];
 
         $tga->init();
 
         echo " - user activities per module record: {$tga->activitiesPerModuleRecord}\n";
+        echo " - max number of records for each module: " . ($tga->lastNRecords ? $tga->lastNRecords : 'all') . "\n";
         echo " - users: {$tga->userCount}\n";
         echo " - modules: {$tga->activityModuleCount}\n";
-        echo " - activities per user: {$tga->activitiesPerUser}\n";
         echo " - total activities to insert: " . ($tga->activitiesPerUser * $tga->userCount) . "\n";
+        echo " - activities per user: {$tga->activitiesPerUser}\n";
         echo " - insertion buffer size: {$tga->insertionBufferSize} records\n";
         if (isset($_SESSION['obliterate'])) {
             echo "\tObliterating existing Activity Stream data ... ";
@@ -656,7 +666,9 @@ if (!empty($_SESSION['as_populate'])) {
         }
         echo "\tPopulating .";
 
-        $percentage = 10;
+        $progressStep = 10;
+        $percentage = $progressStep;
+        $insertedActivities = 0;
 
         do {
             if ($result = $tga->createDataset()) {
@@ -664,13 +676,20 @@ if (!empty($_SESSION['as_populate'])) {
                     echo "FAILED\n";
                     break;
                 }
-                echo ".";
-                if ($tga->progress > $percentage) {
-                    $percentage += 10;
-                    echo "{$tga->progress}%";
+                if ($tga->insertedActivities > $insertedActivities) {
+                    echo ".";
+                    $insertedActivities= $tga->insertedActivities;
+                    if ($tga->progress > $percentage) {
+                        $percentage += ceil(($tga->progress - $percentage) / $progressStep) * $progressStep;
+                        echo "{$tga->progress}%";
+                    }
                 }
             }
         } while ($result);
+
+        if (!$tga->flushDataset(true)) {
+            echo "FAILED\n";
+        }
 
         echo "\nInserted activities: {$tga->insertedActivities}\n";
         $timer = round(microtime(1) - $timer, 2);

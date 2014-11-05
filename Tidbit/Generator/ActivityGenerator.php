@@ -47,6 +47,8 @@ class TidbitActivityGenerator
     public $modules;
     public $db;
     public $insertionBufferSize = 100;
+    public $fetchBuffer = 1000;
+    public $lastNRecords = 0;
     public $insertedActivities = 0;
     public $activityBean;
     public $progress = 0;
@@ -72,9 +74,8 @@ class TidbitActivityGenerator
     protected $currentOffsets = array();
     protected $currentModuleName;
 
-    protected $fetchBuffer = 1000;
     protected $fetchQueryPatterns = array(
-        'default' => "SELECT id%s FROM %s LIMIT %d, %d",
+        'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
     );
     protected $insertQueryPattern = "INSERT INTO %s (%s) VALUES %s";
     protected $fetchedData = array();
@@ -85,6 +86,7 @@ class TidbitActivityGenerator
     protected $dataSet = array();
     protected $dataSetRelationships = array();
     protected $dataSetLength = 0;
+    protected $relationshipsTable = 'activities_users';
 
     /**
      * @var array Generating activity types and percentage of their share in total count. Array sum must be 100!
@@ -101,12 +103,6 @@ class TidbitActivityGenerator
 
     public function init()
     {
-        $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->moduleBlackList));
-        foreach ($this->activityModules as $module) {
-            $this->totalModulesRecords += $this->modules[$module];
-        }
-        $this->activitiesPerUser = $this->totalModulesRecords * $this->activitiesPerModuleRecord;
-        $this->activityModuleCount = count($this->activityModules);
         foreach ($this->modules as $module => $moduleRecordCount) {
             $this->beans[$module] = BeanFactory::getBean($module);
             $this->currentOffsets[$module] = array(
@@ -115,6 +111,16 @@ class TidbitActivityGenerator
                 'total' => $moduleRecordCount,
             );
         }
+        $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->moduleBlackList));
+        foreach ($this->activityModules as $module) {
+            // apply lastNRecords option
+            $this->currentOffsets[$module]['total'] = $this->lastNRecords > 0 && $this->modules[$module] > $this->lastNRecords
+                ? $this->lastNRecords
+                : $this->modules[$module];
+            $this->totalModulesRecords += $this->currentOffsets[$module]['total'];
+        }
+        $this->activitiesPerUser = $this->totalModulesRecords * $this->activitiesPerModuleRecord;
+        $this->activityModuleCount = count($this->activityModules);
         $this->activityBean = BeanFactory::getBean('Activities');
         foreach ($this->activityBean->field_defs as $field => $data) {
             if (empty($data['source'])) {
@@ -126,13 +132,12 @@ class TidbitActivityGenerator
 
     public function obliterateActivities()
     {
-        return $this->query("DELETE FROM {$this->activityBean->table_name}");
+        return $this->query("DELETE FROM {$this->activityBean->table_name}")
+        && $this->query("DELETE FROM {$this->relationshipsTable}");
     }
 
     public function createDataSet()
     {
-        $this->dataSet = $this->dataSetRelationships = array();
-        $this->dataSetLength = 0;
         $this->currentUser = $this->currentUser ? $this->currentUser : $this->nextUser();
 
         while ($this->currentModuleRecord = $this->nextModuleRecord($this->currentModuleName)) {
@@ -141,11 +146,6 @@ class TidbitActivityGenerator
                 // flush current buffers
                 return true;
             }
-        }
-
-        // flush current buffers if they're not empty
-        if ($this->dataSetLength > 0) {
-            return true;
         }
 
         // iterate again with next module
@@ -205,18 +205,22 @@ class TidbitActivityGenerator
 
     }
 
-    public function flushDataSet()
+    public function flushDataSet($final = false)
     {
-        if (!empty($this->dataSet)) {
+        if (!empty($this->dataSet) && (($this->dataSetLength >= $this->insertionBufferSize) || $final)) {
             // activities
             $result = $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
             if ($result) {
                 // relationships
-                $result = $this->insertDataSet($this->dataSetRelationships, 'activities_users');
+                $result = $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
 
                 if ($result) {
                     $this->insertedActivities += $this->dataSetLength;
-                    $this->progress = round(($this->currentOffsets['Users']['next'] / $this->currentOffsets['Users']['total']) * 100);
+                    $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
+
+                    $this->dataSet = $this->dataSetRelationships = array();
+                    $this->dataSetLength = 0;
+
                     return true;
                 }
             }
@@ -278,7 +282,11 @@ class TidbitActivityGenerator
 
     protected function nextUser()
     {
-        return $this->nextModuleRecord('Users');
+        $user = $this->nextModuleRecord('Users');
+        if (!empty($user['id']) && $user['id'] == 1) { // skip admin
+            $user = $this->nextModuleRecord('Users');
+        }
+        return $user;
     }
 
     protected function fetchNextModuleRecords($moduleName)
@@ -290,17 +298,31 @@ class TidbitActivityGenerator
         if ($hasName) {
             $extraFields[] = 'name';
         }
+        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name']) && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
+        if ($hasLastName) {
+            $extraFields[] = 'last_name';
+        }
 
-        $sql = sprintf(
-            $queryPattern,
-            empty($extraFields) ? '' : ', ' . implode(', ', $extraFields),
-            $this->beans[$moduleName]->table_name,
-            $this->currentOffsets[$moduleName]['offset'],
-            $this->fetchBuffer
-        );
-        $data = $this->fetch($sql, $this->currentOffsets[$moduleName]['offset']);
+        $data = null;
+
+        $limit = $this->fetchBuffer;
+        if ($this->currentOffsets[$moduleName]['offset'] + $limit > $this->currentOffsets[$moduleName]['total']) {
+            $limit = $this->currentOffsets[$moduleName]['total'] - $this->currentOffsets[$moduleName]['offset'];
+            $this->fullyLoadedModules[$moduleName] = true;
+        }
+
+        if ($limit > 0) {
+            $sql = sprintf(
+                $queryPattern,
+                empty($extraFields) ? '' : ', ' . implode(', ', $extraFields),
+                $this->beans[$moduleName]->table_name,
+                $this->currentOffsets[$moduleName]['offset'],
+                $limit
+            );
+            $data = $this->fetch($sql, $this->currentOffsets[$moduleName]['offset']);
+        }
         if ($data) {
-            $this->currentOffsets[$moduleName]['offset'] += $this->fetchBuffer;
+            $this->currentOffsets[$moduleName]['offset'] += $limit;
         } else {
             $this->fullyLoadedModules[$moduleName] = true;
         }

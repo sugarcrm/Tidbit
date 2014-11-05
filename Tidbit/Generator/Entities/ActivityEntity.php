@@ -122,18 +122,32 @@ class TidbitActivityEntity
 
         if (isset($this->activityData['name'])) {
             $activityData['object']['name'] = $this->activityData['name'];
+        } else {
+            $activityData['object']['name'] = $this->activityData['id'];
         }
 
-        if ($this->activityType == 'update' && isset($activityData['object']['name'])) {
-            $activityData['changes'] = array(
-                'name' => array(
-                    'field_name' => 'name',
-                    'data_type' => 'string',
-                    'before' => $activityData['object']['name'] . '_old_ver',
-                    'after' => $activityData['object']['name'],
-                )
-            );
-            $this->changedFields[] = 'name';
+        if ($this->activityType == 'update') {
+            if(isset($activityData['object']['name'])) {
+                $activityData['changes'] = array(
+                    'name' => array(
+                        'field_name' => 'name',
+                        'data_type' => 'string',
+                        'before' => $activityData['object']['name'] . '_old_ver',
+                        'after' => $activityData['object']['name'],
+                    )
+                );
+                $this->changedFields[] = 'name';
+            } elseif (isset($this->activityData['last_name'])) {
+                $activityData['changes'] = array(
+                    'last_name' => array(
+                        'field_name' => 'last_name',
+                        'data_type' => 'string',
+                        'before' => $this->activityData['last_name'] . '_old_ver',
+                        'after' => $this->activityData['last_name'],
+                    )
+                );
+                $this->changedFields[] = 'last_name';
+            }
         }
 
         return json_encode($activityData);
