@@ -268,6 +268,11 @@ class DataTool{
             if (!empty($typeData['toUpper'])) {
             	$rtn = strtoupper($rtn);
             }
+
+            if (!empty($typeData['toLower'])) {
+                $rtn = strtolower($rtn);
+            }
+
             return @trim($rtn);
         }
         if(!empty($typeData['same_ref'])){
@@ -425,7 +430,6 @@ class DataTool{
         if($isQuote || !empty($typeData['isQuoted']) ){
             $baseValue = "'".@trim($baseValue) . "'";
         }
-       
          $baseValue = db_convert($baseValue, $type);
         
         
