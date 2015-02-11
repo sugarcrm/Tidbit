@@ -39,5 +39,7 @@ $GLOBALS['dataTool']['Meetings']['contact_id'] = array('related'=>array('module'
 $GLOBALS['dataTool']['Meetings']['parent_id'] = array('related'=>array('module' => 'Accounts', 'ratio' => 8));
 $GLOBALS['dataTool']['Meetings']['parent_type'] = array('value'=>"'Accounts'");
 $GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability'=>true);
+$GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
+$GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
 /* We want meetings to be in the past 90% of the time. */
 $GLOBALS['dataTool']['Meetings']['date'] = array('range'=>  array('min'=> -400, 'max'=>36), 'type'=>'date', 'basetime'=>time());
