@@ -40,5 +40,7 @@ $GLOBALS['dataTool']['Calls']['parent_id'] = array('related'=>array('module' => 
 $GLOBALS['dataTool']['Calls']['parent_type'] = array('value'=>"'Accounts'");
 $GLOBALS['dataTool']['Calls']['duration_minutes'] = array('value'=>"'30'");
 $GLOBALS['dataTool']['Calls']['status'] = array('meeting_probability'=>true);
+$GLOBALS['dataTool']['Calls']['reminder_time'] = array('value' => -1);
+$GLOBALS['dataTool']['Calls']['email_reminder_time'] = array('value' => -1);
 /* We want calls to be in the past 90% of the time. */
 $GLOBALS['dataTool']['Calls']['date'] = array('range'=>  array('min'=> -400, 'max'=>36), 'type'=>'date', 'basetime'=>time());

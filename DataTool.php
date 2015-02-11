@@ -304,8 +304,17 @@ class DataTool{
             }
             return "'".'seed-'.$typeData['related']['module'].$_SESSION['baseTime'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
         }
-        if(!empty($typeData['gibberish'])){
-            return "'" . @trim($this->generateGibberish($typeData['gibberish'])) . "'";
+
+        if (!empty($typeData['gibberish'])) {
+
+            $baseValue = @trim($this->generateGibberish($typeData['gibberish']));
+
+            // Check field length and truncate data depends on vardefs length
+            if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)){
+                $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
+            }
+
+            return "'" . $baseValue . "'";
         }
         
         if(!empty($typeData['meeting_probability'])){
@@ -420,13 +429,11 @@ class DataTool{
             $baseValue = $typeData['prefix'] . $baseValue;
             
         }
-       if(!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)){
-            $baseLength = (string)$GLOBALS['fieldData']['len'];
-            // Like a pirate!!!
-            $arr = explode(",", $baseLength, 2);
-            $baseLength = $arr[0];
-            $baseValue =  substr($baseValue, 0, $baseLength);
-       }
+
+        if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
+           $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
+        }
+
         if($isQuote || !empty($typeData['isQuoted']) ){
             $baseValue = "'".@trim($baseValue) . "'";
         }
@@ -435,7 +442,21 @@ class DataTool{
         
         return $baseValue;
     }
-    
+
+    /**
+     * Truncate data value by VarDefs length
+     *
+     * @param $value - data base value
+     * @param $length - could be "integer" or float length value, f.e. "5,2"
+     * @return string
+     */
+    protected function truncateDataByLength($value, $length)
+    {
+        $arr = explode(",", $length, 2);
+        $baseLength = $arr[0];
+        return substr($value, 0, $baseLength);
+    }
+
     /**
      * Returns the value of this module's field called $fieldname.
      * If a value has already been generated, it uses that one, otherwise
