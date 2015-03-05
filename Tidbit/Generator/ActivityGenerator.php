@@ -65,6 +65,12 @@ class TidbitActivityGenerator
     protected $moduleBlackList = array(
         'Users',
         'Teams',
+        'ProductBundles',
+        'EmailAddresses',
+        'Documents',
+        'Notes',
+        'Emails',
+        'Bugs'
     );
 
     /**
