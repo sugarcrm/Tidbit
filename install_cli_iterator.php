@@ -394,7 +394,7 @@ foreach($module_keys as $module)
 	$total = $modules[$module];
 	$total_iterator = 0;
 	if(isset($_SESSION['iterator'])){
-		$total_iterator = $total - 	$_SESSION['iterator']
+		$total_iterator = $total - 	$_SESSION['iterator'];
 	}
 	
 
