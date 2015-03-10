@@ -54,6 +54,7 @@ class TidbitActivityGenerator
     public $progress = 0;
     public $countQuery = 0;
     public $countFetch = 0;
+    public $iterator = 0;
     protected $beans = array();
     protected $activityFields = array();
     protected $totalModulesRecords = 0;
