@@ -66,7 +66,7 @@ class TidbitActivityGenerator
         'Users',
         'Teams',
         'ProductBundles',
-        'EmailAddresses',
+        //'EmailAddresses',
         'Documents',
         'Notes',
         'Emails',
