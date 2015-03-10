@@ -114,12 +114,13 @@ class DataTool{
      */
     function generateId(){
         if(($this->module == 'Users') || ($this->module == 'Teams')){
-        	$this->installData['id'] = "'".'seed-'.$this->module . $this->count . "'";
+            $this->installData['id'] = "'".'seed-'.$this->module . $this->count . "'";
         }else{
             $this->installData['id'] = "'".'seed-'.$this->module .$_SESSION['baseTime']. $this->count . "'";
         }
         if(strlen($this->installData['id']) > 36){
-        	$this->installData['id'] = '\'seed-' . substr(md5($this->installData['id']), 0, -1).  "'";
+            $moduleLength = strlen($this->module);
+            $this->installData['id'] = '\'seed-' . $this->module . substr(md5($this->installData['id']), 0, -($moduleLength + 1)).  "'";
         }
     }    
 
