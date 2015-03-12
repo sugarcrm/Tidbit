@@ -57,6 +57,12 @@ $modules = array(
 	
 );
 
+$aliases = array(
+    'EmailAddresses' => 'Emadd',
+    'ProductBundles' => 'Prodb',
+    'Opportunities'  => 'Oppty'
+);
+
 $tidbit_relationships['Users'] = array(
     'Teams' => array(
         'self' => 'user_id',

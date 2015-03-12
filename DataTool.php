@@ -113,15 +113,17 @@ class DataTool{
      * in install_config.php for each module), and save the ID in the installData array.
      */
     function generateId(){
-        if(($this->module == 'Users') || ($this->module == 'Teams')){
-        	$this->installData['id'] = "'".'seed-'.$this->module . $this->count . "'";
+        $currentModule = $this->getAlias($this->module);
+        if(($currentModule == 'Users') || ($currentModule == 'Teams')){
+            $this->installData['id'] = "'" . 'seed-'. $currentModule . $this->count . "'";
         }else{
-            $this->installData['id'] = "'".'seed-'.$this->module .$_SESSION['baseTime']. $this->count . "'";
+            $this->installData['id'] = "'" . 'seed-'. $currentModule .$_SESSION['baseTime'] . $this->count . "'";
         }
         if(strlen($this->installData['id']) > 36){
-        	$this->installData['id'] = '\'seed-' . substr(md5($this->installData['id']), 0, -1).  "'";
+            $moduleLength = strlen($currentModule);
+            $this->installData['id'] = '\'seed-' . $currentModule . substr(md5($this->installData['id']), 0, -($moduleLength + 1)).  "'";
         }
-    }    
+    }
 
     function clean(){
         $this->installData = array();
@@ -676,11 +678,11 @@ class DataTool{
                  * through $relationship['table']
                  */
                 for($j = 0; $j < $thisToRelatedRatio; $j++){
-
+                    $currentRelModule = $this->getAlias($relModule);
                     if(($relModule == 'Users') || ($relModule == 'Teams')){
-                        $relId = 'seed-'.$relModule .$this->getRelatedLinkId($relModule);
+                        $relId = 'seed-'. $currentRelModule .$this->getRelatedLinkId($relModule);
                     }else{
-                    	$relId = 'seed-'.$relModule .$_SESSION['baseTime'].$this->getRelatedLinkId($relModule);
+                        $relId = 'seed-'. $currentRelModule .$_SESSION['baseTime'].$this->getRelatedLinkId($relModule);
                     }
                     
                     $relOverridesStore = array();
@@ -796,10 +798,18 @@ class DataTool{
     	 */
         return  2*($this->str_sum($this->module . $field) + $this->count + $_SESSION['baseTime']);
     }
-    
-    
-    
-    
+
+    /**
+     * Returns an alias to be used for id generation.
+     * @param $name - The current module
+     * @return string
+     */
+    function getAlias($name) {
+        global $aliases;
+        $alias = isset ($aliases[$name]) ? $aliases[$name] : $name;
+        return $alias;
+    }
+
     function str_sum($str){
     	$sum = 0;
         for($i = strlen($str);$i--;){
