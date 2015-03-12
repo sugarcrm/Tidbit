@@ -660,7 +660,7 @@ if (!empty($_SESSION['as_populate'])) {
         $timer = microtime(1);
 
         require_once 'Tidbit/Generator/ActivityGenerator.php';
-        $tga = new TidbitActivityGenerator();        
+        $tga = new TidbitActivityGenerator();
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $GLOBALS['modules'];
