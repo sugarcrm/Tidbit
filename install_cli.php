@@ -130,7 +130,8 @@ Options
     
     --allrelationships	Automatically detect all relationships and generate data for them.
 
-    --iterator count This will only insert in the DB tha last (count) records specified, meanwhile the iterator will continue running in the loop
+    --iterator count 	This will only insert in the DB the last (count) records specified, meanwhile the 
+    					iterator will continue running in the loop. Used to check for orphaned records.
     
     "Powered by SugarCRM"
     
