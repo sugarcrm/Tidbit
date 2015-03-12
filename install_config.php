@@ -36,7 +36,7 @@
  ********************************************************************************/
 
 $modules = array(
-	'EmailAddresses'=>12000,
+    'EmailAddresses'=>12000,
     'Users' => 100,
     'Teams' => 20,
     'Accounts' => 1000,
@@ -53,8 +53,14 @@ $modules = array(
     'Meetings' => 8000,
     'Tasks' => 4000,
     'Notes' => 4000,
-	'Documents'=>1000,
-	
+    'Documents'=>1000,
+    
+);
+
+$aliases = array(
+    'EmailAddresses' => 'Emadd',
+    'ProductBundles' => 'Prodb',
+    'Opportunities'  => 'Oppty'
 );
 
 $aliases = array(
@@ -86,12 +92,12 @@ $tidbit_relationships['Users'] = array(
     ) ,
 );
 $tidbit_relationships['Accounts'] = array(
-	'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	),
+    'EmailAddresses' => array(
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio'=>1,
+    ),
     'Contacts' => array(
         'self' => 'account_id',
         'you' => 'contact_id',
@@ -119,12 +125,12 @@ $tidbit_relationships['Accounts'] = array(
     ) ,
 );
 $tidbit_relationships['Contacts'] = array(
-	'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	),
+    'EmailAddresses' => array(
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio'=>1,
+    ),
     'Opportunities' => array(
         'self' => 'contact_id',
         'you' => 'opportunity_id',
@@ -196,18 +202,18 @@ $tidbit_relationships['Products'] = array(
 );
 $tidbit_relationships['Leads']=array(
 'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	)
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio'=>1,
+    )
 );
 //$tidbit_relationships['EmailAddresses'] = array(
-//	'Contacts' => array(
-//		'self' => 'email_address_id',
-//		'you' => 'bean_id',
-//		'table' => 'email_addr_bean_rel',
+//  'Contacts' => array(
+//      'self' => 'email_address_id',
+//      'you' => 'bean_id',
+//      'table' => 'email_addr_bean_rel',
 //
-//	),
-//	
+//  ),
+//  
 //);

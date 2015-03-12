@@ -80,26 +80,26 @@ class DataTool{
         
         /* These fields are filled in once per record. */
         if (!empty($this->fields['deleted'])) {
-        	$this->installData['deleted'] = 0;	
+            $this->installData['deleted'] = 0;  
         }
         if (!empty($this->fields['date_modified'])) {
-        	$this->installData['date_modified'] = db_convert("'".date('Y-m-d H:i:s'). "'", 'datetime');	
+            $this->installData['date_modified'] = db_convert("'".date('Y-m-d H:i:s'). "'", 'datetime'); 
         }
         if(!empty($this->fields['date_entered'])) {
-        	$this->installData['date_entered'] = $this->installData['date_modified'];
+            $this->installData['date_entered'] = $this->installData['date_modified'];
         }
         if(!empty($this->fields['assign_user_id'])){
            $this->installData['assigned_user_id'] = 1;
         }
         if (!empty($this->fields['modified_user_id'])) {
-        	$this->installData['modified_user_id'] = 1;	
+            $this->installData['modified_user_id'] = 1; 
         }
-    	if(!empty($this->fields['team_id'])){
-    		$teams = self::$team_sets_array[$this->installData['team_set_id']];
-    		$index = count($teams) == 1 ? 0 : rand(0, count($teams)-1);
-    		if(empty($this->fields['team_id']['source'])){
-            	$this->installData['team_id'] = "'".$teams[$index]."'";
-    		}
+        if(!empty($this->fields['team_id'])){
+            $teams = self::$team_sets_array[$this->installData['team_set_id']];
+            $index = count($teams) == 1 ? 0 : rand(0, count($teams)-1);
+            if(empty($this->fields['team_id']['source'])){
+                $this->installData['team_id'] = "'".$teams[$index]."'";
+            }
             //check if the assigned user is part of the team set, if not then add their default team.
             if(isset($this->installData['assigned_user_id'])){
                  $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
@@ -169,13 +169,13 @@ class DataTool{
         return '';
     }
 
-	/**
-	 * Returns a randomly generated piece of data for the current module and field.  
-	 * @param $typeData - An array from a .php file in the Tidbit/Data directory
-	 * @param $type - The type of the current field
-	 * @param $field - The name of the current field
-	 * @param $seed - Number to be used as the seed for mt_srand()
-	 */
+    /**
+     * Returns a randomly generated piece of data for the current module and field.  
+     * @param $typeData - An array from a .php file in the Tidbit/Data directory
+     * @param $type - The type of the current field
+     * @param $field - The name of the current field
+     * @param $seed - Number to be used as the seed for mt_srand()
+     */
     function handleType($typeData, $type, $field, $seed){
         /* We want all data to be predictable.  $seed should be charactaristic of 
          * this entity or the remote entity we want to simulate
@@ -187,8 +187,8 @@ class DataTool{
         
         
         if(!empty($typeData['teamset'])) {
-        	$index = rand(0, count(self::$team_sets_array)-1);
-        	$keys = array_keys(self::$team_sets_array);
+            $index = rand(0, count(self::$team_sets_array)-1);
+            $keys = array_keys(self::$team_sets_array);
             return $this->installData['team_set_id'] = $keys[$index];
         }        
         
@@ -199,7 +199,7 @@ class DataTool{
             static $inc = -1;
             $inc ++;
             if($typeData['increment']['max']){
-            	return $typeData['increment']['min'] + ($inc % ($typeData['increment']['max']-$typeData['increment']['min']));
+                return $typeData['increment']['min'] + ($inc % ($typeData['increment']['max']-$typeData['increment']['min']));
             }else{
                 return $typeData['increment']['min'] + $inc;
             }
@@ -225,7 +225,7 @@ class DataTool{
             if($GLOBALS['sugar_config']['dbconfig']['db_type'] != 'oci8'){
                 return '';
             }else{
-            	return strtoupper($this->table_name. '_' . $field . '_seq') . '.nextval';
+                return strtoupper($this->table_name. '_' . $field . '_seq') . '.nextval';
             }
         }
         /* This type alternates between two specified options */
@@ -244,10 +244,10 @@ class DataTool{
                 if(is_string($piece)){
                     $value = $this->accessLocalField($piece);
                     if(is_numeric($value)){
-                    	$sum += $value;
+                        $sum += $value;
                     }
                 }else{
-                	$sum += $piece;
+                    $sum += $piece;
                 }
             }
             return $sum;
@@ -268,7 +268,7 @@ class DataTool{
                 $rtn = $typeData['same'];
             }
             if (!empty($typeData['toUpper'])) {
-            	$rtn = strtoupper($rtn);
+                $rtn = strtoupper($rtn);
             }
 
             if (!empty($typeData['toLower'])) {
@@ -288,7 +288,7 @@ class DataTool{
             if(is_string($typeData['same_hash']) && !empty($this->fields[$typeData['same_hash']])){
                 $value = $this->accessLocalField($typeData['same_hash']);
                 if(is_string($value)){
-                	$value = substr($value, 1, strlen($value)-2);
+                    $value = substr($value, 1, strlen($value)-2);
                 }
                 return "'".md5($value)."'";
             }else{
@@ -297,12 +297,12 @@ class DataTool{
         }
         if(!empty($typeData['related'])){
             if(!empty($typeData['related']['ratio'])){
-            	$thisToRelatedRatio = $typeData['related']['ratio'];
+                $thisToRelatedRatio = $typeData['related']['ratio'];
             }else{
-            	$thisToRelatedRatio = 0;
+                $thisToRelatedRatio = 0;
             }
             if(($typeData['related']['module'] == 'Users') || ($typeData['related']['module'] == 'Teams')){
-            	return "'".'seed-'.$typeData['related']['module'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
+                return "'".'seed-'.$typeData['related']['module'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
             }
             return "'".'seed-'.$typeData['related']['module'].$_SESSION['baseTime'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
         }
@@ -409,11 +409,11 @@ class DataTool{
                 
             }
         }
-     	// This is used to associate email addresses with rows in
+        // This is used to associate email addresses with rows in
         // Contacts or Leads.  See Relationships/email_addr_bean_rel.php
         if (!empty($typeData['getmodule'])) {
-        	$rtn = "'" . $this->module . "'";
-        	return $rtn;
+            $rtn = "'" . $this->module . "'";
+            return $rtn;
         }
          if(!empty($typeData['prefixlist'])){
             foreach($typeData['prefixlist'] as $prefixlist){
@@ -529,7 +529,7 @@ class DataTool{
         
         /* Check if a cached dataTool object exists. */
         if(!empty($GLOBALS['foreignDataTools']) && !empty($GLOBALS['foreignDataTools'][$module])){
-        	$rbfd = $GLOBALS['foreignDataTools'][$module];
+            $rbfd = $GLOBALS['foreignDataTools'][$module];
         }else{
             include('include/modules.php');
             $class = $beanList[$module];
@@ -558,7 +558,7 @@ class DataTool{
      */
     function getRelatedId($relModule, $baseModule, $thisToRelatedRatio = 0){
         if(empty($GLOBALS['counters'][$this->module.$relModule])){
-        	$GLOBALS['counters'][$this->module.$relModule] = 0;
+            $GLOBALS['counters'][$this->module.$relModule] = 0;
         }
         
         $c = $GLOBALS['counters'][$this->module.$relModule];
@@ -653,23 +653,23 @@ class DataTool{
         global $relQueryCount;
         
         $baseId = $this->installData['id'];
-    	
+        
         if(empty($GLOBALS['tidbit_relationships'][$this->module]))return;
         
         foreach($GLOBALS['tidbit_relationships'][$this->module] as $relModule=>$relationship){
-        	if(!is_dir('modules/' . $this->module) || !is_dir('modules/' . $relModule))continue;
+            if(!is_dir('modules/' . $this->module) || !is_dir('modules/' . $relModule))continue;
             if(!empty($GLOBALS['modules'][$relModule])){
                 
                 
                 if(!empty($relationship['ratio'])){
                     $thisToRelatedRatio = $relationship['ratio'];
                 }else{
-                	$thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
+                    $thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
                 }
                 
                 /* Load any custom feilds for this relationship */
                 if(file_exists('Tidbit/Relationships/' . $relationship['table'] . '.php')){
-                	//echo "\n". 'loading custom fields from ' . 'Tidbit/Relationships/' . $relationship['table'] . '.php' . "\n";
+                    //echo "\n". 'loading custom fields from ' . 'Tidbit/Relationships/' . $relationship['table'] . '.php' . "\n";
                     require_once('Tidbit/Relationships/' . $relationship['table'] . '.php');
                 }
                 
@@ -688,14 +688,14 @@ class DataTool{
                     $relOverridesStore = array();
                     /* If a repeat factor is specified, then we will process the body multiple times. */
                     if(!empty($GLOBALS['dataTool'][$relationship['table']]) && !empty($GLOBALS['dataTool'][$relationship['table']]['repeat'])){
-                    	$multiply = $GLOBALS['dataTool'][$relationship['table']]['repeat']['factor'];
+                        $multiply = $GLOBALS['dataTool'][$relationship['table']]['repeat']['factor'];
                         /* We don't want 'repeat' to get into the DB, but we'll put it back into
                          * the globals later.
                          */
                         $relOverridesStore = $GLOBALS['dataTool'][$relationship['table']];
                         unset($GLOBALS['dataTool'][$relationship['table']]['repeat']);
                     }else{
-                    	$multiply = 1;
+                        $multiply = 1;
                     }
                     
                     /* Normally $multiply == 1 */
@@ -711,7 +711,7 @@ class DataTool{
                     
                     /* Restore the relationship settings */
                     if($relOverridesStore){
-                    	$GLOBALS['dataTool'][$relationship['table']] = $relOverridesStore;
+                        $GLOBALS['dataTool'][$relationship['table']] = $relOverridesStore;
                     }
                     
                     $relQueryCount++;
@@ -747,9 +747,9 @@ class DataTool{
      */
     function generateRelationshipBody($relationship, $baseId, $relId){
         static $relCounter = 0;
-	if ($relCounter == 0) {
-		$relCounter = !empty($_GET['offset']) ? $_GET['offset'] : 0;
-	}
+    if ($relCounter == 0) {
+        $relCounter = !empty($_GET['offset']) ? $_GET['offset'] : 0;
+    }
         $relCounter++;
         $date = db_convert("'".date('Y-m-d H:i:s') ."'" , 'datetime') ;
         $customData = '';
@@ -792,10 +792,10 @@ class DataTool{
      * @param $count - The current record number
      */
     function generateSeed($module, $field, $count){
-    	/* We multiply by two because mt_srand
+        /* We multiply by two because mt_srand
          * doesn't work well when you give it
          * consecutive integers.
-    	 */
+         */
         return  2*($this->str_sum($this->module . $field) + $this->count + $_SESSION['baseTime']);
     }
 
@@ -811,13 +811,12 @@ class DataTool{
     }
 
     function str_sum($str){
-    	$sum = 0;
+        $sum = 0;
         for($i = strlen($str);$i--;){
             $sum += ord($str[$i]);
-    	}
+        }
         return $sum;
     }
 }
-
 
 

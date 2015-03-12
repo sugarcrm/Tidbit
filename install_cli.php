@@ -129,6 +129,9 @@ Options
     --allmodules	Automatically detect all installed modules and generate data for them.
     
     --allrelationships	Automatically detect all relationships and generate data for them.
+
+    --iterator count 	This will only insert in the DB the last (count) records specified, meanwhile the 
+    					iterator will continue running in the loop. Used to check for orphaned records.
     
     "Powered by SugarCRM"
     
@@ -139,7 +142,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:'));
+	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -221,6 +224,8 @@ else
             $nextData = 'as_buffer';
         } elseif($arg === '--as_last_rec') {
             $nextData = 'as_last_rec';
+        } elseif($arg === '--iterator') {
+            $nextData = 'iterator';
         }
 	}
 }
@@ -331,6 +336,9 @@ if(isset($opts['as_populate'])) {
         $_SESSION['as_last_rec'] = $opts['as_last_rec'];
     }
 }
+if(isset($opts['iterator'])) {
+	$_SESSION['iterator'] = $opts['iterator'];
+}
 $_SESSION['processedRecords'] = 0;
 $_SESSION['allProcessedRecords'] = 0;
 
@@ -385,6 +393,12 @@ foreach($module_keys as $module)
 
 	echo "Processing Module $module\n";
 	$total = $modules[$module];
+	echo "Inserting ${total} records.\n";
+	$total_iterator = 0;
+	if(isset($_SESSION['iterator']) && ($total > $_SESSION['iterator'])){
+		$total_iterator = $total - 	$_SESSION['iterator'];
+		echo $total_iterator . " records will be skipped from generation.\n";
+	}
 
 	$GLOBALS['relatedQueries'] = array();
 	$GLOBALS['queries'] = array();
@@ -497,6 +511,9 @@ foreach($module_keys as $module)
 
 
 	for($i = 0; $i < $total; $i++){
+		if(isset($_SESSION['iterator']) && ($i <= $total_iterator)){
+			continue;
+		}
 		$ibfd->count = $i;
 		/* Don't turbo Users or Teams */
 		if(!isset($_SESSION['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')){
@@ -643,13 +660,19 @@ if (!empty($_SESSION['as_populate'])) {
         $timer = microtime(1);
 
         require_once 'Tidbit/Generator/ActivityGenerator.php';
-        $tga = new TidbitActivityGenerator();
+        $tga = new TidbitActivityGenerator();        
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $GLOBALS['modules'];
         $tga->db = $GLOBALS['db'];
         $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
         $tga->lastNRecords = $activityStreamOptions['last_n_records'];
+        if(isset($_SESSION['iterator'])){
+			$tga->iterator = $_SESSION['iterator'];
+			if($tga->lastNRecords >= $_SESSION['iterator']){
+				$tga->lastNRecords = $_SESSION['iterator'];
+			}
+		}
 
         $tga->init();
 
