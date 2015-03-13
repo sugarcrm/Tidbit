@@ -59,15 +59,6 @@ class TidbitActivityGenerator
     protected $totalModulesRecords = 0;
 
     /**
-     * Constant. Activities won't be created for these modules
-     * @var array
-     */
-    protected $moduleBlackList = array(
-        'Users',
-        'Teams',
-    );
-
-    /**
      * Dynamic variable using to pass values to another iteration of createDataSet -> flushDataSet
      * @var array
      */
@@ -111,7 +102,7 @@ class TidbitActivityGenerator
                 'total' => $moduleRecordCount,
             );
         }
-        $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->moduleBlackList));
+        $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->getModulesBlackList()));
         foreach ($this->activityModules as $module) {
             // apply lastNRecords option
             $this->currentOffsets[$module]['total'] = $this->lastNRecords > 0 && $this->modules[$module] > $this->lastNRecords
@@ -355,5 +346,14 @@ class TidbitActivityGenerator
     {
         $this->countQuery++;
         return $this->db->query($sql);
+    }
+
+    /**
+     * Activities won't be created for these modules
+     * @return array
+     */
+    function getModulesBlackList() {
+        global $activityModulesBlackList;
+        return $activityModulesBlackList;
     }
 }

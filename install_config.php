@@ -63,6 +63,14 @@ $aliases = array(
     'Opportunities'  => 'Oppty'
 );
 
+$activityModulesBlackList = array(
+    'Users',
+    'Teams',
+    'ProductBundles',
+    'EmailAddresses',
+    'Documents'
+);
+
 $tidbit_relationships['Users'] = array(
     'Teams' => array(
         'self' => 'user_id',
