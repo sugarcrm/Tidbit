@@ -130,8 +130,11 @@ Options
     
     --allrelationships	Automatically detect all relationships and generate data for them.
 
-    --iterator count 	This will only insert in the DB the last (count) records specified, meanwhile the 
-    					iterator will continue running in the loop. Used to check for orphaned records.
+    --iterator count    This will only insert in the DB the last (count) records specified, meanwhile the
+                        iterator will continue running in the loop. Used to check for orphaned records.
+
+    --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
+                        Does Not include relations for now
     
     "Powered by SugarCRM"
     
@@ -142,7 +145,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:'));
+	$opts = getopt('l:u:s:x:ecothvd', array('allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -226,6 +229,8 @@ else
             $nextData = 'as_last_rec';
         } elseif($arg === '--iterator') {
             $nextData = 'iterator';
+        } elseif ($arg === '--insert_batch_size') {
+            $nextData = 'insert_batch_size';
         }
 	}
 }
@@ -347,7 +352,13 @@ if(isset($_SESSION['debug']))
 	$GLOBALS['queryFP'] = fopen('Tidbit/executedQueries.txt', 'w');
 }
 
+// Batch size by default is 19 (20th in for loop)
+$insertBatchSize = 19;
 
+// We need -1 because loops are started from 0, so each 50th record means 49 index
+if ((int) $opts['insert_batch_size']) {
+    $insertBatchSize = ((int) $opts['insert_batch_size']) - 1;
+}
 
 class FakeLogger { public function __call($m, $a) { } }
 $GLOBALS['log']= new FakeLogger();
@@ -368,12 +379,17 @@ foreach($module_keys as $module)
 {
 	echo "{$modules[$module]} {$module}\n";
 }
+
+echo "\n";
 echo "With Clean Mode ".(isset($_SESSION['clean'])?"ON":"OFF")."\n";
 echo "With Turbo Mode ".(isset($_SESSION['turbo'])?"ON":"OFF")."\n";
 echo "With Transaction Batch Mode ".(isset($_SESSION['txBatchSize'])?$_SESSION['txBatchSize']:"OFF"). "\n";
 echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
-echo "With ActivityStream Polulating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
+echo "With ActivityStream Populating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
+echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1) . " records \n";
+echo "\n";
+
 $obliterated = array();
 //DataTool::generateTeamSets();
 foreach($module_keys as $module)
@@ -548,13 +564,14 @@ foreach($module_keys as $module)
 			$relQueryCount = 0;
 		}
 
-		if(!empty($GLOBALS['queryHead']) && !empty($GLOBALS['queries']) && $i != 0 && $i%19 ==0)
-		{
-			$dbStart = microtime();
-			processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
-			/* Clear queries */
-			unset($GLOBALS['queries']);
-		}
+        // Perform insert query for each $insertBatchSize element in the loop
+        if(!empty($GLOBALS['queryHead']) && !empty($GLOBALS['queries']) && $i != 0 && $i % $insertBatchSize == 0)
+        {
+            $dbStart = microtime();
+            processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
+            /* Clear queries */
+            unset($GLOBALS['queries']);
+        }
 
         if (isset($_SESSION['txBatchSize']) && $i%$_SESSION['txBatchSize'] == 0) {
             $GLOBALS['db']->commit();

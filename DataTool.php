@@ -52,7 +52,36 @@ class DataTool{
     var $count = 0;
     static $team_sets_array = array();
     static $relmodule_index = 0;
-    
+
+    // Cache for generateSeed function
+    static $seedModules = array();
+    static $seedFields = array();
+
+    // based on xhprof, db_convert for datetime and time generation, consume a lot of time.
+    // getConvertDatetime() function re-generate time only when this index reach max number
+    // so we will re-generate time only for self::$datetimeIndexMax record
+    static $datetimeCacheIndex = 0;
+    static $datetimeIndexMax = 1000;
+
+    // Skip db_convert for those types for optimization
+    // TODO: move this to config
+    static $notConvertedTypes = array(
+        'int',
+        'uint',
+        'double',
+        'float',
+        'decimal',
+        'decimal2',
+        'short',
+        'varchar',
+        'text',
+        'enum',
+        'bool',
+        'phone',
+        'email',
+        'created_by'
+    );
+
     /**
      * Generate data and store it in the installData array.
      * This function calls generateSeed and passes the return
@@ -83,7 +112,7 @@ class DataTool{
         	$this->installData['deleted'] = 0;	
         }
         if (!empty($this->fields['date_modified'])) {
-        	$this->installData['date_modified'] = db_convert("'".date('Y-m-d H:i:s'). "'", 'datetime');	
+        	$this->installData['date_modified'] = $this->getConvertDatetime();
         }
         if(!empty($this->fields['date_entered'])) {
         	$this->installData['date_entered'] = $this->installData['date_modified'];
@@ -112,14 +141,11 @@ class DataTool{
      * Generate a unique ID based on the module name, system time, and count (defined
      * in install_config.php for each module), and save the ID in the installData array.
      */
-    function generateId(){
+    function generateId() {
         $currentModule = $this->getAlias($this->module);
-        if(($currentModule == 'Users') || ($currentModule == 'Teams')){
-            $this->installData['id'] = "'" . 'seed-'. $currentModule . $this->count . "'";
-        }else{
-            $this->installData['id'] = "'" . 'seed-'. $currentModule .$_SESSION['baseTime'] . $this->count . "'";
-        }
-        if(strlen($this->installData['id']) > 36){
+        $this->installData['id'] = $this->assembleId($currentModule, $this->count);
+
+        if (strlen($this->installData['id']) > 36) {
             $moduleLength = strlen($currentModule);
             $this->installData['id'] = '\'seed-' . $currentModule . substr(md5($this->installData['id']), 0, -($moduleLength + 1)).  "'";
         }
@@ -301,10 +327,12 @@ class DataTool{
             }else{
             	$thisToRelatedRatio = 0;
             }
-            if(($typeData['related']['module'] == 'Users') || ($typeData['related']['module'] == 'Teams')){
-            	return "'".'seed-'.$typeData['related']['module'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
-            }
-            return "'".'seed-'.$typeData['related']['module'].$_SESSION['baseTime'].$this->getRelatedUpId($typeData['related']['module'],$thisToRelatedRatio)."'";
+
+            $relModule = $this->getAlias($typeData['related']['module']);
+            $relUpID = $this->getRelatedUpId($typeData['related']['module'], $thisToRelatedRatio);
+            $relatedId = $this->assembleId($relModule, $relUpID);
+
+            return $relatedId;
         }
 
         if (!empty($typeData['gibberish'])) {
@@ -439,9 +467,12 @@ class DataTool{
         if($isQuote || !empty($typeData['isQuoted']) ){
             $baseValue = "'".@trim($baseValue) . "'";
         }
-         $baseValue = db_convert($baseValue, $type);
-        
-        
+
+        // Run db convert only for specific types. see DBManager::convert()
+        if (!in_array($type, self::$notConvertedTypes)) {
+            $baseValue = $GLOBALS['db']->convert($baseValue, $type);
+        }
+
         return $baseValue;
     }
 
@@ -657,7 +688,12 @@ class DataTool{
         if(empty($GLOBALS['tidbit_relationships'][$this->module]))return;
         
         foreach($GLOBALS['tidbit_relationships'][$this->module] as $relModule=>$relationship){
-        	if(!is_dir('modules/' . $this->module) || !is_dir('modules/' . $relModule))continue;
+
+            // TODO: remove this check or replace with something else
+            if (!is_dir('modules/' . $relModule)) {
+                continue;
+            }
+
             if(!empty($GLOBALS['modules'][$relModule])){
                 
                 
@@ -678,13 +714,10 @@ class DataTool{
                  * through $relationship['table']
                  */
                 for($j = 0; $j < $thisToRelatedRatio; $j++){
+
                     $currentRelModule = $this->getAlias($relModule);
-                    if(($relModule == 'Users') || ($relModule == 'Teams')){
-                        $relId = 'seed-'. $currentRelModule .$this->getRelatedLinkId($relModule);
-                    }else{
-                        $relId = 'seed-'. $currentRelModule .$_SESSION['baseTime'].$this->getRelatedLinkId($relModule);
-                    }
-                    
+                    $relId = $this->assembleId($currentRelModule, $this->getRelatedLinkId($relModule), false);
+
                     $relOverridesStore = array();
                     /* If a repeat factor is specified, then we will process the body multiple times. */
                     if(!empty($GLOBALS['dataTool'][$relationship['table']]) && !empty($GLOBALS['dataTool'][$relationship['table']]['repeat'])){
@@ -741,62 +774,139 @@ class DataTool{
     
     /**
      * Returns the body for the current relationship query.
+     *
      * @param $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
      * @param $baseId - Current module id
      * @param $relId - Id for the related module
+     * @return string
      */
-    function generateRelationshipBody($relationship, $baseId, $relId){
+    function generateRelationshipBody($relationship, $baseId, $relId)
+    {
         static $relCounter = 0;
-	if ($relCounter == 0) {
-		$relCounter = !empty($_GET['offset']) ? $_GET['offset'] : 0;
-	}
+
+        if ($relCounter == 0) {
+            $relCounter = !empty($_GET['offset']) ? $_GET['offset'] : 0;
+        }
+
         $relCounter++;
-        $date = db_convert("'".date('Y-m-d H:i:s') ."'" , 'datetime') ;
+        $date = $this->getConvertDatetime();
         $customData = '';
         
-        if(!empty($GLOBALS['dataTool'][$relationship['table']])){
+        if (!empty($GLOBALS['dataTool'][$relationship['table']])) {
             foreach($GLOBALS['dataTool'][$relationship['table']] as $field => $typeData){
                 $seed = $this->generateSeed($this->module, $field, $this->count);
                 $customData .= ', ' . $this->handleType($typeData, '', $field, $seed);
             }
         }
+
         return  ' (' ."'seed-rel" . time() . $relCounter . "',$baseId , '$relId' , 0 , $date".$customData." )";
-    
     }
-    
-    
+
+
+    /**
+     * Cache datetime generation and convert to db format
+     * Based on xhprof data, this operation in time consuming, so we need to cache that
+     *
+     * @return mixed
+     */
+    function getConvertDatetime()
+    {
+        static $datetime = '';
+
+        self::$datetimeCacheIndex++;
+
+        if ((self::$datetimeCacheIndex > self::$datetimeIndexMax) || empty($datetime)) {
+            $datetime = $GLOBALS['db']->convert("'".date('Y-m-d H:i:s') ."'", 'datetime') ;
+            self::$datetimeCacheIndex = 0;
+        }
+
+        return $datetime;
+    }
+
     /**
      * Returns a gibberish string based on a reordering of the base text
      * (Lorem ipsum dolor sit amet, ....)
+     *
      * @param $wordCount
+     * @return string
      */
-    function generateGibberish($wordCount = 1){
-         static $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, in aliquam magna sem.";
-         $words = explode(' ', $baseText);
-         shuffle($words);
-         
-         if($wordCount > 0){
+    function generateGibberish($wordCount = 1)
+    {
+        static $words = array();
+
+        if (empty($words)) {
+            $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, in aliquam magna sem.";
+            $words = explode(' ', $baseText);
+        }
+
+        shuffle($words);
+
+        if ($wordCount > 0) {
             $words = array_slice($words, 0, $wordCount);
-         }
-         $newText= implode(' ' ,$words );
-         return $newText;
+        }
+
+        return implode(' ', $words);
     }
-    
-    /* TODO - OPTIMIZATION - cache sums of $fieldName and $this->module
+
+    /**
+     * Assemble Bean id string by module and related/count IDs
+     *
+     * @param string $module
+     * @param int $id
+     * @param bool $quotes
+     * @return string
+     */
+    function assembleId($module, $id, $quotes = true)
+    {
+        static $assembleIdCache = array();
+
+        if (empty($assembleIdCache[$module])) {
+            $assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
+                ? 'seed-' . $module
+                : 'seed-' . $module . $_SESSION['baseTime'];
+        }
+
+        $seedId = $assembleIdCache[$module] . $id;
+
+        // should return id be quoted or not
+        if ($quotes) {
+            $seedId = "'" . $seedId . "'";
+        }
+
+        return $seedId;
+    }
+
+    /*
+     * TODO - OPTIMIZATION - cache sums of $fieldName and $this->module
      * somewhere, sessions maybe.
+     * DONE: cache in static properties
      */
     /**
      * Returns a seed to be used with the RNG.
-     * @param $module - The current module
-     * @param $field - The current field
-     * @param $count - The current record number
+     *
+     * @param string $module - The current module
+     * @param string $field - The current field
+     * @param int $count - The current record number
+     * @return int
      */
-    function generateSeed($module, $field, $count){
-    	/* We multiply by two because mt_srand
+    function generateSeed($module, $field, $count)
+    {
+        // Cache module
+        if (!isset(self::$seedModules[$module])) {
+            self::$seedModules[$module] = $this->str_sum($this->module);
+        }
+
+        // Cache fields
+        if (!isset(self::$seedFields[$field])) {
+            self::$seedFields[$field] = $this->str_sum($field);
+        }
+
+        /*
+         * We multiply by two because mt_srand
          * doesn't work well when you give it
          * consecutive integers.
-    	 */
-        return  2*($this->str_sum($this->module . $field) + $this->count + $_SESSION['baseTime']);
+         */
+        return  2 * (self::$seedModules[$module] + self::$seedFields[$field] + $count + $_SESSION['baseTime']);
     }
 
     /**
@@ -806,18 +916,25 @@ class DataTool{
      */
     function getAlias($name) {
         global $aliases;
-        $alias = isset ($aliases[$name]) ? $aliases[$name] : $name;
-        return $alias;
+        return (isset ($aliases[$name]))
+            ? $aliases[$name]
+            : $name;
     }
 
-    function str_sum($str){
-    	$sum = 0;
-        for($i = strlen($str);$i--;){
+    /**
+     * Calculate string check sum
+     *
+     * @param $str
+     * @return int
+     */
+    function str_sum($str)
+    {
+        $sum = 0;
+
+        for ($i = strlen($str); $i--;) {
             $sum += ord($str[$i]);
-    	}
+        }
+
         return $sum;
     }
 }
-
-
-
