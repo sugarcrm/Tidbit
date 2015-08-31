@@ -356,7 +356,7 @@ if(isset($_SESSION['debug']))
 $insertBatchSize = 19;
 
 // We need -1 because loops are started from 0, so each 50th record means 49 index
-if ((int) $opts['insert_batch_size']) {
+if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
     $insertBatchSize = ((int) $opts['insert_batch_size']) - 1;
 }
 
