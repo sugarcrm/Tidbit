@@ -133,7 +133,12 @@ class DataTool{
             if(isset($this->installData['assigned_user_id'])){
                  $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
             }
-            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";  
+            $this->installData['team_set_id'] = "'".$this->installData['team_set_id']."'";
+
+            //check if TbACLs is enabled
+            if (!empty($_SESSION['tba'])) {
+                $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
+            }
         } 
     }
     
@@ -155,43 +160,54 @@ class DataTool{
         $this->installData = array();
         $this->count = 0;
     }
-    
-    
+
+
     /**
      * Dispatch to the handleType function based on what values are present in the
-     * global $dataTool array.  This array is populated by the .php files in the 
-     * TidBit/Data directory.     
+     * global $dataTool array.  This array is populated by the .php files in the
+     * TidBit/Data directory.
+     *
+     * Priority: FieldName > FieldDBType > FieldSugarType
+     *
      * @param $fieldName - name of the field for which data is being generated
-     * @param $fieldType - The DB type of the field, if it differs from the Sugar type
+     * @param $fieldDBType - The DB type of the field, if it differs from the Sugar type
      * @param $sugarType - Always the Sugar type of the field
      * @param $seed - Seed from generateSeed(), used to generate a random reasonable value
+     *
+     * @return string
      */
-    function getData($fieldName, $fieldType, $sugarType, $seed){
+    function getData($fieldName, $fieldDBType, $sugarType, $seed){
         //echo "GD: $fieldName, $fieldType, $sugarType, $seed\n";
         // Check if the fieldName is defined
         if(!empty($GLOBALS['dataTool'][$this->module][$fieldName])){
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldName], $fieldType, $fieldName, $seed);
+            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldName], $fieldDBType, $fieldName, $seed);
         }
+
+        // Check if fieldType is defined
+        if(!empty($GLOBALS['dataTool'][$this->module][$fieldDBType])){
+            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldDBType], $fieldDBType, $fieldName, $seed);
+        }
+
         // Check if the Sugar type is defined
         if(!empty($GLOBALS['dataTool'][$this->module][$sugarType])){
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$sugarType], $fieldType, $fieldName, $seed);
+            return $this->handleType($GLOBALS['dataTool'][$this->module][$sugarType], $fieldDBType, $fieldName, $seed);
         }
+
         // If the fieldName is undefined for this module, see if a default value is defined
         if(!empty($GLOBALS['dataTool']['default'][$fieldName])){
-            return $this->handleType($GLOBALS['dataTool']['default'][$fieldName], $fieldType, $fieldName, $seed);
+            return $this->handleType($GLOBALS['dataTool']['default'][$fieldName], $fieldDBType, $fieldName, $seed);
         }
+
+        // If the fieldType is undefined for this module, see if a default value is defined
+        if(!empty($GLOBALS['dataTool']['default'][$fieldDBType])){
+            return $this->handleType($GLOBALS['dataTool']['default'][$fieldDBType], $fieldDBType, $fieldName, $seed);
+        }
+
         // If the sugarType is undefined for this module, see if a default value is defined
         if(!empty($GLOBALS['dataTool']['default'][$sugarType])){
-            return $this->handleType($GLOBALS['dataTool']['default'][$sugarType], $fieldType, $fieldName, $seed);
+            return $this->handleType($GLOBALS['dataTool']['default'][$sugarType], $fieldDBType, $fieldName, $seed);
         }
-        // Check if fieldType is defined
-        if(!empty($GLOBALS['dataTool'][$this->module][$fieldType])){
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldType], $fieldType, $fieldName, $seed);
-        }
-        // If the fieldType is undefined for this module, see if a default value is defined
-        if(!empty($GLOBALS['dataTool']['default'][$fieldType])){
-            return $this->handleType($GLOBALS['dataTool']['default'][$fieldType],$fieldType, $fieldName, $seed);
-        }
+
         return '';
     }
 
@@ -632,6 +648,7 @@ class DataTool{
     /**
      * Generate a 'parent' id for use
      * by handleType:'parent'
+     * ToDo: add mapping for $baseModule.
      */
     function getRelatedLinkId($relModule, $thisToRelatedRatio = 0){
         /* The baseModule needs to be Accounts normally
@@ -641,6 +658,8 @@ class DataTool{
          */
         if($relModule == 'Teams'){
             $baseModule = 'Teams';
+        } elseif ($this->module == 'ACLRoles') {
+            $baseModule = 'ACLRoles';
         }elseif($this->module == 'Users'){
             $baseModule = 'Users';
         }elseif($this->module == 'ProductBundles'){
