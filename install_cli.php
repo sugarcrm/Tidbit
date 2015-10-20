@@ -672,7 +672,18 @@ foreach($module_keys as $module)
 		while($row = $GLOBALS['db']->fetchByAssoc($result)){
 			$team_sets[$row['team_set_id']][] = $row['team_id'];
 		}
-		DataTool::$team_sets_array = $team_sets;
+
+		// check teamset with max count teams, fix for sugar 7700beta5
+		$crackTeamSet = null;
+		$teams_in_team_set = 0;
+		foreach($team_sets as $team_set_id => $data) {
+			$count = count($data);
+			if ($count > $teams_in_team_set) {
+				$crackTeamSet = $team_set_id;
+				$teams_in_team_set = $count;
+			}
+		}
+		DataTool::$team_sets_array = array($crackTeamSet => $team_sets[$crackTeamSet]);
 	}
 
     // Apply TBA Rules for some modules
