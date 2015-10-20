@@ -211,8 +211,7 @@ class DataTool{
         return '';
     }
 
-    static $team_set_with_many_teams = null;
-    /**
+	/**
 	 * Returns a randomly generated piece of data for the current module and field.  
 	 * @param $typeData - An array from a .php file in the Tidbit/Data directory
 	 * @param $type - The type of the current field
@@ -227,20 +226,12 @@ class DataTool{
         
 //        echo "HT: $typeData, $type, $field, $seed\n";
         if(!empty($typeData['skip']))return '';
-
-        // Select team set with maximum teams count, fix for sugar7700beta5
+        
+        
         if(!empty($typeData['teamset'])) {
-            if (self::$team_set_with_many_teams === null) {
-                $teams_in_team_set = 0;
-                foreach(self::$team_sets_array as $team_set_id => $data) {
-                    $count = count($data);
-                    if ($count > $teams_in_team_set) {
-                        self::$team_set_with_many_teams = $team_set_id;
-                        $teams_in_team_set = $count;
-                    }
-                }
-            }
-            return $this->installData['team_set_id'] = self::$team_set_with_many_teams;
+        	$index = rand(0, count(self::$team_sets_array)-1);
+        	$keys = array_keys(self::$team_sets_array);
+            return $this->installData['team_set_id'] = $keys[$index];
         }        
         
         if(!empty($typeData['value']) || (isset($typeData['value']) && $typeData['value']=="0")){
