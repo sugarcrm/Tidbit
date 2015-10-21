@@ -128,6 +128,9 @@ Options
     
     --tba               Turn Team-based ACL Mode on.
 
+    --tba_level         Specify restriction level for Team-based ACL. Could be (minimum/medium/maximum/full).
+                        Default level is medium.
+
     --allmodules	Automatically detect all installed modules and generate data for them.
 
     --allrelationships	Automatically detect all relationships and generate data for them.
@@ -147,7 +150,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
+	$opts = getopt('l:u:s:x:ecothvd', array('tba_level:', 'tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -218,6 +221,9 @@ else
 		}
 		elseif ($arg === '--tba') {
 			$opts['tba'] = true;
+		}
+		elseif ($arg === '--tba_level') {
+			$nextData = 'tba_level';
 		}
 		elseif($arg == '--allmodules') {
 			$opts['allmodules'] = true;
@@ -347,6 +353,10 @@ if (isset($opts['tba'])) {
     }
 }
 
+if ($_SESSION['tba'] == true) {
+	$_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+}
+
 if(isset($opts['as_populate'])) {
     $_SESSION['as_populate'] = true;
     if(isset($opts['as_number'])) {
@@ -407,6 +417,7 @@ echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
 echo "With ActivityStream Populating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode ".(isset($_SESSION['tba'])?"ON":"OFF")."\n";
+echo "With Team-based Restriction Level " . (isset($_SESSION['tba_level']) ? strtoupper($_SESSION['tba_level']) : "OFF") . "\n";
 echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1) . " records \n";
 echo "\n";
 
@@ -500,6 +511,7 @@ foreach($module_keys as $module)
 			$GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles WHERE 1=1");
+            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE 1=1");
 		} else {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
 		}
@@ -525,6 +537,7 @@ foreach($module_keys as $module)
 			$GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1' AND role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles WHERE id LIKE 'seed-%'");
+            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE role_id LIKE 'seed-%'");
 		}else {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
 		}
@@ -693,14 +706,37 @@ foreach($module_keys as $module)
         }
 
         $result = $GLOBALS['db']->query("SELECT id FROM acl_roles WHERE id LIKE 'seed-ACLRoles%'");
-        $roleBean = BeanFactory::getBean('ACLRoles');
+        $beanACLRoles = BeanFactory::getBean('ACLRoles');
+        $beanACLFields = BeanFactory::getBean('ACLFields');
 
         while($row = $GLOBALS['db']->fetchByAssoc($result)){
-            foreach ($roleActions as $category => $actions) {
-                foreach ($actions as $name => $access_override) {
-                    $actionId = isset($actionsIds[$category . '_' . $name]) ? $actionsIds[$category . '_' . $name] : null;
+            foreach ($roleActions as $moduleName) {
+                foreach($tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
+                    $actionId = isset($actionsIds[$moduleName . '_' . $action]) ? $actionsIds[$moduleName . '_' . $action] : null;
                     if (!empty($actionId)) {
-                        $roleBean->setAction($row['id'], $actionId, $access_override);
+                        $beanACLRoles->setAction($row['id'], $actionId, $access_override);
+                    }
+                }
+                if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
+                    $roleFields = $beanACLFields->getFields($moduleName, '', $row['id']);
+                    foreach($roleFields as $fieldName => $fieldValues) {
+                        if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only') {
+                            if ($fieldValues['required']) {
+                                $beanACLFields->setAccessControl(
+                                    $moduleName,
+                                    $row['id'],
+                                    $fieldName,
+                                    $tbaFieldAccess
+                                );
+                            }
+                        } else {
+                            $beanACLFields->setAccessControl(
+                                $moduleName,
+                                $row['id'],
+                                $fieldName,
+                                $tbaFieldAccess
+                            );
+                        }
                     }
                 }
             }

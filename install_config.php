@@ -228,21 +228,54 @@ $tidbit_relationships['Leads']=array(
 //	
 //);
 
-$tbaAccess = 72; // This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
-$tbaAccessList = array(
-    'create' => $tbaAccess,
-    'view' => $tbaAccess,
-    'list' => $tbaAccess,
-    'edit' => $tbaAccess,
-    'delete' => $tbaAccess
+$tbaModuleAccess = 72; // This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
+$tbaFieldAccess = 68; // This value related to ACL_SELECTED_TEAMS_READ_OWNER_WRITE((Owner & Selected Teams) Read/Owner Write) constant
+$tbaRestrictionLevelDefault = 'medium';
+$tbaRestrictionLevel = array(
+    'minimum' => array(
+        'modules' => array(
+            'delete' => $tbaModuleAccess
+        ),
+        'fields' => false
+    ),
+    'medium' => array(
+        'modules' => array(
+            'create' => $tbaModuleAccess,
+            'view' => $tbaModuleAccess,
+            'list' => $tbaModuleAccess,
+            'edit' => $tbaModuleAccess,
+            'delete' => $tbaModuleAccess
+        ),
+        'fields' => false
+    ),
+    'maximum' => array(
+        'modules' => array(
+            'create' => $tbaModuleAccess,
+            'view' => $tbaModuleAccess,
+            'list' => $tbaModuleAccess,
+            'edit' => $tbaModuleAccess,
+            'delete' => $tbaModuleAccess
+        ),
+        'fields' => 'required_only'
+    ),
+    'full' => array(
+        'modules' => array(
+            'create' => $tbaModuleAccess,
+            'view' => $tbaModuleAccess,
+            'list' => $tbaModuleAccess,
+            'edit' => $tbaModuleAccess,
+            'delete' => $tbaModuleAccess
+        ),
+        'fields' => true
+    ),
 );
 $roleActions = array(
-    'Accounts' => $tbaAccessList,
-    'Contacts' => $tbaAccessList,
-    'Leads' => $tbaAccessList,
-    'Quotes' => $tbaAccessList,
-    'Opportunities' => $tbaAccessList,
-    'Bugs' => $tbaAccessList,
-    'Cases' => $tbaAccessList,
-    'KBContents' => $tbaAccessList
+    'Accounts',
+    'Contacts',
+    'Leads',
+    'Quotes',
+    'Opportunities',
+    'Bugs',
+    'Cases',
+    'KBContents'
 );
