@@ -634,6 +634,7 @@ foreach($module_keys as $module)
             $curdt = $datetime = date('Y-m-d H:i:s') ;
             $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
+			add_user_to_all_teams($row['id']);
         }
     }
 
@@ -672,17 +673,7 @@ foreach($module_keys as $module)
 		while($row = $GLOBALS['db']->fetchByAssoc($result)){
 			$team_sets[$row['team_set_id']][] = $row['team_id'];
 		}
-
-		// check teamset with max count teams, fix for sugar 7700beta5
-		$maxTeamSet = null;
-		$teams_in_team_set = 0;
-		foreach($team_sets as $team_set_id => $data) {
-			if (count($data) > $teams_in_team_set) {
-				$maxTeamSet = $team_set_id;
-				$teams_in_team_set = count($data);
-			}
-		}
-		DataTool::$team_sets_array = array($maxTeamSet => $team_sets[$maxTeamSet]);
+		DataTool::$team_sets_array = $team_sets;
 	}
 
     // Apply TBA Rules for some modules
