@@ -142,7 +142,7 @@ function add_team_to_team_set($team_set_id, $user_id){
 function add_user_to_all_teams($user_id) {
     static $teams = array();
     if (count($teams) == 0) {
-        $result = $GLOBALS['db']->query('select `id` from `teams`');
+        $result = $GLOBALS['db']->query('select id from teams');
         while($row = $GLOBALS['db']->fetchByAssoc($result)){
             $teams[] = BeanFactory::getBean('Teams', $row['id']);
         }
