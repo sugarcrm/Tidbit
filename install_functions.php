@@ -99,20 +99,23 @@ function get_random_array($array, $num){
 /**
  * generate_team_set
  * Helper function to recursively create team sets
- * @param $primary The primary team
- * @param $teams The teams to use
+ *
+ * @param $primary string The primary team
+ * @param $teams string The teams to use
  */
-function generate_team_set($primary, $teams) {	
-	if(!in_array($primary, $teams)){
-		array_push($teams, $primary);
-	}
-	$teams = array_reverse($teams);
-	$team_count = count($teams);
-	for($i = 0; $i < $team_count; $i++){
-		$teamset = new TeamSet();
-		$teamset->addTeams($teams);
-		array_pop($teams);
-	}
+function generate_team_set($primary, $teams)
+{
+    if (!in_array($primary, $teams)) {
+        array_push($teams, $primary);
+    }
+    $teams = array_reverse($teams);
+    $team_count = count($teams);
+    for ($i = 0; $i < $team_count; $i++) {
+        /** @var TeamSet $teamSet */
+        $teamSet = BeanFactory::getBean('TeamSets');
+        $teamSet->addTeams($teams);
+        array_pop($teams);
+    }
 }
 
 /*

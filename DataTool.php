@@ -50,6 +50,8 @@ class DataTool{
     var $table_name = '';
     var $module = '';
     var $count = 0;
+    // TeamSet with all teams inside
+    static public $max_team_set_id = null;
     static $team_sets_array = array();
     static $relmodule_index = 0;
 
@@ -226,8 +228,12 @@ class DataTool{
         
 //        echo "HT: $typeData, $type, $field, $seed\n";
         if(!empty($typeData['skip']))return '';
-        
-        
+
+        // Set TeamSet with all existings teams
+        if (!empty($typeData['teamset_max'])) {
+            return $this->installData['team_set_id'] = self::$max_team_set_id;
+        }
+
         if(!empty($typeData['teamset'])) {
         	$index = rand(0, count(self::$team_sets_array)-1);
         	$keys = array_keys(self::$team_sets_array);
