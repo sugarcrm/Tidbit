@@ -50,3 +50,5 @@ $GLOBALS['dataTool']['Contacts']['account_id'] = array('related'=>array('module'
 $GLOBALS['dataTool']['Contacts']['portal_name'] = array('incname' => 'contact');
 $GLOBALS['dataTool']['Contacts']['portal_password'] = array('same_hash' => 'portal_name');
 $GLOBALS['dataTool']['Contacts']['portal_active'] = array('value'=>"'1'");
+// Select TeamSet with maximum number of teams for related modules
+$GLOBALS['dataTool']['Contacts']['team_set_id'] = array('teamset_max' => true);
