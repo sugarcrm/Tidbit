@@ -224,7 +224,7 @@ else
 			$opts['tba'] = true;
 		}
 		elseif ($arg === '--tba_level') {
-			$$nextData = 'tba_level';
+			$nextData = 'tba_level';
 		}
 		elseif ($arg === '--fullteamset') {
 			$opts['fullteamset'] = true;
