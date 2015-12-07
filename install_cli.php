@@ -128,6 +128,8 @@ Options
     
     --tba               Turn Team-based ACL Mode on.
 
+    --fullteamset       Build fully intersected teamset list.
+
     --allmodules	Automatically detect all installed modules and generate data for them.
 
     --allrelationships	Automatically detect all relationships and generate data for them.
@@ -147,7 +149,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
+	$opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -218,6 +220,9 @@ else
 		}
 		elseif ($arg === '--tba') {
 			$opts['tba'] = true;
+		}
+		elseif ($arg === '--fullteamset') {
+			$opts['fullteamset'] = true;
 		}
 		elseif($arg == '--allmodules') {
 			$opts['allmodules'] = true;
@@ -652,21 +657,31 @@ foreach($module_keys as $module)
 		//Now generate the random team_sets
 		$results = array();
 
-		$max_teams_per_set = 10;
-		if(isset($opts['s']) && $opts['s'] > 0){
-			$max_teams_per_set = $opts['s'];
-		}
+        if (isset($opts['fullteamset'])) {
+            $set = array();
+            for ($i = 0, $max = count($teams_data); $i < $max; $i++) {
+                for ($j = 1; $j <= $max; $j++) {
+                    $set = array_slice($teams_data, $i, $j);
+                    generate_full_teamset($set, $teams_data);
+                }
+            }
+        } else {
+            $max_teams_per_set = 10;
+            if (isset($opts['s']) && $opts['s'] > 0) {
+                $max_teams_per_set = $opts['s'];
+            }
 
-		foreach($teams_data as $team_id) {
-			//If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
-			if($max_teams_per_set == 1){
-				generate_team_set($team_id, array($team_id));
-			}elseif(count($teams_data) > $max_teams_per_set) {
-				generate_team_set($team_id, get_random_array($teams_data, $max_teams_per_set));
-			}else {
-				generate_team_set($team_id, $teams_data);
-			}
-		}
+            foreach ($teams_data as $team_id) {
+                //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
+                if ($max_teams_per_set == 1) {
+                    generate_team_set($team_id, array($team_id));
+                } elseif (count($teams_data) > $max_teams_per_set) {
+                    generate_team_set($team_id, get_random_array($teams_data, $max_teams_per_set));
+                } else {
+                    generate_team_set($team_id, $teams_data);
+                }
+            }
+        }
 
 		$result = $GLOBALS['db']->query("SELECT team_set_id, team_id FROM team_sets_teams");
 		$team_sets = array();
