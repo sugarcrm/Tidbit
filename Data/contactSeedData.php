@@ -21319,12 +21319,16 @@ $streetTypes = array('blvd' , 'Road', 'Street', 'CT', 'Ave', 'Pkwy', 'dr');
 $companyExt = array('Holdings', 'inc', 'co', 'COMPANY', 'FUNDS', 'Funding', ' Corp', 'CORPORATION', 'Division', 'LTD', 'International', 'UNITED', 'NATIONAL', 'Sugar', 'LLC', '1654', '123', '654');
 $companyPre = array('X/Z', 'Sugar', 'World', 'International' , '', '','', '', '194', '786' , '3492',);
 
+$lang_array = array('en');
+if (isset($kbLanguage)) {
+    $lang_array = array_keys($kbLanguage['list']);
+}
+
 $last_name_count = count($last_name_array);
 $first_name_count = count($first_name_array);
 $company_name_count = count($company_name_array);
 $street_address_count = count($street_address_array);
 $city_array_count = count($city_array);
-
-
+$lang_array_count = count($lang_array);
 
 ?>
