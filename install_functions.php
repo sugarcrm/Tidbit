@@ -118,6 +118,15 @@ function generate_team_set($primary, $teams)
     }
 }
 
+function generate_full_teamset($set, $teams)
+{
+    $team_count = count($teams);
+    for ($i = 0; $i < $team_count; $i++) {
+        $teamset = new TeamSet();
+        $teamset->addTeams(array_unique(array_merge($set, array($teams[$i]))));
+    }
+}
+
 /*
 * This method is meant to ensure that the user is associated with the team_set. The problem was that
 * records would be assigned to a specific user, have an associated team_set_id, but the user was not
