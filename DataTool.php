@@ -50,6 +50,8 @@ class DataTool{
     var $table_name = '';
     var $module = '';
     var $count = 0;
+    // TeamSet with all teams inside
+    static public $max_team_set_id = null;
     static $team_sets_array = array();
     static $relmodule_index = 0;
 
@@ -226,8 +228,12 @@ class DataTool{
         
 //        echo "HT: $typeData, $type, $field, $seed\n";
         if(!empty($typeData['skip']))return '';
-        
-        
+
+        // Set TeamSet with all existings teams
+        if (!empty($typeData['teamset_max'])) {
+            return $this->installData['team_set_id'] = self::$max_team_set_id;
+        }
+
         if(!empty($typeData['teamset'])) {
         	$index = rand(0, count(self::$team_sets_array)-1);
         	$keys = array_keys(self::$team_sets_array);
@@ -432,7 +438,32 @@ class DataTool{
             $selected = mt_rand(0, count($GLOBALS[$typeData['list']]) - 1);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
-        
+
+        // Handle date_start/date_end logic there
+        if (!empty($typeData['same_datetime']) && !empty($this->fields[$typeData['same_datetime']])) {
+            $baseValue = $this->accessLocalField($typeData['same_datetime']);
+            $baseValue = str_replace('\'', '', $baseValue);
+
+            // Apply datetime modifications
+            // Calculate modifications (e.g hours and minutes) and shift current base value
+            if (!empty($typeData['modify']) && is_array($typeData['modify'])) {
+
+                $shift = 0;
+
+                foreach ($typeData['modify'] as $type => $value) {
+                    // If value is depending on another field - let's get field value, otherwise - use value
+                    if (is_array($value) && !empty($value['field']) && !empty($this->fields[$value['field']])) {
+                        $timeUnit = $this->accessLocalField($value['field']);
+                    } else {
+                        $timeUnit = $value;
+                    }
+
+                    $shift += $this->applyDatetimeModifications($type, $timeUnit);
+                }
+
+                $baseValue = date('Y-m-d H:i:s', strtotime($baseValue) + $shift);
+            }
+        }
 
         if(!empty($typeData['suffixlist'])){
             foreach($typeData['suffixlist'] as $suffixlist){
@@ -955,5 +986,32 @@ class DataTool{
         }
 
         return $sum;
+    }
+
+    /**
+     * Calculate datetime shift depending on type
+     *
+     * @param $type
+     * @param $value
+     * @return int
+     */
+    public function applyDatetimeModifications($type, $value)
+    {
+        // default shift is one minute
+        $shift = 60;
+
+        switch ($type) {
+            case 'hours' :
+                $shift = 3600;
+                break;
+            case 'minutes' :
+                $shift = 60;
+                break;
+            case 'days' :
+                $shift = 24 * 3600;
+        }
+
+        // Return N(days/hours/minutes)*$shift = number of seconds to shift
+        return $value * $shift;
     }
 }

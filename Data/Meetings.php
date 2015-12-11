@@ -41,5 +41,19 @@ $GLOBALS['dataTool']['Meetings']['parent_type'] = array('value'=>"'Accounts'");
 $GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability'=>true);
 $GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
 $GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
+
+// Durations in Minutes will be 30 mins, hours from 0 to 12 (selected randomly)
+$GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value'=>"'30'");
+$GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range'=>  array('min' => 0, 'max' => 12));
 /* We want meetings to be in the past 90% of the time. */
-$GLOBALS['dataTool']['Meetings']['date'] = array('range'=>  array('min'=> -400, 'max'=>36), 'type'=>'date', 'basetime'=>time());
+/* Start should be always bigger than end */
+$GLOBALS['dataTool']['Meetings']['date_start'] = array('range' => array('min' => -400, 'max' => 36), 'type' => 'datetime', 'basetime' => time());
+$GLOBALS['dataTool']['Meetings']['date_end'] = array(
+    'same_datetime' => 'date_start',
+    'modify' => array(
+        'hours' => array(
+            'field' => 'duration_hours'
+        ),
+        'minutes' => '30'
+    )
+);

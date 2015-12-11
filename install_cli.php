@@ -2,33 +2,33 @@
 <?php
 
 /*********************************************************************************
- * Tidbit is a data generation tool for the SugarCRM application.  
+ * Tidbit is a data generation tool for the SugarCRM application.
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
  * Free Software Foundation with the addition of the following permission added
  * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
  * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
  * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with
  * this program; if not, see http://www.gnu.org/licenses or write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- * 
+ *
  * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
  * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
- * 
+ *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
  * Section 5 of the GNU Affero General Public License version 3.
- * 
+ *
  * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
  * these Appropriate Legal Notices must retain the display of the "Powered by
  * SugarCRM" logo. If the display of the logo is not reasonably feasible for
@@ -128,6 +128,8 @@ Options
     
     --tba               Turn Team-based ACL Mode on.
 
+    --tba_level         Specify restriction level for Team-based ACL. Could be (minimum/medium/maximum/full).
+                        Default level is medium.
     --fullteamset       Build fully intersected teamset list.
 
     --allmodules	Automatically detect all installed modules and generate data for them.
@@ -149,7 +151,7 @@ EOS;
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if(function_exists('getopt'))
 {
-	$opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
+    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:','iterator:', 'insert_batch_size:'));
 	if($opts === false)
 	{
 		die($usageStr);
@@ -221,6 +223,9 @@ else
 		elseif ($arg === '--tba') {
 			$opts['tba'] = true;
 		}
+		elseif ($arg === '--tba_level') {
+			$nextData = 'tba_level';
+		}
 		elseif ($arg === '--fullteamset') {
 			$opts['fullteamset'] = true;
 		}
@@ -247,17 +252,17 @@ else
 
 $allrelationships = false;
 if(isset($opts['allmodules'])) {
-	echo "automatically detecting installed modules\n"; 
+	echo "automatically detecting installed modules\n";
 	foreach($GLOBALS['moduleList'] as $candidate_module) {
 		if(!isset($modules[$candidate_module])) {
 			// TODO: Load for modules not defined in install_config
 			// is the same as for Contacts (4000)
 			$modules[$candidate_module] = 4000;
-		} 
+		}
 	}
 }
 if (isset($opts['allrelationships'])) {
-	echo "automatically generating relationships\n"; 
+	echo "automatically generating relationships\n";
 	$allrelationships = true;
 }
 if(isset($opts['l']))
@@ -352,6 +357,10 @@ if (isset($opts['tba'])) {
     }
 }
 
+if (isset($_SESSION['tba']) && $_SESSION['tba'] == true) {
+	$_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+}
+
 if(isset($opts['as_populate'])) {
     $_SESSION['as_populate'] = true;
     if(isset($opts['as_number'])) {
@@ -384,6 +393,8 @@ if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
     $insertBatchSize = ((int) $opts['insert_batch_size']) - 1;
 }
 
+$moduleUsingGenerators = array('KBContents', 'Categories');
+
 class FakeLogger { public function __call($m, $a) { } }
 $GLOBALS['log']= new FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
@@ -412,6 +423,7 @@ echo "With Obliterate Mode ".(isset($_SESSION['obliterate'])?"ON":"OFF")."\n";
 echo "With Existing Users Mode ".(isset($_SESSION['UseExistUsers'])?"ON - {$modules['Users']} users":"OFF")."\n";
 echo "With ActivityStream Populating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode ".(isset($_SESSION['tba'])?"ON":"OFF")."\n";
+echo "With Team-based Restriction Level " . (isset($_SESSION['tba_level']) ? strtoupper($_SESSION['tba_level']) : "OFF") . "\n";
 echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1) . " records \n";
 echo "\n";
 
@@ -425,7 +437,7 @@ foreach($module_keys as $module)
 		echo "Skipping $module\n";
 		continue;
 	}
-	
+
 	// TODO: fixing emails
 //	if ($module == 'Emails') {
 //		echo "Skipping $module\n";
@@ -434,6 +446,22 @@ foreach($module_keys as $module)
 
 	echo "Processing Module $module\n";
 	$total = $modules[$module];
+
+	if (in_array($module, $moduleUsingGenerators)) {
+		require_once('Tidbit/Tidbit/Generator/' . $module . '.php');
+		$generatorName = 'Tidbit_Generator_' . $module;
+		/** @var Tidbit_Generator_Abstract $generator */
+		$generator = new $generatorName($GLOBALS['db']);
+		if (isset($_SESSION['obliterate'])) {
+			$generator->obliterateDB();
+		} elseif (isset($_SESSION['clean'])) {
+			$generator->clearDB();
+		}
+		$generator->generate($modules[$module]);
+		$total = $generator->getInsertCounter();
+		continue;
+	}
+
 	echo "Inserting ${total} records.\n";
 	$total_iterator = 0;
 	if(isset($_SESSION['iterator']) && ($total > $_SESSION['iterator'])){
@@ -459,7 +487,7 @@ foreach($module_keys as $module)
 	}
 	require_once($beanFiles[$class]);
 	$bean = new $class();
-	
+
 	// TODO: if allrelationships is true, pull from relationships
 	// table and add to $GLOBALS['tidbit_relationships']
 	if ($allrelationships && $module != 'Teams' && $module != 'Emails') { // Teams & Emails module relationships handled separately
@@ -467,7 +495,7 @@ foreach($module_keys as $module)
 		"SELECT * FROM relationships WHERE lhs_module='$module'");
 		global $tidbit_relationships;
 		while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-			if (!isset($row['join_table']) || !isset($row['join_key_lhs']) 
+			if (!isset($row['join_table']) || !isset($row['join_key_lhs'])
 				|| !isset($row['join_key_rhs'])) {
 					continue;
 			}
@@ -505,6 +533,7 @@ foreach($module_keys as $module)
 			$GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles WHERE 1=1");
+            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE 1=1");
 		} else {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
 		}
@@ -520,6 +549,10 @@ foreach($module_keys as $module)
 		echo "\tCleaning up demo data ... ";
 		/* Make sure not to delete the admin! */
 		if($module == 'Users'){
+			$GLOBALS['db']->query(
+				"DELETE FROM user_preferences WHERE id IN " .
+				"(SELECT md5(id) FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%')"
+			);
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%'");
 		}else if ($module == 'Teams') {
 			$GLOBALS['db']->query("DELETE FROM teams WHERE id != '1' AND id LIKE 'seed-%'");
@@ -530,6 +563,7 @@ foreach($module_keys as $module)
 			$GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1' AND role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
 			$GLOBALS['db']->query("DELETE FROM acl_roles WHERE id LIKE 'seed-%'");
+            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE role_id LIKE 'seed-%'");
 		}else {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
 		}
@@ -548,7 +582,7 @@ foreach($module_keys as $module)
 	}
 	$ibfd = new DataTool();
 	$ibfd->fields = $bean->field_defs;
-	
+
 	$ibfd->table_name = $bean->table_name;
 	$ibfd->module = $module;
 
@@ -639,7 +673,7 @@ foreach($module_keys as $module)
             $curdt = $datetime = date('Y-m-d H:i:s') ;
             $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
-			add_user_to_all_teams($row['id']);
+			//add_user_to_all_teams($row['id']);
         }
     }
 
@@ -683,13 +717,32 @@ foreach($module_keys as $module)
             }
         }
 
-		$result = $GLOBALS['db']->query("SELECT team_set_id, team_id FROM team_sets_teams");
-		$team_sets = array();
-		while($row = $GLOBALS['db']->fetchByAssoc($result)){
-			$team_sets[$row['team_set_id']][] = $row['team_id'];
-		}
-		DataTool::$team_sets_array = $team_sets;
-	}
+        // If number of teams is bigger than max teams in team set,
+        // also generate TeamSet with all Teams inside, for relate records
+        if (count($teams_data) > $max_teams_per_set) {
+            /** @var TeamSet $teamSet */
+            $teamSet = BeanFactory::getBean('TeamSets');
+            $teamSet->addTeams($teams_data);
+        }
+
+        // Store all available TeamSets in DataTool cache
+        $result = $GLOBALS['db']->query("SELECT team_set_id, team_id FROM team_sets_teams");
+        $team_sets = array();
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            $team_sets[$row['team_set_id']][] = $row['team_id'];
+        }
+
+        DataTool::$team_sets_array = $team_sets;
+
+        // Calculate TeamSet with maximum teams inside
+        $maxTeamSet = 0;
+        foreach ($team_sets as $teamSetId => $teams) {
+            if (count($teams) > $maxTeamSet) {
+                $maxTeamSet = count($teams);
+                DataTool::$max_team_set_id = $teamSetId;
+            }
+        }
+    }
 
     // Apply TBA Rules for some modules
     // $roleActions are defined in install_config.php
@@ -708,14 +761,37 @@ foreach($module_keys as $module)
         }
 
         $result = $GLOBALS['db']->query("SELECT id FROM acl_roles WHERE id LIKE 'seed-ACLRoles%'");
-        $roleBean = BeanFactory::getBean('ACLRoles');
+        $beanACLRoles = BeanFactory::getBean('ACLRoles');
+        $beanACLFields = BeanFactory::getBean('ACLFields');
 
         while($row = $GLOBALS['db']->fetchByAssoc($result)){
-            foreach ($roleActions as $category => $actions) {
-                foreach ($actions as $name => $access_override) {
-                    $actionId = isset($actionsIds[$category . '_' . $name]) ? $actionsIds[$category . '_' . $name] : null;
+            foreach ($roleActions as $moduleName) {
+                foreach($tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
+                    $actionId = isset($actionsIds[$moduleName . '_' . $action]) ? $actionsIds[$moduleName . '_' . $action] : null;
                     if (!empty($actionId)) {
-                        $roleBean->setAction($row['id'], $actionId, $access_override);
+                        $beanACLRoles->setAction($row['id'], $actionId, $access_override);
+                    }
+                }
+                if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
+                    $roleFields = $beanACLFields->getFields($moduleName, '', $row['id']);
+                    foreach($roleFields as $fieldName => $fieldValues) {
+                        if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only') {
+                            if ($fieldValues['required']) {
+                                $beanACLFields->setAccessControl(
+                                    $moduleName,
+                                    $row['id'],
+                                    $fieldName,
+                                    $tbaFieldAccess
+                                );
+                            }
+                        } else {
+                            $beanACLFields->setAccessControl(
+                                $moduleName,
+                                $row['id'],
+                                $fieldName,
+                                $tbaFieldAccess
+                            );
+                        }
                     }
                 }
             }

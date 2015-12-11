@@ -99,20 +99,23 @@ function get_random_array($array, $num){
 /**
  * generate_team_set
  * Helper function to recursively create team sets
- * @param $primary The primary team
- * @param $teams The teams to use
+ *
+ * @param $primary string The primary team
+ * @param $teams string The teams to use
  */
-function generate_team_set($primary, $teams) {	
-	if(!in_array($primary, $teams)){
-		array_push($teams, $primary);
-	}
-	$teams = array_reverse($teams);
-	$team_count = count($teams);
-	for($i = 0; $i < $team_count; $i++){
-		$teamset = new TeamSet();
-		$teamset->addTeams($teams);
-		array_pop($teams);
-	}
+function generate_team_set($primary, $teams)
+{
+    if (!in_array($primary, $teams)) {
+        array_push($teams, $primary);
+    }
+    $teams = array_reverse($teams);
+    $team_count = count($teams);
+    for ($i = 0; $i < $team_count; $i++) {
+        /** @var TeamSet $teamSet */
+        $teamSet = BeanFactory::getBean('TeamSets');
+        $teamSet->addTeams($teams);
+        array_pop($teams);
+    }
 }
 
 function generate_full_teamset($set, $teams)
@@ -151,7 +154,7 @@ function add_team_to_team_set($team_set_id, $user_id){
 function add_user_to_all_teams($user_id) {
     static $teams = array();
     if (count($teams) == 0) {
-        $result = $GLOBALS['db']->query('select `id` from `teams`');
+        $result = $GLOBALS['db']->query('select id from teams');
         while($row = $GLOBALS['db']->fetchByAssoc($result)){
             $teams[] = BeanFactory::getBean('Teams', $row['id']);
         }
