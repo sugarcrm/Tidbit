@@ -34,7 +34,7 @@
  * technical reasons, the Appropriate Legal Notices must display the words
  * "Powered by SugarCRM".
  ********************************************************************************/
-class TidbitActivityEntity
+class Tidbit_Generator_Activity_Entity
 {
     public $moduleId1;
     public $moduleId2;
@@ -48,8 +48,15 @@ class TidbitActivityEntity
 
     protected static $index;
 
+    /**
+     * @var DataTool
+     */
+    protected $dataTool;
+
     public function __construct($fields)
     {
+        $this->dataTool = new DataTool();
+
         foreach ($fields as $field => $data) {
             $this->setField($field, null);
         }
@@ -74,20 +81,20 @@ class TidbitActivityEntity
     public function getRelationshipsData()
     {
         $rel1 = array(
-            'id' => "actr1-" . self::$index,
+            'id' => "'actr1-" . self::$index . "'",
             'activity_id' => $this->fields['id'],
-            'parent_type' => $this->moduleName1,
-            'parent_id' => $this->moduleId1,
-            'fields' => json_encode($this->changedFields),
+            'parent_type' => "'" . $this->moduleName1 . "'",
+            'parent_id' => "'" . $this->moduleId1 . "'",
+            'fields' => "'" . json_encode($this->changedFields) . "'",
             'date_modified' => $this->fields['date_modified'],
             'deleted' => 0,
         );
         $rel2 = array(
-            'id' => "actr2-" . self::$index,
+            'id' => "'actr2-" . self::$index . "'",
             'activity_id' => $this->fields['id'],
-            'parent_type' => $this->moduleName2,
-            'parent_id' => $this->moduleId2,
-            'fields' => '',
+            'parent_type' => "'" . $this->moduleName2 . "'",
+            'parent_id' => "'" . $this->moduleId2 . "'",
+            'fields' => "''",
             'date_modified' => $this->fields['date_modified'],
             'deleted' => 0,
         );
@@ -96,18 +103,19 @@ class TidbitActivityEntity
 
     protected function initializeFields()
     {
-        $this->setField('id', $this->generateId());
-        $this->setField('date_entered', $this->generateDate());
-        $this->setField('date_modified', $this->generateDate());
-        $this->setField('modified_user_id', 1);
-        $this->setField('created_by', $this->moduleId1);
+        $this->setField('id', "'" . $this->generateId() . "'");
+        $dateTime = $this->dataTool->getConvertDatetime();
+        $this->setField('date_entered', $dateTime);
+        $this->setField('date_modified', $dateTime);
+        $this->setField('modified_user_id', "'1'");
+        $this->setField('created_by', "'" . $this->moduleId1 . "'");
         $this->setField('deleted', 0);
-        $this->setField('parent_id', $this->moduleId2);
-        $this->setField('parent_type', $this->moduleName2);
-        $this->setField('activity_type', $this->activityType);
-        $this->setField('data', $this->generateActivityData());
-
+        $this->setField('parent_id', "'" . $this->moduleId2 . "'");
+        $this->setField('parent_type', "'" . $this->moduleName2 . "'");
+        $this->setField('activity_type', "'" . $this->activityType . "'");
+        $this->setField('data', "'" . $this->generateActivityData() . "'");
         $this->setField('comment_count', 0);
+        $this->setField('last_comment', "''");
     }
 
     protected function generateActivityData()
@@ -153,14 +161,8 @@ class TidbitActivityEntity
         return json_encode($activityData);
     }
 
-
     protected function generateId()
     {
         return "act-" . self::$index;
-    }
-
-    protected function generateDate()
-    {
-        return date('Y-m-d H:i:s');
     }
 }

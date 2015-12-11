@@ -827,8 +827,10 @@ if (!empty($_SESSION['as_populate'])) {
         echo "\nPopulating Activity Stream\n";
         $timer = microtime(1);
 
-        require_once 'Tidbit/Generator/ActivityGenerator.php';
-        $tga = new TidbitActivityGenerator();
+        require_once 'Tidbit/Generator/Activity/Factory.php';
+        $tga = Tidbit_Generator_Activity_Factory::getGeneratorForDb(
+			$GLOBALS['sugar_config']['dbconfig']['db_type']
+		);
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $GLOBALS['modules'];
