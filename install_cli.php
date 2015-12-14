@@ -495,7 +495,7 @@ foreach($module_keys as $module)
 		/* Make sure not to delete the admin! */
 		if($module == 'Users') {
 			$GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1'");
-			$GLOBALS['db']->query("DELETE FROM user_preferences WHERE 1=1");
+			$GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id != '1'");
 		} else if($module == 'Teams') {
 			$GLOBALS['db']->query("DELETE FROM teams WHERE id != '1'");
 			$GLOBALS['db']->query("DELETE FROM team_sets");
