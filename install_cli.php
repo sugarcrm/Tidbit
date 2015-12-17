@@ -316,6 +316,16 @@ require_once('Tidbit/Data/DefaultData.php');
 require_once('Tidbit/DataTool.php');
 require_once('Tidbit/install_functions.php');
 require_once('Tidbit/Data/contactSeedData.php');
+
+// Do not populate KBContent and KBCategories for versions less that 7.7.0.0
+if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
+    echo "Knowledge Base Tidbit Data population is available only for 7.7.0.0 and newer versions of SugarCRM\n";
+    echo "\n";
+
+    unset($modules['Categories']);
+    unset($modules['KBContents']);
+}
+
 $_SESSION['modules'] = $modules;
 $_SESSION['startTime'] = microtime();
 $_SESSION['baseTime'] = time();
