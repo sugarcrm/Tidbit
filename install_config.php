@@ -283,7 +283,9 @@ $roleActions = array(
 );
 
 $kbCategoriesNestingLevel = 5;
-$kbNumberOfArticlesWithNotes = 5;
+// Temporary disable generation of Notes for KB because of request
+// 'Notes Account RelatedTo Filter' in Jmeter tests failing
+$kbNumberOfArticlesWithNotes = 0;
 $kbNumberOfArticlesWithRevision = 5;
 
 $kbLanguage = array(
