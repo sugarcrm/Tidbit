@@ -134,7 +134,7 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
      */
     public function obliterateDB()
     {
-        $this->db->truncateTableSQL('categories');
+        $this->db->query($this->db->truncateTableSQL('categories'));
     }
 
     /**

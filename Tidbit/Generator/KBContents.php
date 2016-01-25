@@ -146,7 +146,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
         foreach ($this->affectedTables as $table) {
             switch ($table) {
                 case 'kbusefulness':
-                    $this->db->truncateTableSQL('kbusefulness');
+                    $this->db->query($this->db->truncateTableSQL('kbusefulness'));
                     break;
                 case 'notes':
                     $this->db->query("DELETE FROM notes WHERE id LIKE 'seed-%' AND parent_type = 'KBContents'");
@@ -166,7 +166,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
             if($table == 'notes') {
                 $this->db->query("DELETE FROM notes WHERE parent_type = 'KBContents'");
             } else {
-                $this->db->truncateTableSQL($table);
+                $this->db->query($this->db->truncateTableSQL($table));
             }
         }
     }

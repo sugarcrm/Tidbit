@@ -316,6 +316,9 @@ require_once('Tidbit/Data/DefaultData.php');
 require_once('Tidbit/DataTool.php');
 require_once('Tidbit/install_functions.php');
 require_once('Tidbit/Data/contactSeedData.php');
+require_once('Tidbit/Tidbit/Generator/TagRelation.php');
+
+$tagGenerator = new Tidbit_Generator_TagRelation($GLOBALS['db']);
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
 if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
@@ -404,6 +407,7 @@ if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
 }
 
 $moduleUsingGenerators = array('KBContents', 'Categories');
+$moduleWithTags = array('Accounts', 'Cases', 'Bugs', 'Notes', 'Calls', 'Contacts', 'Tasks', 'Meetings');
 
 class FakeLogger { public function __call($m, $a) { } }
 $GLOBALS['log']= new FakeLogger();
@@ -411,13 +415,11 @@ $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
 startTransaction();
 
-//When creating module_keys variable, ensure that Teams is the first element in the Array
-$teams = $modules['Teams'];
-unset($modules['Teams']);
-
+//When creating module_keys variable, ensure that Teams and Tags are first in the modules list
 $module_keys = array_keys($modules);
+array_unshift($module_keys, 'Tags');
 array_unshift($module_keys, 'Teams');
-$modules['Teams'] = $teams;
+$module_keys = array_unique($module_keys);
 
 echo "Constructing\n";
 foreach($module_keys as $module)
@@ -438,6 +440,14 @@ echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1)
 echo "\n";
 
 $obliterated = array();
+if (isset($_SESSION['obliterate'])){
+	echo "\tObliterating tag relation data ... ";
+	$tagGenerator->obliterateDB();
+} elseif (isset($_SESSION['clean'])){
+	echo "\tClearing tag relation data ... ";
+	$tagGenerator->clearDB();
+}
+
 //DataTool::generateTeamSets();
 foreach($module_keys as $module)
 {
@@ -808,6 +818,10 @@ foreach($module_keys as $module)
         }
     }
 
+	if (in_array($module, $moduleWithTags)) {
+		$tagGenerator->generateForBean($bean);
+	}
+
 	echo "DONE\n";
 }
 
@@ -817,7 +831,7 @@ if(!empty($GLOBALS['queryFP']))
 {
 	fclose($GLOBALS['queryFP']);
 }
-
+$_SESSION['allProcessedRecords'] += $tagGenerator->getInsertCounter();
 
 echo "Total Time: " . microtime_diff($_SESSION['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: ".$_SESSION['processedRecords']."\n";
