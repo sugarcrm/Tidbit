@@ -411,13 +411,11 @@ $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
 startTransaction();
 
-//When creating module_keys variable, ensure that Teams is the first element in the Array
-$teams = $modules['Teams'];
-unset($modules['Teams']);
-
+//When creating module_keys variable, ensure that Teams and Tags are first in the modules list
 $module_keys = array_keys($modules);
+array_unshift($module_keys, 'Tags');
 array_unshift($module_keys, 'Teams');
-$modules['Teams'] = $teams;
+$module_keys = array_unique($module_keys);
 
 echo "Constructing\n";
 foreach($module_keys as $module)
@@ -817,7 +815,6 @@ if(!empty($GLOBALS['queryFP']))
 {
 	fclose($GLOBALS['queryFP']);
 }
-
 
 echo "Total Time: " . microtime_diff($_SESSION['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: ".$_SESSION['processedRecords']."\n";

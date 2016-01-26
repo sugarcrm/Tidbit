@@ -749,7 +749,12 @@ class DataTool{
                 
                 if(!empty($relationship['ratio'])){
                     $thisToRelatedRatio = $relationship['ratio'];
-                }else{
+                } elseif (!empty($relationship['random_ratio'])) {
+                    $thisToRelatedRatio = mt_rand(
+                        $relationship['random_ratio']['min'],
+                        $relationship['random_ratio']['max']
+                    );
+                } else {
                 	$thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
                 }
                 
