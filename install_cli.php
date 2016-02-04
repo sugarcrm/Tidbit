@@ -719,55 +719,9 @@ foreach ($module_keys as $module) {
     // Apply TBA Rules for some modules
     // $roleActions are defined in install_config.php
     if ($module == 'ACLRoles' && !empty($_SESSION['tba'])) {
-
-        // Cache ACLAction IDs
-        $queryACL = "SELECT id, category, name FROM acl_actions where category in ('"
-            . implode("','", array_values($roleActions)) . "')";
-        $resultACL = $GLOBALS['db']->query($queryACL);
-
-        $actionsIds = array();
-
-        // $actionsIds will contain keys like %category%_%name%
-        while ($row = $GLOBALS['db']->fetchByAssoc($resultACL)) {
-            $actionsIds[$row['category'] . '_' . $row['name']] = $row['id'];
-        }
-
-        $result = $GLOBALS['db']->query("SELECT id FROM acl_roles WHERE id LIKE 'seed-ACLRoles%'");
-        $beanACLRoles = BeanFactory::getBean('ACLRoles');
-        $beanACLFields = BeanFactory::getBean('ACLFields');
-
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            foreach ($roleActions as $moduleName) {
-                foreach ($tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
-                    $actionId = isset($actionsIds[$moduleName . '_' . $action]) ? $actionsIds[$moduleName . '_' . $action] : null;
-                    if (!empty($actionId)) {
-                        $beanACLRoles->setAction($row['id'], $actionId, $access_override);
-                    }
-                }
-                if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
-                    $roleFields = $beanACLFields->getFields($moduleName, '', $row['id']);
-                    foreach ($roleFields as $fieldName => $fieldValues) {
-                        if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only') {
-                            if ($fieldValues['required']) {
-                                $beanACLFields->setAccessControl(
-                                    $moduleName,
-                                    $row['id'],
-                                    $fieldName,
-                                    $tbaFieldAccess
-                                );
-                            }
-                        } else {
-                            $beanACLFields->setAccessControl(
-                                $moduleName,
-                                $row['id'],
-                                $fieldName,
-                                $tbaFieldAccess
-                            );
-                        }
-                    }
-                }
-            }
-        }
+        require_once 'Tidbit/Generator/TBA.php';
+        $tbaGenerator = new Tidbit_Generator_TBA($GLOBALS['db']);
+        $tbaGenerator->generate($roleActions, $tbaRestrictionLevel, $tbaFieldAccess);
     }
 
     echo "DONE\n";
