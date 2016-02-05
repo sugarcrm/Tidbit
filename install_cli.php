@@ -758,7 +758,7 @@ foreach($module_keys as $module)
 
         // Cache ACLAction IDs
         $queryACL = "SELECT id, category, name FROM acl_actions where category in ('"
-                    . implode("','", array_keys($roleActions)) . "')";
+                    . implode("','", array_values($roleActions)) . "')";
         $resultACL = $GLOBALS['db']->query($queryACL);
 
         $actionsIds = array();
