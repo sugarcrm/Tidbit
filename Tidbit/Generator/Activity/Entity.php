@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -34,6 +34,7 @@
  * technical reasons, the Appropriate Legal Notices must display the words
  * "Powered by SugarCRM".
  ********************************************************************************/
+
 class Tidbit_Generator_Activity_Entity
 {
     public $moduleId1;
@@ -135,7 +136,7 @@ class Tidbit_Generator_Activity_Entity
         }
 
         if ($this->activityType == 'update') {
-            if(isset($activityData['object']['name'])) {
+            if (isset($activityData['object']['name'])) {
                 $activityData['changes'] = array(
                     'name' => array(
                         'field_name' => 'name',

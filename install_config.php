@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -37,7 +37,7 @@
 
 $modules = array(
     'Tags' => 1000,
-	'EmailAddresses'=>12000,
+    'EmailAddresses' => 12000,
     'ACLRoles' => 10,
     'Users' => 100,
     'Teams' => 20,
@@ -55,7 +55,7 @@ $modules = array(
     'Meetings' => 8000,
     'Tasks' => 4000,
     'Notes' => 4000,
-    'Documents'=>1000,
+    'Documents' => 1000,
     'Categories' => 600,
     'KBContents' => 1000,
 );
@@ -63,7 +63,7 @@ $modules = array(
 $aliases = array(
     'EmailAddresses' => 'Emadd',
     'ProductBundles' => 'Prodb',
-    'Opportunities'  => 'Oppty'
+    'Opportunities' => 'Oppty'
 );
 
 $activityModulesBlackList = array(
@@ -87,105 +87,105 @@ $tidbit_relationships['Users'] = array(
         'self' => 'user_id',
         'you' => 'team_id',
         'table' => 'team_memberships'
-    ) ,
+    ),
     'Calls' => array(
         'self' => 'user_id',
         'you' => 'call_id',
         'table' => 'calls_users'
-    ) ,
+    ),
     'Contacts' => array(
         'self' => 'user_id',
         'you' => 'contact_id',
         'table' => 'contacts_users'
-    ) ,
+    ),
     'Meetings' => array(
         'self' => 'user_id',
         'you' => 'meeting_id',
         'table' => 'meetings_users'
-    ) ,
+    ),
 );
 $tidbit_relationships['Accounts'] = array(
-	'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	),
+    'EmailAddresses' => array(
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio' => 1,
+    ),
     'Contacts' => array(
         'self' => 'account_id',
         'you' => 'contact_id',
         'table' => 'accounts_contacts'
-    ) ,
+    ),
     'Opportunities' => array(
         'self' => 'account_id',
         'you' => 'opportunity_id',
         'table' => 'accounts_opportunities'
-    ) ,
+    ),
     'Bugs' => array(
         'self' => 'account_id',
         'you' => 'bug_id',
         'table' => 'accounts_bugs'
-    ) ,
+    ),
     'Cases' => array(
         'self' => 'account_id',
         'you' => 'case_id',
         'table' => 'accounts_cases'
-    ) ,
+    ),
     'Quotes' => array(
         'self' => 'account_id',
         'you' => 'quote_id',
         'table' => 'quotes_accounts'
-    ) ,
+    ),
     'Tags' => array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Contacts'] = array(
-	'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	),
+    'EmailAddresses' => array(
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio' => 1,
+    ),
     'Opportunities' => array(
         'self' => 'contact_id',
         'you' => 'opportunity_id',
         'table' => 'opportunities_contacts'
-    ) ,
+    ),
     'Cases' => array(
         'self' => 'contact_id',
         'you' => 'case_id',
         'table' => 'contacts_cases'
-    ) ,
+    ),
     'Bugs' => array(
         'self' => 'contact_id',
         'you' => 'bug_id',
         'table' => 'contacts_bugs'
-    ) ,
+    ),
     'Meetings' => array(
         'self' => 'contact_id',
         'you' => 'meeting_id',
         'table' => 'meetings_contacts'
-    ) ,
+    ),
     'Calls' => array(
         'self' => 'contact_id',
         'you' => 'call_id',
         'table' => 'calls_contacts'
-    ) ,
+    ),
     'Quotes' => array(
         'self' => 'contact_id',
         'you' => 'quote_id',
         'table' => 'quotes_contacts'
-    ) ,
+    ),
     'Tags' => array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 
 );
 $tidbit_relationships['Opportunities'] = array(
@@ -193,20 +193,20 @@ $tidbit_relationships['Opportunities'] = array(
         'self' => 'opportunity_id',
         'you' => 'quote_id',
         'table' => 'quotes_opportunities'
-    ) ,
+    ),
 );
 $tidbit_relationships['Cases'] = array(
     'Bugs' => array(
         'self' => 'case_id',
         'you' => 'bug_id',
         'table' => 'cases_bugs'
-    ) ,
+    ),
     'Tags' => array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Bugs'] = array(
     'Tags' => array(
@@ -214,7 +214,7 @@ $tidbit_relationships['Bugs'] = array(
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Notes'] = array(
     'Tags' => array(
@@ -222,7 +222,7 @@ $tidbit_relationships['Notes'] = array(
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Calls'] = array(
     'Tags' => array(
@@ -230,7 +230,7 @@ $tidbit_relationships['Calls'] = array(
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Tasks'] = array(
     'Tags' => array(
@@ -238,7 +238,7 @@ $tidbit_relationships['Tasks'] = array(
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Meetings'] = array(
     'Tags' => array(
@@ -246,21 +246,21 @@ $tidbit_relationships['Meetings'] = array(
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'random_ratio' => array('min' => 1, 'max' => 6),
-    ) ,
+    ),
 );
 $tidbit_relationships['Quotes'] = array(
     'ProductBundles' => array(
         'self' => 'quote_id',
         'you' => 'bundle_id',
         'table' => 'product_bundle_quote'
-    ) ,
+    ),
 );
 $tidbit_relationships['ProductBundles'] = array(
     'Products' => array(
         'self' => 'bundle_id',
         'you' => 'product_id',
         'table' => 'product_bundle_product'
-    ) ,
+    ),
 );
 $tidbit_relationships['Products'] = array(
     /* Ratio MUST be set for this to not point at itself. */
@@ -269,15 +269,15 @@ $tidbit_relationships['Products'] = array(
         'you' => 'child_id',
         'table' => 'product_product',
         'ratio' => 4
-    ) ,
+    ),
 );
-$tidbit_relationships['Leads']=array(
-'EmailAddresses' => array(
-		'you' => 'email_address_id',
-		'self' => 'bean_id',
-		'table' => 'email_addr_bean_rel',
-		'ratio'=>1,
-	)
+$tidbit_relationships['Leads'] = array(
+    'EmailAddresses' => array(
+        'you' => 'email_address_id',
+        'self' => 'bean_id',
+        'table' => 'email_addr_bean_rel',
+        'ratio' => 1,
+    )
 );
 //$tidbit_relationships['EmailAddresses'] = array(
 //	'Contacts' => array(

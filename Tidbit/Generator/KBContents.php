@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -163,7 +163,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
     public function obliterateDB()
     {
         foreach ($this->affectedTables as $table) {
-            if($table == 'notes') {
+            if ($table == 'notes') {
                 $this->db->query("DELETE FROM notes WHERE parent_type = 'KBContents'");
             } else {
                 $this->db->query($this->db->truncateTableSQL($table));
@@ -255,7 +255,8 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
      *
      * @param array $langConfig
      */
-    private function setKBLanguagesInConfig(array $langConfig) {
+    private function setKBLanguagesInConfig(array $langConfig)
+    {
         $langArr = array();
         foreach ($langConfig['list'] as $langShort => $langFull) {
             $langArr[] = array(
