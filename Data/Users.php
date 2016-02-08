@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -46,7 +46,7 @@ $GLOBALS['dataTool']['Users']['picture'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['is_admin'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['external_auth_only'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['receive_notifications'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module'=>'Teams'));
+$GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));
 $GLOBALS['dataTool']['Users']['user_name'] = array('incname' => 'user');
 $GLOBALS['dataTool']['Users']['user_hash'] = array('same_hash' => 'user_name');
 $GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);

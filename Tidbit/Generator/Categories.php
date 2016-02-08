@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -160,7 +160,8 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
      * @param stdClass $category
      * @param string $rootId
      */
-    private function createInsertRecord(stdClass $category, $rootId = '') {
+    private function createInsertRecord(stdClass $category, $rootId = '')
+    {
         $dataTool = $this->getDataToolForModel(static::MODEL_NAME, $this->modelCounter++);
         $dataTool->installData['root'] = $rootId ? $rootId : $dataTool->installData['id'];
         $dataTool->installData['lft'] = $category->lft;
