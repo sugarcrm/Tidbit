@@ -716,6 +716,18 @@ class DataTool
         return $this->getRelatedId($relModule, $baseModule, $thisToRelatedRatio);
     }
 
+    /**
+     * Get Random Related Module counter.
+     * Returns random value from $relModule generation interval
+     * f.e. if you generating 1000 Accounts, relatedId will be returned from 1 to 1000
+     *
+     * @param $relModule
+     * @return int
+     */
+    public function getRandomInterval($relModule)
+    {
+        return rand(1, $GLOBALS['modules'][$relModule]);
+    }
 
     /**
      * Creates the query head and query bodies, and saves them in global arrays
@@ -788,8 +800,12 @@ class DataTool
                  */
                 for ($j = 0; $j < $thisToRelatedRatio; $j++) {
 
+                    $relIntervalID = (!empty($relationship['random_id']))
+                        ? $this->getRandomInterval($relModule)
+                        : $this->getRelatedLinkId($relModule);
+
                     $currentRelModule = $this->getAlias($relModule);
-                    $relId = $this->assembleId($currentRelModule, $this->getRelatedLinkId($relModule), false);
+                    $relId = $this->assembleId($currentRelModule, $relIntervalID, false);
 
                     $relOverridesStore = array();
                     /* If a repeat factor is specified, then we will process the body multiple times. */
