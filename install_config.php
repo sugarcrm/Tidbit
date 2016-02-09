@@ -140,7 +140,8 @@ $tidbit_relationships['Accounts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Contacts'] = array(
@@ -184,7 +185,8 @@ $tidbit_relationships['Contacts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 
 );
@@ -193,6 +195,13 @@ $tidbit_relationships['Opportunities'] = array(
         'self' => 'opportunity_id',
         'you' => 'quote_id',
         'table' => 'quotes_opportunities'
+    ),
+    'Tags' => array(
+        'self' => 'bean_id',
+        'you' => 'tag_id',
+        'table' => 'tag_bean_rel',
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Cases'] = array(
@@ -205,7 +214,8 @@ $tidbit_relationships['Cases'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Bugs'] = array(
@@ -213,7 +223,8 @@ $tidbit_relationships['Bugs'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Notes'] = array(
@@ -221,7 +232,8 @@ $tidbit_relationships['Notes'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Calls'] = array(
@@ -229,7 +241,8 @@ $tidbit_relationships['Calls'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Tasks'] = array(
@@ -237,7 +250,8 @@ $tidbit_relationships['Tasks'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Meetings'] = array(
@@ -245,7 +259,8 @@ $tidbit_relationships['Meetings'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 1, 'max' => 6),
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
     ),
 );
 $tidbit_relationships['Quotes'] = array(
