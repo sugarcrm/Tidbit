@@ -726,7 +726,7 @@ class DataTool
      */
     public function getRandomInterval($relModule)
     {
-        return rand(1, $GLOBALS['modules'][$relModule]);
+        return rand(0, $GLOBALS['modules'][$relModule] - 1);
     }
 
     /**

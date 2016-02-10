@@ -140,6 +140,9 @@ Options
 
     --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
                         Does Not include relations for now
+
+    --with-tags         Turn on Tags and Tags Relations generation. If you do not specify this option,
+                        default will be false.
     
     "Powered by SugarCRM"
     
@@ -149,7 +152,7 @@ EOS;
 
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if (function_exists('getopt')) {
-    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
+    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
     if ($opts === false) {
         die($usageStr);
     }
@@ -212,6 +215,8 @@ if (function_exists('getopt')) {
             $nextData = 'iterator';
         } elseif ($arg === '--insert_batch_size') {
             $nextData = 'insert_batch_size';
+        } elseif ($arg === 'with-tags') {
+            $opts['with-tags'] = true;
         }
     }
 }
@@ -371,9 +376,13 @@ $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
 startTransaction();
 
+// Remove Tags module, if it's not turned in CLI options
+if (!isset($opts['with-tags'])) {
+    unset($modules['Tags']);
+}
+
 //When creating module_keys variable, ensure that Teams and Tags are first in the modules list
 $module_keys = array_keys($modules);
-array_unshift($module_keys, 'Tags');
 array_unshift($module_keys, 'Teams');
 $module_keys = array_unique($module_keys);
 
