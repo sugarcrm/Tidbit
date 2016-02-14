@@ -35,6 +35,51 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+class Tidbit_Generator_Insert_Object
+{
+    /**
+     * @var string
+     */
+    private $head;
+
+
+    /**
+     * @var array
+     */
+    private $values = array();
+
+
+    /**
+     * @return string
+     */
+    public function getHead()
+    {
+        return $this->head;
+    }
+
+    /**
+     * @return array
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * @param string $values
+     */
+    public function addValues($values)
+    {
+        $this->values[] = $values;
+    }
+
+    /**
+     * @param string $head
+     * @param array $values
+     */
+    public function __construct($head, $values)
+    {
+        $this->head = $head;
+        $this->values = $values;
+    }
+}

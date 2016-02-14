@@ -35,6 +35,8 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+$GLOBALS['dataTool']['Tags']['name_lower'] = array('same' => 'name', 'toLower' => true);
+$GLOBALS['dataTool']['Tags']['description'] = array('value' => "null");
+$GLOBALS['dataTool']['Tags']['source_id'] = array('value' => "null");
+$GLOBALS['dataTool']['Tags']['source_type'] = array('value' => "null");
+$GLOBALS['dataTool']['Tags']['source_meta'] = array('value' => "null");

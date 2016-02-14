@@ -35,6 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+class Tidbit_Generator_Exception extends Exception
+{
+
+}

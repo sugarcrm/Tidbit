@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,9 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once 'Entities/ActivityEntity.php';
-
-class TidbitActivityGenerator
+class Tidbit_Generator_Activity_Db_Common
 {
     public $userCount;
     public $activitiesPerModuleRecord;
@@ -65,6 +63,11 @@ class TidbitActivityGenerator
     protected $currentOffsets = array();
     protected $currentModuleName;
 
+    /**
+     * Patterns to get modules data
+     *
+     * @var array
+     */
     protected $fetchQueryPatterns = array(
         'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
     );
@@ -94,14 +97,21 @@ class TidbitActivityGenerator
 
     public function init()
     {
+        $loadedModules = array();
         foreach ($this->modules as $module => $moduleRecordCount) {
-            $this->beans[$module] = BeanFactory::getBean($module);
+            if (!$bean = BeanFactory::getBean($module)) {
+                continue;
+            }
+            $loadedModules[$module] = $moduleRecordCount;
+            $this->beans[$module] = $bean;
             $this->currentOffsets[$module] = array(
                 'offset' => 0,
                 'next' => 0,
                 'total' => $moduleRecordCount,
             );
         }
+        $this->modules = $loadedModules;
+
         $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->getModulesBlackList()));
         foreach ($this->activityModules as $module) {
             // apply lastNRecords option
@@ -177,7 +187,7 @@ class TidbitActivityGenerator
 
     protected function createActivity($index)
     {
-        $activityEntity = new TidbitActivityEntity($this->activityFields);
+        $activityEntity = new Tidbit_Generator_Activity_Entity($this->activityFields);
         $activityEntity->moduleId1 = $this->currentUser['id'];
         $activityEntity->moduleId2 = $this->currentModuleRecord['id'];
         $activityEntity->moduleName1 = 'Users';
@@ -223,13 +233,20 @@ class TidbitActivityGenerator
         }
     }
 
+    /**
+     * Generate and execute insert query
+     *
+     * @param array $dataSet
+     * @param string $tableName
+     * @return bool
+     */
     protected function insertDataSet(array $dataSet, $tableName)
     {
         if (!empty($dataSet)) {
             $columns = array_keys($dataSet[0]);
             $dataRows = array();
             foreach ($dataSet as $row) {
-                $dataRows[] = "(" . implode(", ", array_map(array($this->db, 'quoted'), $row)) . ")";
+                $dataRows[] = "(" . implode(", ", $row) . ")";
             }
             $sql = sprintf(
                 $this->insertQueryPattern,
@@ -352,7 +369,8 @@ class TidbitActivityGenerator
      * Activities won't be created for these modules
      * @return array
      */
-    function getModulesBlackList() {
+    function getModulesBlackList()
+    {
         global $activityModulesBlackList;
         return $activityModulesBlackList;
     }

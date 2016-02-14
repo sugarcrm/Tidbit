@@ -35,6 +35,84 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+abstract class Tidbit_Generator_Abstract
+{
+    /**
+     * @var DBManager
+     */
+    protected $db;
+
+    /**
+     * Counter of inserting objects.
+     *
+     * @var int
+     */
+    protected $insertCounter = 0;
+
+    /**
+     * Constructor.
+     *
+     * @param DBManager $db
+     */
+    public function __construct(DBManager $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * Data generator.
+     *
+     * @param int $number
+     */
+    abstract public function generate($number);
+
+    /**
+     * Remove generated data from DB.
+     */
+    abstract public function clearDB();
+
+    /**
+     * Remove all data from the tables of DB affected by generator.
+     */
+    abstract public function obliterateDB();
+
+    /**
+     * @return int
+     */
+    public function getInsertCounter()
+    {
+        return $this->insertCounter;
+    }
+
+    /**
+     * Generate DataTool object with data for model.
+     *
+     * @param string $modelName
+     * @param int $modelCounter
+     * @return DataTool
+     */
+    protected function getDataToolForModel($modelName, $modelCounter)
+    {
+        $bean = BeanFactory::getBean($modelName);
+
+        $dataTool = new DataTool();
+        $dataTool->fields = $bean->field_defs;
+        $dataTool->table_name = $bean->table_name;
+        $dataTool->module = $modelName;
+        $dataTool->count = $modelCounter;
+        $dataTool->generateId();
+        $dataTool->generateData();
+
+        return $dataTool;
+    }
+
+    /**
+     * Log generator message.
+     *
+     * @param string $message
+     */
+    protected function log($message)
+    {
+        echo $message . "\n";
+    }
+}

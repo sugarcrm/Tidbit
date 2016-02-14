@@ -35,6 +35,36 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+class Tidbit_Generator_Activity_Db_Oracle extends Tidbit_Generator_Activity_Db_Common
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected $fetchQueryPatterns = array(
+        'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC OFFSET %d ROWS FETCH NEXT %d ROWS ONLY",
+    );
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function insertDataSet(array $dataSet, $tableName)
+    {
+        if (empty($dataSet)) {
+            return false;
+        }
+
+        $columns = "(" . implode(", ", array_keys($dataSet[0])) . ")";
+
+        $sql = 'INSERT ALL';
+        foreach ($dataSet as $row) {
+            $sql .= ' INTO ' . $tableName . $columns . ' VALUES ' . "(" . implode(", ", $row) . ")";
+        }
+        // select-command below needed because syntax of insert-all command suggests what we take data
+        // from db object: 'insert all ... select from ...', but in this case we generating
+        // the data in code, so in select section of query we substitute dummy-table 'dual'
+        // see http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9014.htm#i2111652
+        $sql .= ' SELECT * FROM dual';
+
+        return $this->query($sql) && $this->db->query('COMMIT');
+    }
+}

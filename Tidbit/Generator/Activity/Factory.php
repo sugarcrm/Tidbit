@@ -35,6 +35,23 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Cases']['case_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Cases']['account_name'] = array('skip' => true);
-$GLOBALS['dataTool']['Cases']['account_id'] = array('related' => array('module' => 'Accounts'));
+require_once('Entity.php');
+require_once('Db/Common.php');
+require_once('Db/Oracle.php');
+
+class Tidbit_Generator_Activity_Factory
+{
+    /**
+     * Create and return activity generator according needed db type
+     *
+     * @param string $dbType
+     * @return Tidbit_Generator_Activity_Db_Common|Tidbit_Generator_Activity_Db_Oracle
+     */
+    public static function getGeneratorForDb($dbType)
+    {
+        if ($dbType == 'oci8') {
+            return new Tidbit_Generator_Activity_Db_Oracle();
+        }
+        return new Tidbit_Generator_Activity_Db_Common();
+    }
+}
