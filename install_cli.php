@@ -331,6 +331,11 @@ if (isset($_SESSION['tba']) && $_SESSION['tba'] == true) {
     $_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
 }
 
+if(isset($opts['fullteamset']))
+{
+    $_SESSION['fullteamset'] = true;
+}
+
 if (isset($opts['as_populate'])) {
     $_SESSION['as_populate'] = true;
     if (isset($opts['as_number'])) {
@@ -650,70 +655,9 @@ foreach ($module_keys as $module) {
     }
 
     if ($module == 'Teams') {
-        require_once('modules/Teams/TeamSet.php');
-        require_once('modules/Teams/TeamSetManager.php');
-        TeamSetManager::flushBackendCache();
-        $teams_data = array();
-        $result = $GLOBALS['db']->query("SELECT id FROM teams");
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $teams_data[$row['id']] = $row['id'];
-        }
-
-        sort($teams_data);
-        //Now generate the random team_sets
-        $results = array();
-
-        if (isset($opts['fullteamset'])) {
-            $set = array();
-            for ($i = 0, $max = count($teams_data); $i < $max; $i++) {
-                for ($j = 1; $j <= $max; $j++) {
-                    $set = array_slice($teams_data, $i, $j);
-                    generate_full_teamset($set, $teams_data);
-                }
-            }
-        } else {
-            $max_teams_per_set = 10;
-            if (isset($opts['s']) && $opts['s'] > 0) {
-                $max_teams_per_set = $opts['s'];
-            }
-
-            foreach ($teams_data as $team_id) {
-                //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
-                if ($max_teams_per_set == 1) {
-                    generate_team_set($team_id, array($team_id));
-                } elseif (count($teams_data) > $max_teams_per_set) {
-                    generate_team_set($team_id, get_random_array($teams_data, $max_teams_per_set));
-                } else {
-                    generate_team_set($team_id, $teams_data);
-                }
-            }
-        }
-
-        // If number of teams is bigger than max teams in team set,
-        // also generate TeamSet with all Teams inside, for relate records
-        if (count($teams_data) > $max_teams_per_set) {
-            /** @var TeamSet $teamSet */
-            $teamSet = BeanFactory::getBean('TeamSets');
-            $teamSet->addTeams($teams_data);
-        }
-
-        // Store all available TeamSets in DataTool cache
-        $result = $GLOBALS['db']->query("SELECT team_set_id, team_id FROM team_sets_teams");
-        $team_sets = array();
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $team_sets[$row['team_set_id']][] = $row['team_id'];
-        }
-
-        DataTool::$team_sets_array = $team_sets;
-
-        // Calculate TeamSet with maximum teams inside
-        $maxTeamSet = 0;
-        foreach ($team_sets as $teamSetId => $teams) {
-            if (count($teams) > $maxTeamSet) {
-                $maxTeamSet = count($teams);
-                DataTool::$max_team_set_id = $teamSetId;
-            }
-        }
+        require_once 'Tidbit/Generator/TeamSets.php';
+        $tbaGenerator = new Tidbit_Generator_TeamSets($GLOBALS['db']);
+        $tbaGenerator->generate();
     }
 
     // Apply TBA Rules for some modules
