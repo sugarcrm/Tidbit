@@ -167,6 +167,12 @@ class Tidbit_Generator_TeamSets extends TeamSet
         $stats = $this->_getStatistics($teams);
         $team_md5 = $stats['team_md5'];
 
+        $sql = "SELECT team_md5 FROM team_sets";
+        $result = $this->db->query($sql);
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            array_push($this->team_md5_array, $row['team_md5']);
+        }
+
         if (!in_array($team_md5, $this->team_md5_array)) {
             if (count($teams) == 1) {
                 $id = $teams[0];
@@ -185,9 +191,9 @@ class Tidbit_Generator_TeamSets extends TeamSet
                 $query = "INSERT INTO team_sets_teams (id,team_set_id,team_id,date_modified) VALUES ('" . $guid . "', '"
                     . $id . "', '" . $team_id . "', " . $date_modified . ")";
                 loggedQuery($query);
-                array_push($this->team_md5_array, $team_md5);
                 $this->team_sets[$id][] = $team_id;
             }
+            array_push($this->team_md5_array, $team_md5);
         }
     }
 
