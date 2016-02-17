@@ -43,6 +43,23 @@ abstract class Tidbit_Generator_Abstract
     protected $db;
 
     /**
+     * @var Tidbit_StorageAdapter_Storage_Abstract
+     */
+    protected $storageAdapter;
+
+    /**
+     * Using storage in db or not
+     *
+     * @var
+     */
+    protected $storageTypeDb = true;
+
+    /**
+     * @var int
+     */
+    protected $insertBatchSize;
+
+    /**
      * Counter of inserting objects.
      *
      * @var int
@@ -50,13 +67,25 @@ abstract class Tidbit_Generator_Abstract
     protected $insertCounter = 0;
 
     /**
+     * List of Tidbit_InsertBuffer's instances
+     *
+     * @var array
+     */
+    private $insertBuffers = array();
+
+    /**
      * Constructor.
      *
      * @param DBManager $db
+     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db)
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize)
     {
         $this->db = $db;
+        $this->storageAdapter = $storageAdapter;
+        $this->storageTypeDb = $storageAdapter::STORE_TYPE != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV;
+        $this->insertBatchSize = $insertBatchSize;
     }
 
     /**
@@ -82,6 +111,24 @@ abstract class Tidbit_Generator_Abstract
     public function getInsertCounter()
     {
         return $this->insertCounter;
+    }
+
+    /**
+     * Lazy Tidbit_InsertBuffer creator
+     *
+     * @param string $tableName
+     * @return Tidbit_InsertBuffer
+     */
+    public function getInsertBuffer($tableName)
+    {
+        if (empty($this->insertBuffers[$tableName])) {
+            $this->insertBuffers[$tableName] = new Tidbit_InsertBuffer(
+                $tableName,
+                $this->storageAdapter,
+                $this->insertBatchSize);
+        }
+
+        return $this->insertBuffers[$tableName];
     }
 
     /**

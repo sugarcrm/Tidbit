@@ -1,8 +1,7 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,22 +34,46 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Users']['modified_user_id'] = array('same' => 'id');
-$GLOBALS['dataTool']['Users']['status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['employee_status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['system_generated_password'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['pwd_last_changed'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['authenticate_id'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['sugar_login'] = array('value' => '1');
-$GLOBALS['dataTool']['Users']['picture'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['is_admin'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['external_auth_only'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['receive_notifications'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));
-$GLOBALS['dataTool']['Users']['user_name'] = array('incname' => 'user');
-$GLOBALS['dataTool']['Users']['user_hash'] = array('same_hash' => 'user_name');
-$GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "'en_us'");
-$GLOBALS['dataTool']['Users']['description'] = array('gibberish' => 8);
+require_once('Tidbit/Tidbit/StorageAdapter/Storage/Abstract.php');
+
+class Tidbit_StorageAdapter_Storage_Mysql extends Tidbit_StorageAdapter_Storage_Abstract {
+
+    /**
+     * @var string
+     */
+    const STORE_TYPE = Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_MYSQL;
+
+    /**
+     * {@inheritdoc}
+     *
+     */
+    public function save($tableName, array $installData)
+    {
+        $sql = $this->prepareQuery($tableName, $installData);
+        $this->logQuery($sql);
+        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+    }
+
+    /**
+     * rtfn
+     *
+     * @param string $tableName
+     * @param array $installData
+     * @return string
+     * @throws Tidbit_Exception
+     */
+    protected function prepareQuery($tableName, array $installData)
+    {
+        if (!$tableName || !$installData) {
+            throw new Tidbit_Exception("Mysql adapter error: wrong data to insert");
+        }
+
+        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
+
+        foreach ($installData as $data) {
+            $sql .= '(' . implode(', ', $data) . "),";
+        }
+
+        return substr($sql, 0, -1) . ';';
+    }
+}

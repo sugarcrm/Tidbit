@@ -35,7 +35,9 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Activity_Db_Common
+require_once('Tidbit/Tidbit/Generator/Activity/Entity.php');
+
+class Tidbit_Generator_Activity
 {
     public $userCount;
     public $activitiesPerModuleRecord;
@@ -57,6 +59,25 @@ class Tidbit_Generator_Activity_Db_Common
     protected $totalModulesRecords = 0;
 
     /**
+     * @var Tidbit_StorageAdapter_Storage_Abstract
+     */
+    protected $storageAdapter;
+
+    /**
+     * Size of insert buffers
+     *
+     * @var int
+     */
+    protected $insertBatchSize;
+
+    /**
+     * List of insert buffers for tables.
+     *
+     * @var array
+     */
+    protected $insertBuffers = array();
+
+    /**
      * Dynamic variable using to pass values to another iteration of createDataSet -> flushDataSet
      * @var array
      */
@@ -71,7 +92,6 @@ class Tidbit_Generator_Activity_Db_Common
     protected $fetchQueryPatterns = array(
         'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
     );
-    protected $insertQueryPattern = "INSERT INTO %s (%s) VALUES %s";
     protected $fetchedData = array();
     protected $fullyLoadedModules = array();
     protected $currentUser;
@@ -94,6 +114,18 @@ class Tidbit_Generator_Activity_Db_Common
         'unlink' => 0,
         'post' => 0,
     );
+
+    /**
+     * Constructor
+     *
+     * @param Tidbit_StorageAdapter_Storage_Abstract $adapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(Tidbit_StorageAdapter_Storage_Abstract $adapter, $insertBatchSize)
+    {
+        $this->storageAdapter = $adapter;
+        $this->insertBatchSize = $insertBatchSize;
+    }
 
     public function init()
     {
@@ -208,29 +240,20 @@ class Tidbit_Generator_Activity_Db_Common
 
     public function flushDataSet($final = false)
     {
-        if (!empty($this->dataSet) && (($this->dataSetLength >= $this->insertionBufferSize) || $final)) {
-            // activities
-            $result = $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
-            if ($result) {
-                // relationships
-                $result = $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
-
-                if ($result) {
-                    $this->insertedActivities += $this->dataSetLength;
-                    $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
-
-                    $this->dataSet = $this->dataSetRelationships = array();
-                    $this->dataSetLength = 0;
-
-                    return true;
-                }
-            }
-            // incorrect query or db error is fatal error
-            return false;
-        } else {
-            // empty dataSet is not an error
-            return true;
+        if (empty($this->dataSet) || (($this->dataSetLength < $this->insertionBufferSize) && !$final)) {
+            return;
         }
+
+        $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
+
+        // relationships
+        $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
+
+        $this->insertedActivities += $this->dataSetLength;
+        $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
+
+        $this->dataSet = $this->dataSetRelationships = array();
+        $this->dataSetLength = 0;
     }
 
     /**
@@ -238,26 +261,33 @@ class Tidbit_Generator_Activity_Db_Common
      *
      * @param array $dataSet
      * @param string $tableName
-     * @return bool
      */
     protected function insertDataSet(array $dataSet, $tableName)
     {
-        if (!empty($dataSet)) {
-            $columns = array_keys($dataSet[0]);
-            $dataRows = array();
-            foreach ($dataSet as $row) {
-                $dataRows[] = "(" . implode(", ", $row) . ")";
-            }
-            $sql = sprintf(
-                $this->insertQueryPattern,
-                $tableName,
-                implode(', ', $columns),
-                implode(', ', $dataRows)
-            );
-            return $this->query($sql);
-        } else {
-            return false;
+        if (empty($dataSet)) {
+            return;
         }
+        foreach ($dataSet as $set) {
+            $this->getInsertBufferForTable($tableName)->addInstallData($set);
+        }
+    }
+
+    /**
+     * Lazy creator of insert buffers
+     *
+     * @param string $tableName
+     * @return Tidbit_InsertBuffer
+     */
+    protected function getInsertBufferForTable($tableName)
+    {
+        if (empty($this->insertBuffers[$tableName])) {
+            $this->insertBuffers[$tableName] = new Tidbit_InsertBuffer(
+                $tableName,
+                $this->storageAdapter,
+                $this->insertBatchSize
+            );
+        }
+        return $this->insertBuffers[$tableName];
     }
 
     protected function initNextModuleName()

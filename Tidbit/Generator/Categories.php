@@ -36,7 +36,6 @@
  ********************************************************************************/
 
 require_once('Tidbit/Data/Categories.php');
-require_once('Tidbit/Tidbit/Generator/Insert/Object.php');
 require_once('Tidbit/Tidbit/Generator/Abstract.php');
 
 class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
@@ -56,22 +55,19 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
     private $modelCounter = 0;
 
     /**
-     * @var Tidbit_Generator_Insert_Object
-     */
-    private $insertObject;
-
-    /**
      * Constructor.
      *
      * @param DBManager $db
+     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db)
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize)
     {
         global $kbCategoriesNestingLevel;
         if ($kbCategoriesNestingLevel) {
             $this->nestingLevel = $kbCategoriesNestingLevel;
         }
-        parent::__construct($db);
+        parent::__construct($db, $storageAdapter, $insertBatchSize);
     }
 
     /**
@@ -115,9 +111,6 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
                 $this->createInsertRecord($category, $rootId);
             }
         }
-
-        processQueries($this->insertObject->getHead(), $this->insertObject->getValues());
-        $this->insertCounter += count($this->insertObject->getValues());
         $this->setCategoryRootInConfig($rootId);
     }
 
@@ -168,14 +161,8 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
         $dataTool->installData['rgt'] = $category->rft;
         $dataTool->installData['lvl'] = $category->lvl;
 
-        if (!$this->insertObject) {
-            $this->insertObject = new Tidbit_Generator_Insert_Object(
-                $dataTool->createInsertHead($dataTool->table_name),
-                array($dataTool->createInsertBody())
-            );
-        } else {
-            $this->insertObject->addValues($dataTool->createInsertBody());
-        }
+        $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
+        $this->insertCounter++;
 
         return $dataTool->installData['id'];
     }
@@ -187,7 +174,7 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
      */
     private function setCategoryRootInConfig($rootId)
     {
-        $rootId = $this->db->quoted($rootId);
+        $rootId = $this->db->quoted(str_replace("'", "",$rootId));
         $this->db->query("UPDATE config SET value={$rootId} WHERE category='KBContents' AND name='category_root'");
     }
 }

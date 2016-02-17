@@ -47,11 +47,11 @@ require_once('include/utils/db_utils.php');
 class DataTool
 {
 
-    var $installData = array();
-    var $fields = array();
-    var $table_name = '';
-    var $module = '';
-    var $count = 0;
+    public $installData = array();
+    public $fields = array();
+    public $table_name = '';
+    public $module = '';
+    public $count = 0;
     // TeamSet with all teams inside
     static public $max_team_set_id = null;
     static $team_sets_array = array();
@@ -66,6 +66,20 @@ class DataTool
     // so we will re-generate time only for self::$datetimeIndexMax record
     static $datetimeCacheIndex = 0;
     static $datetimeIndexMax = 1000;
+
+    /**
+     * Array of generated relation data
+     *
+     * @var array
+     */
+    protected $relatedModules = array();
+
+    /**
+     * Counters of generated relationships (needed for uniq ids)
+     *
+     * @var array
+     */
+    protected static $relationshipCounters = array();
 
     // Skip db_convert for those types for optimization
     // TODO: move this to config
@@ -85,6 +99,24 @@ class DataTool
         'email',
         'created_by'
     );
+
+    /**
+     * Related modules getter
+     *
+     * @return array
+     */
+    public function getRelatedModules()
+    {
+        return $this->relatedModules;
+    }
+
+    /**
+     * Clear related modules
+     */
+    public function clearRelatedModules()
+    {
+        $this->relatedModules = [];
+    }
 
     /**
      * Generate data and store it in the installData array.
@@ -134,10 +166,6 @@ class DataTool
             if (empty($this->fields['team_id']['source'])) {
                 $this->installData['team_id'] = "'" . $teams[$index] . "'";
             }
-            //check if the assigned user is part of the team set, if not then add their default team.
-            if (isset($this->installData['assigned_user_id'])) {
-                $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
-            }
             $this->installData['team_set_id'] = "'" . $this->installData['team_set_id'] . "'";
 
             //check if TbACLs is enabled
@@ -150,6 +178,8 @@ class DataTool
     /**
      * Generate a unique ID based on the module name, system time, and count (defined
      * in install_config.php for each module), and save the ID in the installData array.
+     *
+     * @return string
      */
     function generateId()
     {
@@ -160,6 +190,8 @@ class DataTool
             $moduleLength = strlen($currentModule);
             $this->installData['id'] = '\'seed-' . $currentModule . substr(md5($this->installData['id']), 0, -($moduleLength + 1)) . "'";
         }
+
+        return substr($this->installData['id'], 1, -1);
     }
 
     function clean()
@@ -730,32 +762,6 @@ class DataTool
     }
 
     /**
-     * Creates the query head and query bodies, and saves them in global arrays
-     * $queryHead and $queries, respectively.
-     */
-    function createInserts()
-    {
-        if (empty($GLOBALS['queryHead'])) {
-            $GLOBALS['queryHead'] = $this->createInsertHead($this->table_name);
-        }
-
-        $GLOBALS['queries'][] = $this->createInsertBody();
-
-        $_SESSION['allProcessedRecords']++;
-    }
-
-    function createInsertHead($table)
-    {
-        return 'INSERT INTO ' . $table . ' ( ' . implode(', ', array_keys($this->installData)) . ') VALUES ';
-    }
-
-    function createInsertBody()
-    {
-        return '  (  ' . implode(', ', array_values($this->installData)) . ' )';
-    }
-
-
-    /**
      * Generates and saves queries to create relationships in the Sugar app, based
      * on the contents of the global array $tidbit_relationships.
      */
@@ -763,7 +769,7 @@ class DataTool
     {
         global $relQueryCount;
 
-        $baseId = $this->installData['id'];
+        $baseId = trim($this->installData['id'], "'");
 
         if (empty($GLOBALS['tidbit_relationships'][$this->module])) return;
 
@@ -822,14 +828,14 @@ class DataTool
 
                     /* Normally $multiply == 1 */
                     while ($multiply--) {
-                        $GLOBALS['relatedQueries'][$relationship['table']][] = $this->generateRelationshipBody($relationship, $baseId, $relId);
+                        $this->relatedModules[$relationship['table']][] = $this->getRelationshipInstallData(
+                            $relationship,
+                            $baseId,
+                            $relId
+                        );
                     }
 
                     $_SESSION['allProcessedRecords']++;
-
-                    if (empty($GLOBALS['relatedQueries'][$relationship['table']]['head'])) {
-                        $GLOBALS['relatedQueries'][$relationship['table']]['head'] = $this->generateRelationshipHead($relationship);
-                    }
 
                     /* Restore the relationship settings */
                     if ($relOverridesStore) {
@@ -843,53 +849,39 @@ class DataTool
     }
 
     /**
-     * Returns the common head shared by all the current relationship queries.
-     * @param $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
-     */
-    function generateRelationshipHead($relationship)
-    {
-        /* Include custom fields in our header */
-        $customFields = '';
-        if (!empty($GLOBALS['dataTool'][$relationship['table']])) {
-            foreach ($GLOBALS['dataTool'][$relationship['table']] as $field => $typeData) {
-                $customFields .= ', ' . $field;
-            }
-        }
-        return 'INSERT INTO ' . $relationship['table'] . '(id, '
-        . $relationship['self'] . ', ' . $relationship['you']
-        . ',' . 'deleted, date_modified' . $customFields
-        . ') VALUES ';
-
-    }
-
-    /**
-     * Returns the body for the current relationship query.
+     * Generate hash with install data of relation
      *
-     * @param $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
-     * @param $baseId - Current module id
-     * @param $relId - Id for the related module
-     * @return string
+     * @param array $relationship - Array defining the relationship, from global $tidbit_relationships[$module]
+     * @param string $baseId - Current module id
+     * @param string $relId - Id for the related module
+     * @return array
      */
-    function generateRelationshipBody($relationship, $baseId, $relId)
+    private function getRelationshipInstallData(array $relationship, $baseId, $relId)
     {
-        static $relCounter = 0;
+        $relationTable = $relationship['table'];
+        self::$relationshipCounters[$relationTable] = array_key_exists($relationTable, self::$relationshipCounters) ?
+            self::$relationshipCounters[$relationTable] + 1 :
+            1
+        ;
 
-        if ($relCounter == 0) {
-            $relCounter = !empty($_GET['offset']) ? $_GET['offset'] : 0;
-        }
-
-        $relCounter++;
         $date = $this->getConvertDatetime();
-        $customData = '';
 
-        if (!empty($GLOBALS['dataTool'][$relationship['table']])) {
-            foreach ($GLOBALS['dataTool'][$relationship['table']] as $field => $typeData) {
+        $installData = array(
+            'id' => "'seed-rel" . time() . self::$relationshipCounters[$relationTable] . "'",
+            $relationship['self'] => "'" . $baseId . "'",
+            $relationship['you'] => "'" . $relId . "'",
+            'deleted' => 0,
+            'date_modified' => $date,
+        );
+
+        if (!empty($GLOBALS['dataTool'][$relationTable])) {
+            foreach ($GLOBALS['dataTool'][$relationTable] as $field => $typeData) {
                 $seed = $this->generateSeed($this->module, $field, $this->count);
-                $customData .= ', ' . $this->handleType($typeData, '', $field, $seed);
+                $installData[$field] = $this->handleType($typeData, '', $field, $seed);
             }
         }
 
-        return ' (' . "'seed-rel" . time() . $relCounter . "',$baseId , '$relId' , 0 , $date" . $customData . " )";
+        return $installData;
     }
 
 

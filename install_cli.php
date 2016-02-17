@@ -45,7 +45,6 @@ set_time_limit(0);
 
 /* Are we going to use this? */
 $recordsPerPage = 1000;
-$relQueryCount = 0;
 
 require_once('install_config.php');
 
@@ -66,7 +65,7 @@ $usageStr = "Usage: " . $_SERVER['PHP_SELF'] . " [-l loadFactor] [-u userCount] 
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
-This script populates your instance of SugarCRM with realistic demo data. 
+This script populates your instance of SugarCRM with realistic demo data.
 
 $usageStr
 Options
@@ -113,6 +112,11 @@ Options
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
                         insertion buffer (default 1000)
 
+    --storage name       Storage name, you have next options:
+                        - mysql
+                        - oracle
+                        - csv
+
     -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
                     	logged in a file called 'executedQueries.txt' in your
                     	Tidbit folder.
@@ -152,7 +156,7 @@ EOS;
 
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if (function_exists('getopt')) {
-    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
+    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'storage:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
     if ($opts === false) {
         die($usageStr);
     }
@@ -161,63 +165,6 @@ if (function_exists('getopt')) {
     }
     if (isset($opts['h'])) {
         die($helpStr);
-    }
-} else {
-    $opts = array();
-    $nextData = false;
-    foreach ($argv as $arg) {
-        if (($arg === '-v')) {
-            die($versionStr);
-        }
-        if ($arg === '-h') {
-            die($helpStr);
-        }
-        if ($nextData !== false) {
-            $opts[$nextData] = $arg;
-            $nextData = false;
-        } elseif ($arg === '-l') {
-            $nextData = 'l';
-        } elseif ($arg === '-u') {
-            $nextData = 'u';
-        } elseif ($arg === '-e') {
-            $opts['e'] = true;
-        } elseif ($arg === '-o') {
-            $opts['o'] = true;
-        } elseif ($arg === '-c') {
-            $opts['c'] = true;
-        } elseif ($arg === '-x') {
-            $nextData = 'x';
-        } elseif ($arg === '-t') {
-            $opts['t'] = true;
-        } elseif ($arg === '-d') {
-            $opts['d'] = true;
-        } elseif ($arg === '-s') {
-            $nextData = 's';
-        } elseif ($arg === '--tba') {
-            $opts['tba'] = true;
-        } elseif ($arg === '--tba_level') {
-            $nextData = 'tba_level';
-        } elseif ($arg === '--fullteamset') {
-            $opts['fullteamset'] = true;
-        } elseif ($arg == '--allmodules') {
-            $opts['allmodules'] = true;
-        } elseif ($arg == '--allrelationships') {
-            $opts['allrelationships'] = true;
-        } elseif ($arg === '--as_populate') {
-            $opts['as_populate'] = true;
-        } elseif ($arg === '--as_number') {
-            $nextData = 'as_number';
-        } elseif ($arg === '--as_buffer') {
-            $nextData = 'as_buffer';
-        } elseif ($arg === '--as_last_rec') {
-            $nextData = 'as_last_rec';
-        } elseif ($arg === '--iterator') {
-            $nextData = 'iterator';
-        } elseif ($arg === '--insert_batch_size') {
-            $nextData = 'insert_batch_size';
-        } elseif ($arg === 'with-tags') {
-            $opts['with-tags'] = true;
-        }
     }
 }
 
@@ -260,8 +207,9 @@ if (isset($opts['x'])) {
     if (!is_numeric($opts['x']) || $opts['x'] < 1) {
         die($usageStr);
     }
-    $_SESSION['txBatchSize'] = $opts['x'];
-
+    $_GLOBALS['txBatchSize'] = $opts['x'];
+} else {
+    $_GLOBALS['txBatchSize'] = 0;
 }
 
 if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
@@ -281,6 +229,9 @@ require_once('Tidbit/Data/DefaultData.php');
 require_once('Tidbit/DataTool.php');
 require_once('Tidbit/install_functions.php');
 require_once('Tidbit/Data/contactSeedData.php');
+require_once('Tidbit/StorageAdapter/Factory.php');
+require_once ('Tidbit/InsertBuffer.php');
+require_once('Tidbit/CsvConverter.php');
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
 if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
@@ -359,12 +310,10 @@ if (isset($_SESSION['debug'])) {
 }
 
 
-// Batch size by default is 19 (20th in for loop)
-$insertBatchSize = 19;
-
-// We need -1 because loops are started from 0, so each 50th record means 49 index
+// zero means use default value provided by storage adapter
+$insertBatchSize = 0;
 if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
-    $insertBatchSize = ((int)$opts['insert_batch_size']) - 1;
+    $insertBatchSize = ((int)$opts['insert_batch_size']);
 }
 
 $moduleUsingGenerators = array('KBContents', 'Categories');
@@ -379,7 +328,6 @@ class FakeLogger
 $GLOBALS['log'] = new FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
-startTransaction();
 
 // Remove Tags module, if it's not turned in CLI options
 if (!isset($opts['with-tags'])) {
@@ -399,29 +347,32 @@ foreach ($module_keys as $module) {
 echo "\n";
 echo "With Clean Mode " . (isset($_SESSION['clean']) ? "ON" : "OFF") . "\n";
 echo "With Turbo Mode " . (isset($_SESSION['turbo']) ? "ON" : "OFF") . "\n";
-echo "With Transaction Batch Mode " . (isset($_SESSION['txBatchSize']) ? $_SESSION['txBatchSize'] : "OFF") . "\n";
+echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "With Obliterate Mode " . (isset($_SESSION['obliterate']) ? "ON" : "OFF") . "\n";
 echo "With Existing Users Mode " . (isset($_SESSION['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode " . (isset($_SESSION['tba']) ? "ON" : "OFF") . "\n";
 echo "With Team-based Restriction Level " . (isset($_SESSION['tba_level']) ? strtoupper($_SESSION['tba_level']) : "OFF") . "\n";
-echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1) . " records \n";
 echo "\n";
 
+// creating storage adapter
+$storageType = empty($opts['storage']) ? $storageType : $opts['storage'];
+if ($storageType == 'csv') {
+    $storage = $dirToSaveCsv;
+    clearCsvDir($storage);
+} else {
+    $storage = $GLOBALS['db'];
+}
+$storageAdapter = Tidbit_StorageAdapter_Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
+$relationStorageBuffers = array();
+
 $obliterated = array();
-//DataTool::generateTeamSets();
 foreach ($module_keys as $module) {
     if (!is_dir('modules/' . $module)) continue;
     if ((($module == 'Users') || ($module == 'Teams')) && isset($_SESSION['UseExistUsers'])) {
         echo "Skipping $module\n";
         continue;
     }
-
-    // TODO: fixing emails
-//	if ($module == 'Emails') {
-//		echo "Skipping $module\n";
-//		continue;
-//	}
 
     echo "Processing Module $module\n";
     $total = $modules[$module];
@@ -430,7 +381,7 @@ foreach ($module_keys as $module) {
         require_once('Tidbit/Tidbit/Generator/' . $module . '.php');
         $generatorName = 'Tidbit_Generator_' . $module;
         /** @var Tidbit_Generator_Abstract $generator */
-        $generator = new $generatorName($GLOBALS['db']);
+        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize);
         if (isset($_SESSION['obliterate'])) {
             $generator->obliterateDB();
         } elseif (isset($_SESSION['clean'])) {
@@ -447,10 +398,6 @@ foreach ($module_keys as $module) {
         $total_iterator = $total - $_SESSION['iterator'];
         echo $total_iterator . " records will be skipped from generation.\n";
     }
-
-    $GLOBALS['relatedQueries'] = array();
-    $GLOBALS['queries'] = array();
-    $GLOBALS['relatedQueriesCount'] = 0;
 
     // TODO: ignoring modules who aren't keys in $beanList
     // and  classes who aren't keys in $beanFiles
@@ -509,11 +456,6 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
-        } else if ($module == 'ACLRoles') {
-            $GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1'");
-            $GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
-            $GLOBALS['db']->query("DELETE FROM acl_roles WHERE 1=1");
-            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE 1=1");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
         }
@@ -539,11 +481,6 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
-        } else if ($module == 'ACLRoles') {
-            $GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1' AND role_id LIKE 'seed-%'");
-            $GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
-            $GLOBALS['db']->query("DELETE FROM acl_roles WHERE id LIKE 'seed-%'");
-            $GLOBALS['db']->query("DELETE FROM acl_fields WHERE role_id LIKE 'seed-%'");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
         }
@@ -560,86 +497,59 @@ foreach ($module_keys as $module) {
     if (file_exists('Tidbit/Data/' . $bean->module_dir . '.php')) {
         require_once('Tidbit/Data/' . $bean->module_dir . '.php');
     }
-    $ibfd = new DataTool();
-    $ibfd->fields = $bean->field_defs;
 
-    $ibfd->table_name = $bean->table_name;
-    $ibfd->module = $module;
+    $dTool = new DataTool();
+    $dTool->fields = $bean->field_defs;
 
-    unset($GLOBALS['queryHead']);
-    unset($GLOBALS['queries']);
+    $dTool->table_name = $bean->table_name;
+    $dTool->module = $module;
+
+    echo "\n\tHitting DB... ";
+    $beanInsertBuffer = new Tidbit_InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
+
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
      * $module and $bean->table_name. */
-
-
+    $generatedIds = array();
     for ($i = 0; $i < $total; $i++) {
         if (isset($_SESSION['iterator']) && ($i <= $total_iterator)) {
             continue;
         }
-        $ibfd->count = $i;
+        $dTool->count = $i;
         /* Don't turbo Users or Teams */
         if (!isset($_SESSION['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
-            $ibfd->clean();
-            $ibfd->count = $i;
-            $ibfd->generateData();
+            $dTool->clean();
+            $dTool->count = $i;
+            $dTool->generateData();
         }
-        /*
-         if ($i == 0) {
-         foreach($ibfd->installData as $key => $val) {
-         echo $key . " => " . $val . "\n";
-         }
-         }
-         */
-        $ibfd->generateId();
-        //$ibfd->generateTeamSetId();
-        $ibfd->createInserts();
-        $ibfd->generateRelationships();
+
+        $generatedIds[] = $dTool->generateId();
+        $_SESSION['allProcessedRecords']++;
+        $dTool->generateRelationships();
 
         $_SESSION['processedRecords']++;
+        $beanInsertBuffer->addInstallData($dTool->installData);
 
-        //flush the relatedQueries every 2000, and at the end of each page.
-        if (($relQueryCount >= 2000) || ($i == $total - 1)) {
-            echo '.';
-            foreach ($GLOBALS['relatedQueries'] as $data) {
-                $head = $data['head'];
-                unset($data['head']);
-                processQueries($head, $data);
+        if ($dTool->getRelatedModules()) {
+            foreach ($dTool->getRelatedModules() as $table => $installDataArray) {
+                if (empty($relationStorageBuffers[$table])) {
+                    $relationStorageBuffers[$table] = new Tidbit_InsertBuffer($table, $storageAdapter, $insertBatchSize);
+                }
+                foreach ($installDataArray as $data) {
+                    $relationStorageBuffers[$table]->addInstallData($data);
+                }
             }
-            $GLOBALS['relatedQueries'] = array();
-            $relQueryCount = 0;
         }
+        $dTool->clearRelatedModules();
 
-        // Perform insert query for each $insertBatchSize element in the loop
-        if (!empty($GLOBALS['queryHead']) && !empty($GLOBALS['queries']) && $i != 0 && $i % $insertBatchSize == 0) {
-            $dbStart = microtime();
-            processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
-            /* Clear queries */
-            unset($GLOBALS['queries']);
-        }
-
-        if (isset($_SESSION['txBatchSize']) && $i % $_SESSION['txBatchSize'] == 0) {
-            $GLOBALS['db']->commit();
+        if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
+            $storageAdapter->commitQuery();
             echo "#";
         }
-
         if ($i % 1000 == 0) echo '*';
-
     } //for
 
-    if (!empty($GLOBALS['queryHead']) && !empty($GLOBALS['queries'])) {
-        $dbStart = microtime();
-        echo "\n\tHitting DB... ";
-        processQueries($GLOBALS['queryHead'], $GLOBALS['queries']);
-        /* Clear queries */
-        unset($GLOBALS['queryHead']);
-        unset($GLOBALS['queries']);
-        echo microtime_diff($dbStart, microtime()) . "s ";
-    }
-
-//	if ($module == 'Users') {
-//		loggedQuery(file_get_contents(dirname(__FILE__) . '/sql/update-user-preferences.sql'));
-//	}
+    echo microtime_diff($storageAdapter->getQueryExecStartTime(), microtime()) . "s ";
 
     if ($module == 'Users') {
         $content = 'YTo0OntzOjg6InRpbWV6b25lIjtzOjE1OiJBbWVyaWNhL1Bob2VuaXgiO3M6MjoidXQiO2k6MTtzOjI0OiJIb21lX1RFQU1OT1RJQ0VfT1JERVJfQlkiO3M6MTA6ImRhdGVfc3RhcnQiO3M6MTI6InVzZXJQcml2R3VpZCI7czozNjoiYTQ4MzYyMTEtZWU4OS0wNzE0LWE0YTItNDY2OTg3YzI4NGY0Ijt9';
@@ -650,28 +560,41 @@ foreach ($module_keys as $module) {
             $curdt = $datetime = date('Y-m-d H:i:s');
             $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
-            //add_user_to_all_teams($row['id']);
         }
     }
 
     if ($module == 'Teams') {
         require_once 'Tidbit/Generator/TeamSets.php';
-        $tbaGenerator = new Tidbit_Generator_TeamSets($GLOBALS['db']);
-        $tbaGenerator->generate();
+        $teamGenerator = new Tidbit_Generator_TeamSets($GLOBALS['db'], $storageAdapter, $insertBatchSize, $generatedIds);
+        $teamGenerator->generate();
     }
 
     // Apply TBA Rules for some modules
     // $roleActions are defined in install_config.php
-    if ($module == 'ACLRoles' && !empty($_SESSION['tba'])) {
+    if ($module == 'ACLRoles') {
         require_once 'Tidbit/Generator/TBA.php';
-        $tbaGenerator = new Tidbit_Generator_TBA($GLOBALS['db']);
-        $tbaGenerator->generate($roleActions, $tbaRestrictionLevel, $tbaFieldAccess);
+        $tbaGenerator = new Tidbit_Generator_TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+
+        if (isset($_SESSION['clean'])) {
+            $tbaGenerator->clearDB();
+        } elseif (isset($_SESSION['obliterate'])) {
+            $tbaGenerator->obliterateDB();
+        }
+
+        if (!empty($_SESSION['tba'])) {
+            $tbaGenerator->setAclRoleIds($generatedIds);
+            $tbaGenerator->setRoleActions($roleActions);
+            $tbaGenerator->setTbaFieldAccess($tbaFieldAccess);
+            $tbaGenerator->setTbaRestrictionLevel($tbaRestrictionLevel);
+            $tbaGenerator->generate();
+        }
     }
 
     echo "DONE\n";
 }
 
-endTransaction();
+// force immediately destructors work
+unset($relationStorageBuffers);
 
 if (!empty($GLOBALS['queryFP'])) {
     fclose($GLOBALS['queryFP']);
@@ -695,6 +618,8 @@ if (!empty($_SESSION['as_populate'])) {
         echo "\nPopulating Activity Stream\n";
         $timer = microtime(1);
 
+        require_once 'Tidbit/Generator/Activity.php';
+        $tga = new Tidbit_Generator_Activity($storageAdapter, $insertBatchSize);
         $asModules = array();
         foreach ($GLOBALS['modules'] as $moduleName => $recordsCount) {
             /** @var SugarBean $bean */
@@ -703,11 +628,6 @@ if (!empty($_SESSION['as_populate'])) {
                 $asModules[$moduleName] = $recordsCount;
             }
         }
-
-        require_once 'Tidbit/Generator/Activity/Factory.php';
-        $tga = Tidbit_Generator_Activity_Factory::getGeneratorForDb(
-            $GLOBALS['sugar_config']['dbconfig']['db_type']
-        );
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $asModules;
@@ -742,10 +662,7 @@ if (!empty($_SESSION['as_populate'])) {
 
         do {
             if ($result = $tga->createDataset()) {
-                if (!$tga->flushDataset()) {
-                    echo "FAILED\n";
-                    break;
-                }
+                $tga->flushDataset();
                 if ($tga->insertedActivities > $insertedActivities) {
                     echo ".";
                     $insertedActivities = $tga->insertedActivities;
@@ -757,9 +674,7 @@ if (!empty($_SESSION['as_populate'])) {
             }
         } while ($result);
 
-        if (!$tga->flushDataset(true)) {
-            echo "FAILED\n";
-        }
+        $tga->flushDataset(true);
 
         echo "\nInserted activities: {$tga->insertedActivities}\n";
         $timer = round(microtime(1) - $timer, 2);
@@ -772,7 +687,11 @@ if (!empty($_SESSION['as_populate'])) {
 }
 // END Activity Stream populating
 
+if ($storageType == 'csv') {
+    // Save table-dictionaries
+    $converter = new Tidbit_CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+    $converter->convert('config');
+    $converter->convert('acl_actions');
+}
 
 echo "Done\n\n\n";
-
-?>

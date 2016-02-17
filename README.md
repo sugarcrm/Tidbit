@@ -39,6 +39,9 @@ Example usages:
 
     * Insert 500 users:
       $ php -f install_cli.php -- -u 500
+      
+    * Generate data into csv (mysql is default):
+      $ php -f install_cli.php -- --storage csv
 
     * Obliterate all data when generating new records with 300 users:
       $php -f install_cli.php -- -o -u 400

@@ -45,77 +45,103 @@ class Tidbit_Generator_TeamSets extends TeamSet
     public $db;
 
     /**
+     * @var Tidbit_InsertBuffer
+     */
+    protected $insertBufferTeamSets;
+
+    /**
+     * @var Tidbit_InsertBuffer
+     */
+    protected $insertBufferTeamSetsTeams;
+
+    /**
+     * @var array
+     */
+    protected $teamIds = array();
+
+    /**
      * Array of inserting team_md5's.
      *
      * @var array
      */
-    protected $team_md5_array = array();
+    protected $teamMd5Array = array();
 
     /**
      * Array of TeamSets for DataTool
      *
      * @var array
      */
-    protected $team_sets = array();
+    protected $teamSets = array();
+
+    /**
+     * Flag to use db or not
+     *
+     * @var bool
+     */
+    private $storageTypeDb = true;
 
     /**
      * Constructor.
      *
      * @param DBManager $db
+     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param int $insertBatchSize
+     * @param array $teamIds
      */
-    public function __construct(DBManager $db)
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize, $teamIds)
     {
         $this->db = $db;
+        $this->insertBufferTeamSets = new Tidbit_InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
+        $this->insertBufferTeamSetsTeams = new Tidbit_InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
+        $this->teamIds = $teamIds;
+        $this->storageTypeDb = $storageAdapter::STORE_TYPE != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV;
+        $this->loadTeamIds();
+        $this->loadTeamMd5();
     }
 
     /**
      * Generate TBA Rules
      */
-    function generate()
+    public function generate()
     {
         TeamSetManager::flushBackendCache();
-        $teams_data = array();
-        $result = $GLOBALS['db']->query("SELECT id FROM teams");
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $teams_data[$row['id']] = $row['id'];
-        }
 
         $max_teams_per_set = 10;
         if (isset($opts['s']) && $opts['s'] > 0) {
             $max_teams_per_set = $opts['s'];
         }
-        sort($teams_data);
+
         if (isset($_SESSION['fullteamset'])) {
-            for ($i = 0, $max = count($teams_data); $i < $max; $i++) {
+            for ($i = 0, $max = count($this->teamIds); $i < $max; $i++) {
                 for ($j = 1; $j <= $max; $j++) {
-                    $set = array_slice($teams_data, $i, $j);
-                    $this->generate_full_teamset($set, $teams_data);
+                    $set = array_slice($this->teamIds, $i, $j);
+                    $this->generateFullTeamset($set, $this->teamIds);
                 }
             }
         } else {
-            foreach ($teams_data as $team_id) {
+            foreach ($this->teamIds as $team_id) {
                 //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
                 if ($max_teams_per_set == 1) {
-                    $this->generate_team_set($team_id, array($team_id));
-                } elseif (count($teams_data) > $max_teams_per_set) {
-                    $this->generate_team_set($team_id, $this->get_random_array($teams_data, $max_teams_per_set));
+                    $this->generateTeamSet($team_id, array($team_id));
+                } elseif (count($this->teamIds) > $max_teams_per_set) {
+                    $this->generateTeamSet($team_id, $this->getRandomArray($this->teamIds, $max_teams_per_set));
                 } else {
-                    $this->generate_team_set($team_id, $teams_data);
+                    $this->generateTeamSet($team_id, $this->teamIds);
                 }
             }
         }
 
         // If number of teams is bigger than max teams in team set,
         // also generate TeamSet with all Teams inside, for relate records
-        if (count($teams_data) > $max_teams_per_set) {
-            $this->add_teams($teams_data);
+        if (count($this->teamIds) > $max_teams_per_set) {
+            $this->addTeamsToCreatedTeamSet($this->teamIds);
         }
 
-        DataTool::$team_sets_array = $this->team_sets;
+        DataTool::$team_sets_array = $this->teamSets;
 
         // Calculate TeamSet with maximum teams inside
         $maxTeamSet = 0;
-        foreach ($this->team_sets as $teamSetId => $teams) {
+        foreach ($this->teamSets as $teamSetId => $teams) {
             if (count($teams) > $maxTeamSet) {
                 $maxTeamSet = count($teams);
                 DataTool::$max_team_set_id = $teamSetId;
@@ -129,11 +155,11 @@ class Tidbit_Generator_TeamSets extends TeamSet
      * @param $set
      * @param $teams
      */
-    private function generate_full_teamset($set, $teams)
+    private function generateFullTeamset($set, $teams)
     {
         $team_count = count($teams);
         for ($i = 0; $i < $team_count; $i++) {
-            $this->add_teams(array_unique(array_merge($set, array($teams[$i]))));
+            $this->addTeamsToCreatedTeamSet(array_unique(array_merge($set, array($teams[$i]))));
         }
     }
 
@@ -144,7 +170,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      * @param $primary string The primary team
      * @param $teams string The teams to use
      */
-    private function generate_team_set($primary, $teams)
+    private function generateTeamSet($primary, $teams)
     {
         if (!in_array($primary, $teams)) {
             array_push($teams, $primary);
@@ -152,7 +178,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
         $teams = array_reverse($teams);
         $team_count = count($teams);
         for ($i = 0; $i < $team_count; $i++) {
-            $this->add_teams($teams);
+            $this->addTeamsToCreatedTeamSet($teams);
             array_pop($teams);
         }
     }
@@ -162,38 +188,41 @@ class Tidbit_Generator_TeamSets extends TeamSet
      *
      * @param $teams
      */
-    private function add_teams($teams)
+    private function addTeamsToCreatedTeamSet($teams)
     {
         $stats = $this->_getStatistics($teams);
         $team_md5 = $stats['team_md5'];
 
-        $sql = "SELECT team_md5 FROM team_sets";
-        $result = $this->db->query($sql);
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            array_push($this->team_md5_array, $row['team_md5']);
-        }
-
-        if (!in_array($team_md5, $this->team_md5_array)) {
+        if (!in_array($team_md5, $this->teamMd5Array)) {
             if (count($teams) == 1) {
                 $id = $teams[0];
             } else {
                 $id = create_guid();
             }
             $date_modified = $this->db->convert("'" . $GLOBALS['timedate']->nowDb() . "'", 'datetime');
-            $team_count = $stats['team_count'];
-            $name = $team_md5;
-            $query = "INSERT INTO team_sets (id, name, team_md5, team_count, date_modified) VALUES ('" . $id . "', '"
-                . $name . "', '" . $team_md5 . "', '" . $team_count . "', " . $date_modified . ")";
-            loggedQuery($query);
+
+            $installDataTS = array(
+                'id' => "'" . $id . "'",
+                'name' => "'" . $team_md5 . "'",
+                'team_md5' => "'" . $team_md5 . "'",
+                'team_count' => $stats['team_count'],
+                'date_modified' => $date_modified,
+            );
+
+            $this->insertBufferTeamSets->addInstallData($installDataTS);
+            $this->teamMd5Array[] = $team_md5;
 
             foreach ($teams as $team_id) {
-                $guid = create_guid();
-                $query = "INSERT INTO team_sets_teams (id,team_set_id,team_id,date_modified) VALUES ('" . $guid . "', '"
-                    . $id . "', '" . $team_id . "', " . $date_modified . ")";
-                loggedQuery($query);
-                $this->team_sets[$id][] = $team_id;
+                $installDataTST = array(
+                    'id' => "'" . create_guid() . "'",
+                    'team_set_id' => "'" . $id . "'",
+                    'team_id' => "'" . $team_id . "'",
+                    'date_modified' => $date_modified,
+                );
+
+                $this->insertBufferTeamSetsTeams->addInstallData($installDataTST);
+                $this->teamSets[$id][] = $team_id;
             }
-            array_push($this->team_md5_array, $team_md5);
         }
     }
 
@@ -204,7 +233,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      * @param int $num
      * @return array
      */
-    private function get_random_array($array, $num)
+    private function getRandomArray($array, $num)
     {
         $rand = array_rand($array, $num);
         $result = array();
@@ -213,5 +242,37 @@ class Tidbit_Generator_TeamSets extends TeamSet
             $result[$i] = $array[$rand[$i]];
         }
         return $result;
+    }
+
+    /**
+     * Get array of team ids from db
+     *
+     */
+    private function loadTeamIds()
+    {
+        if ($this->storageTypeDb) {
+            $result = $this->db->query("SELECT id FROM teams");
+            while ($row = $this->db->fetchByAssoc($result)) {
+                $this->teamIds[] = $row['id'];
+            }
+        }
+        $this->teamIds = array_unique($this->teamIds);
+        sort($this->teamIds);
+    }
+
+    /**
+     * Load team md5 from db
+     */
+    private function loadTeamMd5()
+    {
+        if (!$this->storageTypeDb) {
+            return;
+        }
+
+        $sql = "SELECT team_md5 FROM team_sets";
+        $result = $this->db->query($sql);
+        while ($row = $this->db->fetchByAssoc($result)) {
+            array_push($this->teamMd5Array, $row['team_md5']);
+        }
     }
 }
