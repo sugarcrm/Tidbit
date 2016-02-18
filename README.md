@@ -17,6 +17,31 @@ directory within your SugarCRM installation (Tidbit Directory need to be created
 The only requirement of Tidbit is that you have an installed and properly
 configured copy of SugarCRM in the directory above it.
 
+Example: 
+1. SSH into vagrant stack you are using via command line.
+
+    $ vagrant ssh
+    
+2. Navigate to Sugar directory. 
+
+    $ cd /
+    $ cd var/www/html/ (sugar instance).
+
+3. Download zip file from repo (master.zip) into the sugar instance. e.g. /SugarEnt-Full-7.6.0.0/.
+
+    $ wget (url to zip file)
+
+4. Unzip file (master.zip). Directory created by zip file is called Tidbit-master.
+
+    $ unzip master.zip
+    
+5. Change Directory to /Tidbit e.g., mv /Tidbit-master /Tidbit.
+
+    $ mv /Tidbit-master /Tidbit
+    
+6. Navigate to /Tidbit and follow instructions under usage, below, from within /Tidbit directory.
+
+    $ cd /Tidbit
 
 Usage
 -----
