@@ -69,6 +69,7 @@ $aliases = array(
 $activityModulesBlackList = array(
     'Users',
     'Teams',
+    'Products',
     'ProductBundles',
     'EmailAddresses',
     'Documents'
