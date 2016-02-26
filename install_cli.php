@@ -695,13 +695,22 @@ if (!empty($_SESSION['as_populate'])) {
         echo "\nPopulating Activity Stream\n";
         $timer = microtime(1);
 
+        $asModules = array();
+        foreach ($GLOBALS['modules'] as $moduleName => $recordsCount) {
+            /** @var SugarBean $bean */
+            $bean = BeanFactory::getBean($moduleName);
+            if ($bean && ($bean->isActivityEnabled() || $moduleName == 'Users')) {
+                $asModules[$moduleName] = $recordsCount;
+            }
+        }
+
         require_once 'Tidbit/Generator/Activity/Factory.php';
         $tga = Tidbit_Generator_Activity_Factory::getGeneratorForDb(
             $GLOBALS['sugar_config']['dbconfig']['db_type']
         );
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
-        $tga->modules = $GLOBALS['modules'];
+        $tga->modules = $asModules;
         $tga->db = $GLOBALS['db'];
         $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
         $tga->lastNRecords = $activityStreamOptions['last_n_records'];
@@ -717,7 +726,7 @@ if (!empty($_SESSION['as_populate'])) {
         echo " - user activities per module record: {$tga->activitiesPerModuleRecord}\n";
         echo " - max number of records for each module: " . ($tga->lastNRecords ? $tga->lastNRecords : 'all') . "\n";
         echo " - users: {$tga->userCount}\n";
-        echo " - modules: {$tga->activityModuleCount}\n";
+        echo " - modules: ({$tga->activityModuleCount}) " . implode(',', $tga->activityModules) . "\n";
         echo " - total activities to insert: " . ($tga->activitiesPerUser * $tga->userCount) . "\n";
         echo " - activities per user: {$tga->activitiesPerUser}\n";
         echo " - insertion buffer size: {$tga->insertionBufferSize} records\n";
