@@ -35,71 +35,113 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
+require_once('Tidbit/Tidbit/Generator/Abstract.php');
 
-class Tidbit_Generator_TBA
+class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
 {
     /**
-     * @var DBManager
+     * @var array
      */
-    protected $db;
+    private $aclRoleIds = array();
 
     /**
-     * Counter of inserting objects.
-     *
+     * @var array
+     */
+    private $roleActions = array();
+
+    /**
+     * @var array
+     */
+    private $tbaRestrictionLevel = array();
+
+    /**
      * @var int
      */
-    protected $insertCounter = 0;
+    private $tbaFieldAccess;
 
     /**
-     * Constructor.
-     *
-     * @param DBManager $db
+     * @param array $aclRoleIds
      */
-    public function __construct(DBManager $db)
+    public function setAclRoleIds($aclRoleIds)
     {
-        $this->db = $db;
+        $this->aclRoleIds = $aclRoleIds;
     }
 
     /**
-     * @return int
+     * @param array $roleActions
      */
-    public function getInsertCounter()
+    public function setRoleActions($roleActions)
     {
-        return $this->insertCounter;
+        $this->roleActions = $roleActions;
+    }
+
+    /**
+     * @param array $tbaRestrictionLevel
+     */
+    public function setTbaRestrictionLevel($tbaRestrictionLevel)
+    {
+        $this->tbaRestrictionLevel = $tbaRestrictionLevel;
+    }
+
+    /**
+     * @param int $tbaFieldAccess
+     */
+    public function setTbaFieldAccess($tbaFieldAccess)
+    {
+        $this->tbaFieldAccess = $tbaFieldAccess;
     }
 
     /**
      * Generate TBA Rules
      *
-     * @param $roleActions
-     * @param $tbaRestrictionLevel
-     * @param $tbaFieldAccess
+     * @param int $number (this param is here for compatibility only)
+     * @ToDo remove number param from generator call
+     *
+     * @throws Tidbit_Generator_Exception
      */
-    function generate($roleActions, $tbaRestrictionLevel, $tbaFieldAccess)
+    public function generate($number=0)
     {
-        // Cache ACLAction IDs
-        $queryACL = "SELECT id, category, name FROM acl_actions where category in ('"
-            . implode("','", array_values($roleActions)) . "')";
-        $resultACL = $this->db->query($queryACL);
-
-        $actionsIds = array();
-
-        // $actionsIds will contain keys like %category%_%name%
-        while ($row = $this->db->fetchByAssoc($resultACL)) {
-            $actionsIds[$row['category'] . '_' . $row['name']] = $row['id'];
+        if (!$this->aclRoleIds
+            || !$this->roleActions
+            || !$this->tbaRestrictionLevel
+            || !$this->tbaFieldAccess
+        ) {
+            throw new Tidbit_Generator_Exception(
+                "One or more of needed settings isn't set (aclRoleIds, roleActions, tbaRestrictionLevel, tbaFieldAccess"
+            );
         }
 
-        $result = $this->db->query("SELECT id FROM acl_roles WHERE id LIKE 'seed-ACLRoles%'");
-        $date_modified = $this->db->convert("'" . $GLOBALS['timedate']->nowDb() . "'", 'datetime');
+        $actionsIds = $this->getActionIds();
+        $this->loadAclRoleIds();
 
-        while ($row = $this->db->fetchByAssoc($result)) {
-            foreach ($roleActions as $moduleName) {
-                $this->generateACLRoleActions($moduleName, $row['id'], $actionsIds, $date_modified, $tbaRestrictionLevel);
-                if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
-                    $this->generateACLFields($moduleName, $row['id'], $date_modified, $tbaFieldAccess, $tbaRestrictionLevel);
+        $dateModified = $this->db->convert("'" . $GLOBALS['timedate']->nowDb() . "'", 'datetime');
+
+        foreach ($this->aclRoleIds as $roleId) {
+            foreach ($this->roleActions as $moduleName) {
+                $this->generateACLRoleActions($moduleName, $roleId, $actionsIds, $dateModified);
+                if ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
+                    $this->generateACLFields($moduleName, $roleId, $dateModified);
                 }
             }
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clearDB()
+    {
+        $this->db->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
+        $this->db->query("DELETE FROM acl_fields WHERE role_id LIKE 'seed-%'");
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function obliterateDB()
+    {
+        $this->db->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
+        $this->db->query($this->db->truncateTableSQL('acl_fields'));
     }
 
     /**
@@ -108,25 +150,24 @@ class Tidbit_Generator_TBA
      * @param $moduleName
      * @param $id
      * @param $actionsIds
-     * @param $date_modified
-     * @param $tbaRestrictionLevel
+     * @param $dateModified
      */
-    private function generateACLRoleActions($moduleName, $id, $actionsIds, $date_modified, $tbaRestrictionLevel) {
-        foreach ($tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
-            $actionId = isset($actionsIds[$moduleName . '_' . $action])
-                ? $actionsIds[$moduleName . '_' . $action]
-                : null;
-            if (!empty($actionId)) {
-                $relationship_data = array(
-                    'role_id' => $id,
-                    'action_id' => $actionId,
-                    'access_override' => $access_override
-                );
-                $query = "INSERT INTO acl_roles_actions (id, " . implode(',', array_keys($relationship_data))
-                    . ", date_modified) VALUES ('" . create_guid() . "', " . "'"
-                    . implode("', '", $relationship_data) . "', " . $date_modified . ")";
-                loggedQuery($query);
+    private function generateACLRoleActions($moduleName, $id, $actionsIds, $dateModified) {
+        foreach ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
+            if (!isset($actionsIds[$moduleName . '_' . $action])) {
+                continue;
             }
+
+            $relationshipData = array(
+                'id' => "'" . create_guid() . "'",
+                'role_id' => "'" . $id . "'",
+                'action_id' => "'" . $actionsIds[$moduleName . '_' . $action] . "'",
+                'access_override' => $access_override,
+                'date_modified' => $dateModified,
+            );
+
+            $this->getInsertBuffer('acl_roles_actions')->addInstallData($relationshipData);
+            $this->insertCounter++;
         }
     }
 
@@ -135,34 +176,67 @@ class Tidbit_Generator_TBA
      *
      * @param $moduleName
      * @param $id
-     * @param $date_modified
-     * @param $tbaFieldAccess
-     * @param $tbaRestrictionLevel
+     * @param $dateModified
      */
-    private function generateACLFields($moduleName, $id, $date_modified, $tbaFieldAccess, $tbaRestrictionLevel) {
+    private function generateACLFields($moduleName, $id, $dateModified) {
         $beanACLFields = BeanFactory::getBean('ACLFields');
         $roleFields = $beanACLFields->getFields($moduleName, '', $id);
         foreach ($roleFields as $fieldName => $fieldValues) {
-            $date = trim($date_modified, "'");
-            $insert_data = array(
-                'id' => md5($moduleName . $id . $fieldName),
-                'date_entered' => $date,
-                'date_modified' => $date,
-                'name' => $fieldName,
-                'category' => $moduleName,
-                'aclaccess' => $tbaFieldAccess,
-                'role_id' => $id
-            );
-            $query = "INSERT INTO acl_fields (" . implode(',', array_keys($insert_data))
-                . ") VALUES (" . "'" . implode("', '", $insert_data) . "')";
-
-            if ($tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only') {
-                if ($fieldValues['required']) {
-                    loggedQuery($query);
-                }
-            } else {
-                loggedQuery($query);
+            if ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only'
+                && !$fieldValues['required']
+            ) {
+                continue;
             }
+
+            $insertData = array(
+                'id' => "'" . md5($moduleName . $id . $fieldName) . "'",
+                'date_entered' => $dateModified,
+                'date_modified' => $dateModified,
+                'name' => "'" .$fieldName .  "'",
+                'category' => "'" . $moduleName .  "'",
+                'aclaccess' => $this->tbaFieldAccess,
+                'role_id' => "'" . $id .  "'",
+            );
+
+            $this->getInsertBuffer('acl_fields')->addInstallData($insertData);
+            $this->insertCounter++;
+        }
+    }
+
+    /**
+     * Loads and return action ids
+     *
+     * @return array
+     */
+    private function getActionIds()
+    {
+        // Cache ACLAction IDs
+        $queryACL = "SELECT id, category, name FROM acl_actions where category in ('"
+            . implode("','", array_values($this->roleActions)) . "')";
+        $resultACL = $this->db->query($queryACL);
+
+        $actionsIds = array();
+
+        // $actionsIds will contain keys like %category%_%name%
+        while ($row = $this->db->fetchByAssoc($resultACL)) {
+            $actionsIds[$row['category'] . '_' . $row['name']] = $row['id'];
+        }
+        return $actionsIds;
+    }
+
+    /**
+     * Load AclRole ids from db
+     */
+    private function loadAclRoleIds()
+    {
+        // if storage isn't db we use just setted in constructor ids
+        if (!$this->storageTypeDb) {
+            return;
+        }
+        $this->aclRoleIds = array();
+        $result = $this->db->query("SELECT id FROM acl_roles WHERE id LIKE 'seed-ACLRoles%'");
+        while ($row = $this->db->fetchByAssoc($result)) {
+            $this->aclRoleIds[] = $row['id'];
         }
     }
 }

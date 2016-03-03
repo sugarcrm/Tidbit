@@ -43,15 +43,6 @@ function loggedQuery($query)
     return $GLOBALS['db']->query($query, true, "INSERT QUERY FAILED");
 }
 
-/* Each DB uses it's own stupid 'preferred' syntax for transactions. */
-function startTransaction()
-{
-}
-
-function endTransaction()
-{
-}
-
 /**
  * This function streamlines the query execution by performing all of the following:
  * 1. Attempt to insert by chunks, if the DB supports it.  So far only mysql does.
@@ -123,44 +114,15 @@ function generate_full_teamset($set, $teams)
     }
 }
 
-/*
-* This method is meant to ensure that the user is associated with the team_set. The problem was that
-* records would be assigned to a specific user, have an associated team_set_id, but the user was not
-* associated with the team_set_id.
-*/
-function add_team_to_team_set($team_set_id, $user_id)
-{
-//    DMK 2011/12/01 - this function is disabled to allow faster larger data load
-
-//    if(!isset($GLOBALS['user_team_checked'][$user_id][$team_set_id])){
-//        $result = $GLOBALS['db']->query("SELECT default_team FROM users WHERE id=$user_id");
-//        while($row = $GLOBALS['db']->fetchByAssoc($result)){
-//            $teamset = new TeamSet();
-//            $teams = $teamset->getTeamIds($team_set_id);
-//            $teams[] = $row['default_team'];
-//            $team_set_id = $teamset->addTeams($teams);
-//            $GLOBALS['user_team_checked'][$user_id][$team_set_id] = true;
-//        }
-//    }
-    return $team_set_id;
-}
-
 /**
- * @param $user_id
+ * @param string $dir
  */
-function add_user_to_all_teams($user_id)
+function clearCsvDir($dir)
 {
-    static $teams = array();
-    if (count($teams) == 0) {
-        $result = $GLOBALS['db']->query('select id from teams');
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $teams[] = BeanFactory::getBean('Teams', $row['id']);
+    $fileToDelete = glob($dir . '/*csv');
+    foreach($fileToDelete as $file){
+        if(is_file($file)) {
+            unlink($file);
         }
     }
-    foreach ($teams as $team) {
-        $team->add_user_to_team($user_id);
-        $team->save();
-    }
 }
-
-?>

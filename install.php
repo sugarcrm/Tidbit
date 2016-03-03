@@ -254,7 +254,6 @@ EOS;
     $app_list_strings = return_app_list_strings_language('en_us');
     $GLOBALS['log'] = LoggerManager::getLogger('Tidbit');
     $GLOBALS['db'] = DBManagerFactory::getInstance();
-    startTransaction();
 
     $class = $beanList[$module];
     require_once($beanFiles[$class]);
@@ -345,8 +344,6 @@ EOS;
     /* Clear queries */
     unset($GLOBALS['queryHead']);
     unset($GLOBALS['queries']);
-
-    endTransaction();
 
     if (!empty($GLOBALS['queryFP'])) {
         fclose($GLOBALS['queryFP']);

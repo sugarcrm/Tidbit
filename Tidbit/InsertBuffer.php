@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,22 +35,85 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Users']['modified_user_id'] = array('same' => 'id');
-$GLOBALS['dataTool']['Users']['status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['employee_status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['system_generated_password'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['pwd_last_changed'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['authenticate_id'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['sugar_login'] = array('value' => '1');
-$GLOBALS['dataTool']['Users']['picture'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['is_admin'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['external_auth_only'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['receive_notifications'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));
-$GLOBALS['dataTool']['Users']['user_name'] = array('incname' => 'user');
-$GLOBALS['dataTool']['Users']['user_hash'] = array('same_hash' => 'user_name');
-$GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
-$GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "'en_us'");
-$GLOBALS['dataTool']['Users']['description'] = array('gibberish' => 8);
+/**
+ * Class-container of generated data to adopt it for Storage Adapters
+ */
+class Tidbit_InsertBuffer
+{
+    /**
+     * Default number of object for saving per transaction
+     *
+     * @var int
+     */
+    const BUFFER_SIZE_DEFAULT = 20;
+
+    /**
+     * @var string
+     */
+    protected $tableName = '';
+
+    /**
+     * @var array
+     */
+    protected $installData = [];
+
+
+    /**
+     * @var Tidbit_StorageAdapter_Storage_Abstract
+     */
+    protected $storage;
+
+    /**
+     * Constructor
+     *
+     * @param string $tableName
+     * @param Tidbit_StorageAdapter_Storage_Abstract $storage
+     * @param int $bufferSize
+     */
+    public function __construct($tableName, $storage, $bufferSize = 0)
+    {
+        $this->tableName = $tableName;
+        $this->storage = $storage;
+        $this->bufferSize = $bufferSize ? $bufferSize : static::BUFFER_SIZE_DEFAULT;
+    }
+
+    /**
+     * @param array $installData
+     */
+    public function addInstallData($installData)
+    {
+        $this->installData[] = $installData;
+        if (count($this->installData) >= $this->bufferSize) {
+            $this->makeSave();
+        }
+    }
+
+    /**
+     * Clear data to save
+     */
+    public function clear() {
+        $this->installData = [];
+    }
+
+    /**
+     * Destructor
+     *
+     */
+    public function __destruct()
+    {
+        // if we save by chunks we can get remainder of not saved records in
+        // the end of saving
+        if ($this->tableName && $this->installData) {
+            $this->makeSave();
+        }
+    }
+
+    /**
+     * rtfn
+     */
+    protected function makeSave()
+    {
+        $this->storage->save($this->tableName, $this->installData);
+        $this->clear();
+    }
+}

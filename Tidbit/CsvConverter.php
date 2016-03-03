@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,51 +35,64 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Insert_Object
+/**
+ * Class for convert tables from db to csv
+ */
+class Tidbit_CsvConverter
 {
     /**
-     * @var string
+     * @var DBManager
      */
-    private $head;
-
+    protected $db;
 
     /**
-     * @var array
+     * @var Tidbit_StorageAdapter_Storage_Csv
      */
-    private $values = array();
-
+    protected $csvAdapter;
 
     /**
-     * @return string
+     * Size of insert buffer
+     *
+     * @var int
      */
-    public function getHead()
+    protected $insertBatchSize;
+
+    /**
+     * Tidbit_CsvConverter constructor.
+     *
+     * @param DBManager $db
+     * @param Tidbit_StorageAdapter_Storage_Csv $csvAdapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Csv $csvAdapter, $insertBatchSize)
     {
-        return $this->head;
+        $this->db = $db;
+        $this->csvAdapter = $csvAdapter;
+        $this->insertBatchSize = $insertBatchSize;
     }
 
     /**
-     * @return array
+     * Gets data from table fields and place it into csv file
+     *
+     * @param string $tableName
+     * @param array $fieldsArr
      */
-    public function getValues()
+    public function convert($tableName, array $fieldsArr = array())
     {
-        return $this->values;
+        $insertBuffer = new Tidbit_InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
+
+        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
+        $sql = "SELECT " . $fields . " FROM " . $tableName;
+        $result = $this->db->query($sql);
+
+        while ($row = $this->db->fetchByAssoc($result)) {
+            foreach ($row as $k=>$v) {
+                $row[$k] = "'" . $v . "'";
+            }
+            $insertBuffer->addInstallData($row);
+        }
+
     }
 
-    /**
-     * @param string $values
-     */
-    public function addValues($values)
-    {
-        $this->values[] = $values;
-    }
 
-    /**
-     * @param string $head
-     * @param array $values
-     */
-    public function __construct($head, $values)
-    {
-        $this->head = $head;
-        $this->values = $values;
-    }
 }
