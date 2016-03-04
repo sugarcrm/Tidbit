@@ -35,36 +35,6 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-function loggedQuery($query)
-{
-    if (!empty($GLOBALS['queryFP'])) {
-        fwrite($GLOBALS['queryFP'], $query . "\n");
-    }
-    return $GLOBALS['db']->query($query, true, "INSERT QUERY FAILED");
-}
-
-/**
- * This function streamlines the query execution by performing all of the following:
- * 1. Attempt to insert by chunks, if the DB supports it.  So far only mysql does.
- * 2. Handling the query as a head and a body, dealing with chunks or no chunks.
- * 3. Writing to a log file.
- * @param $head
- * @param $values
- */
-function processQueries($head, $values)
-{
-    if ($GLOBALS['sugar_config']['dbconfig']['db_type'] == 'mysql') {
-        $chunks = array_chunk($values, 20, false);
-    } else {
-        $chunks = array_chunk($values, 1, false);
-    }
-
-    foreach ($chunks as $chunk) {
-        $query = $head . implode(', ', $chunk);
-        $result = loggedQuery($query);
-    }
-}
-
 /**
  * Given an array return random array elements from the array
  *
@@ -124,5 +94,25 @@ function clearCsvDir($dir)
         if(is_file($file)) {
             unlink($file);
         }
+    }
+}
+
+/**
+ * rtfn
+ *
+ * @param DBManager $db
+ * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+ */
+function generateUserPreferences(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter)
+{
+    $content = 'YTo0OntzOjg6InRpbWV6b25lIjtzOjE1OiJBbWVyaWNhL1Bob2VuaXgiO3M6MjoidXQiO2k6MTtzOjI0OiJIb21lX1RFQU1OT1RJQ0VfT1JERVJfQlkiO3M6MTA6ImRhdGVfc3RhcnQiO3M6MTI6InVzZXJQcml2R3VpZCI7czozNjoiYTQ4MzYyMTEtZWU4OS0wNzE0LWE0YTItNDY2OTg3YzI4NGY0Ijt9';
+    $result = $db->query("SELECT id from users where id LIKE 'seed-Users%'");
+    while ($row = $db->fetchByAssoc($result)) {
+        $hashed_id = md5($row['id']);
+        $currentDateTime = date('Y-m-d H:i:s');
+        $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('"
+            . $hashed_id . "', 'global', '" . $currentDateTime . "', '" . $currentDateTime . "', '" . $row['id'] . "', '"
+            . $content . "')";
+        $storageAdapter->executeQuery($stmt, false);
     }
 }
