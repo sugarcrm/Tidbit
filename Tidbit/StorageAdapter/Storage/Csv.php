@@ -123,7 +123,7 @@ class Tidbit_StorageAdapter_Storage_Csv extends Tidbit_StorageAdapter_Storage_Ab
      * @param string $query
      * @param bool $quote
      */
-    protected function executeQuery($query, $quote = true)
+    public function executeQuery($query, $quote = true)
     {
 
     }

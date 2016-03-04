@@ -111,7 +111,7 @@ abstract class Tidbit_StorageAdapter_Storage_Abstract {
      * @param string $query
      * @param bool $quote
      */
-    protected function executeQuery($query, $quote = true)
+    public function executeQuery($query, $quote = true)
     {
         $this->logQuery($query);
         if ($quote) {
