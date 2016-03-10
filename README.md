@@ -1,13 +1,17 @@
 Tidbit v2.0
 ===========
-Tidbit is random data generator for SugarCRM versions 5.5 and later.  By optimizing
+Tidbit is random data generator for Sugar versions 5.5 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
 
+Documentation in [the wiki](https://github.com/sugarcrm/Tidbit/wiki)!
+------------------
+**Please visit [the wiki](https://github.com/sugarcrm/Tidbit/wiki) for detailed documentation on using and configuring Tidbit.**
+
 Requirements
 ------------
-PHP 5.3+ (could work for older versions, but no guaranty)
-SugarCRM Already installed
+PHP 5.3+
+Sugar Already installed
 
 Installation
 ------------
@@ -15,7 +19,7 @@ To install Tidbit, unpack the Tidbit-v###.tar.bz2 file, and place the Tidbit/
 directory within your SugarCRM installation (Tidbit Directory need to be created inside SugarCRM Installation folder).
 
 The only requirement of Tidbit is that you have an installed and properly
-configured copy of SugarCRM in the directory above it.
+configured copy of Sugar in the directory above it.
 
 Example:
 
