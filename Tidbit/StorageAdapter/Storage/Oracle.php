@@ -77,6 +77,6 @@ class Tidbit_StorageAdapter_Storage_Oracle extends Tidbit_StorageAdapter_Storage
                 . "(" . implode(", ", $data) . ")";
         }
 
-        return $sql . ' SELECT * FROM dual;';
+        return $sql . ' SELECT * FROM dual';
     }
 }
