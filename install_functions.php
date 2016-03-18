@@ -93,33 +93,65 @@ function get_random_array($array, $num)
 }
 
 /**
- * generate_team_set
+ * generate_team_sets
  * Helper function to recursively create team sets
  *
  * @param $primary string The primary team
- * @param $teams string The teams to use
+ * @param $teams array The teams to use
  */
-function generate_team_set($primary, $teams)
+function generate_team_sets($primary, $teams)
 {
     if (!in_array($primary, $teams)) {
         array_push($teams, $primary);
     }
     $teams = array_reverse($teams);
     $team_count = count($teams);
+
+    /** @var TeamSet $teamSet */
+    /* ***too slow*** $teamSet = BeanFactory::getBean('TeamSets');
     for ($i = 0; $i < $team_count; $i++) {
-        /** @var TeamSet $teamSet */
-        $teamSet = BeanFactory::getBean('TeamSets');
         $teamSet->addTeams($teams);
         array_pop($teams);
+    }*/
+    for ($i = 0; $i < $team_count; $i++) {
+        generate_team_set($teams);
+        array_pop($teams);
     }
+}
+
+/**
+ * generate_team_set
+ * Creates team set
+ *
+ * @param $teams array The teams to use
+ */
+function generate_team_set($teams)
+{
+    $teamSetId = create_guid();
+    $query = 'INSERT INTO team_sets_teams (id, team_set_id, team_id) VALUES ';
+    $teamMD5 = '';
+    foreach ($teams as $team) {
+        $teamSetTeamsId = create_guid();
+        $teamMD5 .= $team;
+        $query .= "('{$teamSetTeamsId}', '{$teamSetId}', '{$team}'),";
+        $_SESSION['allProcessedRecords']++;
+    }
+    $query = rtrim($query, ', ');
+    $GLOBALS['db']->query($query);
+
+    // save team set
+    $md5 = md5($teamMD5);
+    $cnt = count($teams);
+    $query = "INSERT INTO team_sets (id, `name`, team_md5, team_count) VALUES
+        ('{$teamSetId}', '{$md5}', '{$md5}', '{$cnt}');";
+    $GLOBALS['db']->query($query);
 }
 
 function generate_full_teamset($set, $teams)
 {
     $team_count = count($teams);
     for ($i = 0; $i < $team_count; $i++) {
-        $teamset = new TeamSet();
-        $teamset->addTeams(array_unique(array_merge($set, array($teams[$i]))));
+        generate_team_set(array_unique(array_merge($set, array($teams[$i]))));
     }
 }
 
@@ -163,4 +195,59 @@ function add_user_to_all_teams($user_id)
     }
 }
 
-?>
+/**
+ * @param $userId
+ */
+function add_user_to_teams($userId, $teamsCnt)
+{
+    static $teams = array();
+    if (empty($teams)) {
+        $result = $GLOBALS['db']->query('select id from teams');
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            $teams[] = $row['id'];
+        }
+    }
+
+    $dtool = new DataTool();
+    $dtool->installData = array(
+        'id' => '',
+        'team_id' => '',
+        'user_id' => '',
+        'explicit_assign' => '',
+        'implicit_assign' => '',
+        'date_modified' => '',
+        'deleted' => '',
+    );
+    $queryHead = $dtool->createInsertHead('team_memberships');
+
+    $queries = array();
+
+    foreach (get_random_array($teams, $teamsCnt) as $teamId) {
+        $dtool->installData = array(
+            'id' => "'" . Sugarcrm\Sugarcrm\Util\Uuid::uuid1() . "'",
+            'team_id' => "'$teamId'",
+            'user_id' => "'$userId'",
+            'explicit_assign' => 0,
+            'implicit_assign' => 0,
+            'date_modified' => "null",
+            'deleted' => 0,
+        );
+        $queries[] = $dtool->createInsertBody();
+    }
+
+    processQueries($queryHead, $queries);
+}
+
+function findMaxTeamSetId()
+{
+    $result = $GLOBALS['db']->query(
+        "SELECT team_set_id id, count(team_id) cnt
+         FROM team_sets_teams
+         GROUP BY team_set_id
+         ORDER BY cnt DESC
+         LIMIT 1"
+    );
+    $res = $GLOBALS['db']->fetchByAssoc($result);
+
+    return $res['id'];
+}

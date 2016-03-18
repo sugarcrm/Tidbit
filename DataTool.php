@@ -36,6 +36,7 @@
  ********************************************************************************/
 
 require_once('include/utils/db_utils.php');
+require_once('src/Security/Password/Hash.php');
 
 /**
  * DataTool randomly generates data to be inserted into the Sugar application
@@ -46,7 +47,6 @@ require_once('include/utils/db_utils.php');
  */
 class DataTool
 {
-
     var $installData = array();
     var $fields = array();
     var $table_name = '';
@@ -54,7 +54,10 @@ class DataTool
     var $count = 0;
     // TeamSet with all teams inside
     static public $max_team_set_id = null;
-    static $team_sets_array = array();
+    /* @var array */
+    static $teamSetsArray = null;
+    /* @var array */
+    static $teamSetsArrayKeys = null;
     static $relmodule_index = 0;
 
     // Cache for generateSeed function
@@ -129,20 +132,32 @@ class DataTool
             $this->installData['modified_user_id'] = 1;
         }
         if (!empty($this->fields['team_id'])) {
-            $teams = self::$team_sets_array[$this->installData['team_set_id']];
+            $teams = $this->getTeamsOfTeamSet($this->installData['team_set_id']);
             $index = count($teams) == 1 ? 0 : rand(0, count($teams) - 1);
             if (empty($this->fields['team_id']['source'])) {
                 $this->installData['team_id'] = "'" . $teams[$index] . "'";
             }
             //check if the assigned user is part of the team set, if not then add their default team.
+            // TODO
             if (isset($this->installData['assigned_user_id'])) {
                 $this->installData['team_set_id'] = add_team_to_team_set($this->installData['team_set_id'], $this->installData['assigned_user_id']);
             }
             $this->installData['team_set_id'] = "'" . $this->installData['team_set_id'] . "'";
 
+            // make sure user is member of all teams in his team_set_id
+            if ($this->module == 'Users') {
+                // fix default team, so it is from current team set
+                $this->installData['default_team'] = "'" . reset($teams) . "'";
+                foreach ($teams as $team) {
+                    $guid = Sugarcrm\Sugarcrm\Util\Uuid::uuid1();
+                    $GLOBALS['relatedQueries']['team_memberships'][]
+                        = "('{$guid}', {$this->installData['id']}, '{$team}', 0, null)";
+                }
+            }
+
             //check if TbACLs is enabled
             if (!empty($_SESSION['tba'])) {
-                $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
+                $this->installData['acl_team_set_id'] = $this->installData['team_set_id'];
             }
         }
     }
@@ -242,9 +257,7 @@ class DataTool
         }
 
         if (!empty($typeData['teamset'])) {
-            $index = rand(0, count(self::$team_sets_array) - 1);
-            $keys = array_keys(self::$team_sets_array);
-            return $this->installData['team_set_id'] = $keys[$index];
+            return $this->installData['team_set_id'] = $this->getRandomTeamSetId();
         }
 
         if (!empty($typeData['value']) || (isset($typeData['value']) && $typeData['value'] == "0")) {
@@ -345,10 +358,11 @@ class DataTool
                 $value = $this->accessLocalField($typeData['same_hash']);
                 if (is_string($value)) {
                     $value = substr($value, 1, strlen($value) - 2);
+                    $value = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance()->hash($value);
                 }
-                return "'" . md5($value) . "'";
+                return "'" . $value . "'";
             } else {
-                return "'" . md5($typeData['same_hash']) . "'";
+                return "'" . \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance()->hash($typeData['same_hash']) . "'";
             }
         }
         if (!empty($typeData['related'])) {
@@ -623,6 +637,8 @@ class DataTool
             $rbfd = $GLOBALS['foreignDataTools'][$module];
         } else {
             include('include/modules.php');
+            /** @var array $beanList */
+            /** @var array $beanFiles */
             $class = $beanList[$module];
             require_once($beanFiles[$class]);
             $bean = new $class();
@@ -1054,5 +1070,76 @@ class DataTool
 
         // Return N(days/hours/minutes)*$shift = number of seconds to shift
         return $value * $shift;
+    }
+
+    /**
+     * @param bool $refresh
+     * @return string
+     */
+    public function getRandomTeamSetId($refresh = false)
+    {
+        static $cnt = 0;
+        static $countOfTeamsIsLessThanRefreshCount = false;
+
+        // read new pull of team_sets after N of calls to get a random team sets but save memory
+        $refreshAfter = 100000;
+        // set limit of records as multiply of $refreshAfter to prevent duplicates
+        $tsLimit = $refreshAfter * 1.7;
+
+        $noNeedToRefresh = $countOfTeamsIsLessThanRefreshCount === true
+            && is_array(self::$teamSetsArray);
+
+        if (!$noNeedToRefresh && ($cnt % $refreshAfter == 0 || $refresh || self::$teamSetsArray === null)) {
+            self::$teamSetsArray = array();
+
+            $result = $GLOBALS['db']->query("SELECT id FROM team_sets ORDER BY rand() limit {$tsLimit}");
+            $ids = array();
+            while ($row = $GLOBALS['db']->fetchRow($result)) {
+                $ids[] = "'" . $row['id'] . "'";
+            }
+
+            if (count($ids) <= $refreshAfter) {
+                $countOfTeamsIsLessThanRefreshCount = true;
+            }
+
+            $result = $GLOBALS['db']->query(
+                "SELECT team_set_id, team_id FROM team_sets_teams where team_set_id in (" . implode(',', $ids) . ")"
+            );
+            while ($row = $GLOBALS['db']->fetchRow($result)) {
+                self::$teamSetsArray[$row['team_set_id']][] = $row['team_id'];
+            }
+
+            self::$teamSetsArrayKeys = array_keys(self::$teamSetsArray);
+        }
+
+        $cnt++;
+        if ($cnt == PHP_INT_MAX) {
+            $cnt = 0;
+        }
+
+        $index = rand(0, count(self::$teamSetsArrayKeys) - 1);
+        return self::$teamSetsArrayKeys[$index];
+    }
+
+    /**
+     * @param string $teamSetId
+     * @return array
+     */
+    public function getTeamsOfTeamSet($teamSetId)
+    {
+        if (self::$teamSetsArray === null || empty($teamSetId)) {
+            return array();
+        }
+        if (isset(self::$teamSetsArray[$teamSetId])) {
+            return self::$teamSetsArray[$teamSetId];
+        }
+
+        $result = $GLOBALS['db']->query("SELECT team_id FROM team_sets_teams where team_set_id = '{$teamSetId}'");
+        while ($row = $GLOBALS['db']->fetchRow($result)) {
+            self::$teamSetsArray[$teamSetId][] = $row['team_id'];
+        }
+
+        self::$teamSetsArrayKeys[] = $teamSetId;
+        return self::$teamSetsArray[$teamSetId];
     }
 }

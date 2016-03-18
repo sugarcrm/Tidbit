@@ -37,6 +37,31 @@
 
 $modules = array(
     'Tags' => 100,
+    'EmailAddresses' => 100,
+    'ACLRoles' => 100,
+    'Users' => 2000,
+    'Teams' => 2000,
+    'Accounts' => 10000,
+    'Quotes' => 100,
+    'ProductBundles' => 100,
+    'Products' => 100,
+    'Calls' => 10000,
+    'Emails' => 100,
+    'Contacts' => 10000,
+    'Leads' => 100,
+    'Opportunities' => 100,
+    'Cases' => 100,
+    'Bugs' => 100,
+    'Meetings' => 10000,
+    'Tasks' => 100,
+    'Notes' => 100,
+    'Documents' => 100,
+    'Categories' => 100,
+    'KBContents' => 10000,
+);
+
+/*$modules = array(
+    'Tags' => 100,
     'EmailAddresses' => 12000,
     'ACLRoles' => 10,
     'Users' => 100,
@@ -58,7 +83,7 @@ $modules = array(
     'Documents' => 1000,
     'Categories' => 600,
     'KBContents' => 1000,
-);
+);*/
 
 $aliases = array(
     'EmailAddresses' => 'Emadd',

@@ -63,7 +63,7 @@ if (!isset($argc)) {
 }
 
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] . " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
-$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
+$versionStr = "Tidbit vX.01 -- Compatible with SugarCRM 7.8.\n";
 $helpStr = <<<EOS
 $versionStr
 This script populates your instance of SugarCRM with realistic demo data. 
@@ -152,7 +152,22 @@ EOS;
 
 // TODO: changed command line arg handling to detect --allmodules & --allrelationships
 if (function_exists('getopt')) {
-    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
+    $opts = getopt('l:u:s:x:ecothvd', array(
+        'team_memberships_cnt:',
+        'fill_denorm_table',
+        'fullteamset',
+        'tba_level:',
+        'tba',
+        'with-tags',
+        'allmodules',
+        'allrelationships',
+        'as_populate',
+        'as_number:',
+        'as_buffer:',
+        'as_last_rec:',
+        'iterator:',
+        'insert_batch_size:')
+    );
     if ($opts === false) {
         die($usageStr);
     }
@@ -217,6 +232,10 @@ if (function_exists('getopt')) {
             $nextData = 'insert_batch_size';
         } elseif ($arg === 'with-tags') {
             $opts['with-tags'] = true;
+        } elseif ($arg === '--fill_denorm_table') {
+            $opts['fill_denorm_table'] = true;
+        } elseif ($arg === '--team_memberships_cnt') {
+            $opts['team_memberships_cnt'] = 'team_memberships_cnt';
         }
     }
 }
@@ -328,7 +347,12 @@ if (isset($opts['tba'])) {
 }
 
 if (isset($_SESSION['tba']) && $_SESSION['tba'] == true) {
-    $_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+    $_SESSION['tba_level'] = $tbaRestrictionLevelDefault;
+    if (isset($opts['tba_level'])) {
+        $_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel))
+            ? strtolower($opts['tba_level'])
+            : $tbaRestrictionLevelDefault;
+    }
 }
 
 if (isset($opts['as_populate'])) {
@@ -402,6 +426,8 @@ echo "With Team-based ACL Mode " . (isset($_SESSION['tba']) ? "ON" : "OFF") . "\
 echo "With Team-based Restriction Level " . (isset($_SESSION['tba_level']) ? strtoupper($_SESSION['tba_level']) : "OFF") . "\n";
 echo "With Multi-insert body size (core bean modules) " . ($insertBatchSize + 1) . " records \n";
 echo "\n";
+
+$teamsIds = array();
 
 $obliterated = array();
 //DataTool::generateTeamSets();
@@ -504,6 +530,7 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
+            $GLOBALS['db']->query("DELETE FROM team_memberships WHERE team_id != '1'");
         } else if ($module == 'ACLRoles') {
             $GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1'");
             $GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
@@ -534,6 +561,7 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
+            $GLOBALS['db']->query("DELETE FROM team_memberships WHERE team_id LIKE 'seed-%'");
         } else if ($module == 'ACLRoles') {
             $GLOBALS['db']->query("DELETE FROM acl_roles_users WHERE user_id != '1' AND role_id LIKE 'seed-%'");
             $GLOBALS['db']->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
@@ -573,11 +601,15 @@ foreach ($module_keys as $module) {
             continue;
         }
         $ibfd->count = $i;
+
         /* Don't turbo Users or Teams */
         if (!isset($_SESSION['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
             $ibfd->clean();
             $ibfd->count = $i;
+            $ibfd->generateId();
             $ibfd->generateData();
+        } else {
+            $ibfd->generateId();
         }
         /*
          if ($i == 0) {
@@ -586,7 +618,6 @@ foreach ($module_keys as $module) {
          }
          }
          */
-        $ibfd->generateId();
         //$ibfd->generateTeamSetId();
         $ibfd->createInserts();
         $ibfd->generateRelationships();
@@ -645,7 +676,14 @@ foreach ($module_keys as $module) {
             $curdt = $datetime = date('Y-m-d H:i:s');
             $stmt = "INSERT INTO user_preferences(id,category,date_entered,date_modified,assigned_user_id,contents) values ('" . $hashed_id . "', 'global', '" . $curdt . "', '" . $curdt . "', '" . $row['id'] . "', '" . $content . "')";
             loggedQuery($stmt);
+
             //add_user_to_all_teams($row['id']);
+            if (!empty($opts['team_memberships_cnt'])
+                    && is_numeric($opts['team_memberships_cnt'])
+                    && (int)$opts['team_memberships_cnt'] > 1
+                    && !empty($teamsIds)) {
+                add_user_to_teams($row['id'], (int)$opts['team_memberships_cnt']);
+            }
         }
     }
 
@@ -653,73 +691,54 @@ foreach ($module_keys as $module) {
         require_once('modules/Teams/TeamSet.php');
         require_once('modules/Teams/TeamSetManager.php');
         TeamSetManager::flushBackendCache();
-        $teams_data = array();
         $result = $GLOBALS['db']->query("SELECT id FROM teams");
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $teams_data[$row['id']] = $row['id'];
+            $teamsIds[$row['id']] = $row['id'];
         }
 
-        sort($teams_data);
+        sort($teamsIds);
         //Now generate the random team_sets
         $results = array();
 
+        $max_teams_per_set = 10;
+        if (isset($opts['s']) && $opts['s'] > 0) {
+            $max_teams_per_set = $opts['s'];
+        }
+
         if (isset($opts['fullteamset'])) {
             $set = array();
-            for ($i = 0, $max = count($teams_data); $i < $max; $i++) {
+            for ($i = 0, $max = count($teamsIds); $i < $max; $i++) {
                 for ($j = 1; $j <= $max; $j++) {
-                    $set = array_slice($teams_data, $i, $j);
-                    generate_full_teamset($set, $teams_data);
+                    $set = array_slice($teamsIds, $i, $j);
+                    generate_full_teamset($set, $teamsIds);
                 }
             }
         } else {
-            $max_teams_per_set = 10;
-            if (isset($opts['s']) && $opts['s'] > 0) {
-                $max_teams_per_set = $opts['s'];
-            }
-
-            foreach ($teams_data as $team_id) {
+            foreach ($teamsIds as $team_id) {
                 //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
                 if ($max_teams_per_set == 1) {
-                    generate_team_set($team_id, array($team_id));
-                } elseif (count($teams_data) > $max_teams_per_set) {
-                    generate_team_set($team_id, get_random_array($teams_data, $max_teams_per_set));
+                    generate_team_sets($team_id, array($team_id));
+                } elseif (count($teamsIds) > $max_teams_per_set) {
+                    generate_team_sets($team_id, get_random_array($teamsIds, $max_teams_per_set));
                 } else {
-                    generate_team_set($team_id, $teams_data);
+                    generate_team_sets($team_id, $teamsIds);
                 }
             }
         }
 
         // If number of teams is bigger than max teams in team set,
         // also generate TeamSet with all Teams inside, for relate records
-        if (count($teams_data) > $max_teams_per_set) {
+        if (count($teamsIds) > $max_teams_per_set) {
             /** @var TeamSet $teamSet */
-            $teamSet = BeanFactory::getBean('TeamSets');
-            $teamSet->addTeams($teams_data);
+            generate_team_set($teamsIds);
         }
 
-        // Store all available TeamSets in DataTool cache
-        $result = $GLOBALS['db']->query("SELECT team_set_id, team_id FROM team_sets_teams");
-        $team_sets = array();
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $team_sets[$row['team_set_id']][] = $row['team_id'];
-        }
-
-        DataTool::$team_sets_array = $team_sets;
-
-        // Calculate TeamSet with maximum teams inside
-        $maxTeamSet = 0;
-        foreach ($team_sets as $teamSetId => $teams) {
-            if (count($teams) > $maxTeamSet) {
-                $maxTeamSet = count($teams);
-                DataTool::$max_team_set_id = $teamSetId;
-            }
-        }
+        DataTool::$max_team_set_id = findMaxTeamSetId();
     }
 
     // Apply TBA Rules for some modules
     // $roleActions are defined in install_config.php
     if ($module == 'ACLRoles' && !empty($_SESSION['tba'])) {
-
         // Cache ACLAction IDs
         $queryACL = "SELECT id, category, name FROM acl_actions where category in ('"
             . implode("','", array_values($roleActions)) . "')";
@@ -865,7 +884,33 @@ if (!empty($_SESSION['as_populate'])) {
 }
 // END Activity Stream populating
 
+// this is an experimental feature, need to test experimental PR
+if (isset($opts['fill_denorm_table'])) {
+    $dbStart = microtime();
+    echo "Filling the denormalization table ... ";
+
+    $GLOBALS['db']->query(
+        "INSERT IGNORE INTO team_sets_users_denorm1
+         SELECT
+             ts.id AS team_set_id,
+             u.id AS user_id
+         FROM team_sets ts
+         INNER JOIN team_sets_teams tst
+             ON ts.id = tst.team_set_id
+             AND tst.deleted = 0
+         INNER JOIN teams t
+             ON tst.team_id = t.id
+             AND t.deleted = 0
+         INNER JOIN team_memberships tm
+            ON t.id = tm.team_id
+            AND tm.deleted = 0
+         INNER JOIN users u
+            ON tm.user_id = u.id
+            AND u.deleted = 0
+         WHERE ts.deleted = 0"
+    );
+    echo microtime_diff($dbStart, microtime()) . "s ";
+    echo "DONE\n";
+}
 
 echo "Done\n\n\n";
-
-?>
