@@ -69,7 +69,7 @@ class Tidbit_StorageAdapter_Storage_Oracle extends Tidbit_StorageAdapter_Storage
             throw new Tidbit_Exception("Oracle adapter error: wrong data to insert");
         }
 
-        $sql = 'INSERT ALL';
+        $sql = 'INSERT /*+APPEND*/ ALL';
 
         $columns = " (" . implode(", ", array_keys($installData[0])) . ")";
         foreach ($installData as $data) {
