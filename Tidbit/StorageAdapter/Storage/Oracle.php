@@ -70,13 +70,89 @@ class Tidbit_StorageAdapter_Storage_Oracle extends Tidbit_StorageAdapter_Storage
         }
 
         $sql = 'INSERT /*+APPEND*/ ALL';
-
         $columns = " (" . implode(", ", array_keys($installData[0])) . ")";
+
+        $this->patchSequenceValues($installData);
+
         foreach ($installData as $data) {
             $sql .= ' INTO ' . $tableName . $columns . ' VALUES '
                 . "(" . implode(", ", $data) . ")";
         }
 
         return $sql . ' SELECT * FROM dual';
+    }
+
+    /**
+     * Patch inserted value if it look like sequence
+     *
+     * @param array $installData
+     */
+    protected function patchSequenceValues(array &$installData)
+    {
+        if (!$sequence = $this->getSequenceFromValues($installData[0])) {
+            return;
+        }
+
+        $currentValue = $this->getCurrentSequenceValue($sequence['name']);
+        $installDataCount = count($installData);
+        for ($i=0; $i <$installDataCount; $i++) {
+            $installData[$i][$sequence['field']] = ++$currentValue;
+        }
+
+        $this->setNewSequenceValue($sequence['name'], $installDataCount);
+    }
+
+    /**
+     * Check array of values on containing sequence value
+     *
+     * @param array $values
+     * @return array
+     */
+    protected function getSequenceFromValues(array $values)
+    {
+        foreach ($values as $k => $v) {
+            if (substr($v, -12) == '_SEQ.NEXTVAL') {
+                return ['field' => $k, 'name' => substr($v, 0, -8)];
+            }
+        }
+        return [];
+    }
+
+    /**
+     * rtfn
+     *
+     * @param string $sequenceName
+     * @return int
+     */
+    protected function getCurrentSequenceValue($sequenceName)
+    {
+        $sql = sprintf(
+            "SELECT last_number as current_val FROM user_sequences WHERE sequence_name='%s'",
+            $sequenceName
+        );
+        $result = $this->storageResource->query($sql);
+        $row = $this->storageResource->fetchByAssoc($result);
+        return intval($row['current_val']);
+    }
+
+    /**
+     * rtfn
+     *
+     * @param string $sequenceName
+     * @param int $incrementOn
+     */
+    protected function setNewSequenceValue($sequenceName, $incrementOn)
+    {
+        // set increment value to our batch_size
+        $sql = sprintf("ALTER SEQUENCE %s INCREMENT BY %d", $sequenceName, $incrementOn);
+        $this->storageResource->query($sql);
+
+        // do increment
+        $sql = sprintf("SELECT %s.NEXTVAL FROM dual", $sequenceName);
+        $this->storageResource->query($sql);
+
+        // return increment value to 1
+        $sql = sprintf("ALTER SEQUENCE %s INCREMENT BY 1", $sequenceName);
+        $this->storageResource->query($sql);
     }
 }

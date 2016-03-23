@@ -45,7 +45,6 @@ class Tidbit_Generator_Activity
     public $activityModules;
     public $activityModuleCount;
     public $modules;
-    public $db;
     public $insertionBufferSize = 100;
     public $fetchBuffer = 1000;
     public $lastNRecords = 0;
@@ -54,6 +53,7 @@ class Tidbit_Generator_Activity
     public $progress = 0;
     public $countQuery = 0;
     public $countFetch = 0;
+    protected $db;
     protected $beans = array();
     protected $activityFields = array();
     protected $totalModulesRecords = 0;
@@ -91,7 +91,10 @@ class Tidbit_Generator_Activity
      */
     protected $fetchQueryPatterns = array(
         'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
+        'oci8' => "SELECT id%s FROM %s ORDER BY date_modified DESC OFFSET %d ROWS FETCH NEXT %d ROWS ONLY",
     );
+    /** @var string */
+    protected $fetchQueryPattern;
     protected $fetchedData = array();
     protected $fullyLoadedModules = array();
     protected $currentUser;
@@ -118,13 +121,20 @@ class Tidbit_Generator_Activity
     /**
      * Constructor
      *
+     * @param DBManager $db
      * @param Tidbit_StorageAdapter_Storage_Abstract $adapter
      * @param int $insertBatchSize
      */
-    public function __construct(Tidbit_StorageAdapter_Storage_Abstract $adapter, $insertBatchSize)
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $adapter, $insertBatchSize)
     {
         $this->storageAdapter = $adapter;
         $this->insertBatchSize = $insertBatchSize;
+        $this->db = $db;
+
+        $this->fetchQueryPattern = array_key_exists($this->db->dbType, $this->fetchQueryPatterns) ?
+            $this->fetchQueryPatterns[$this->db->dbType] :
+            $this->fetchQueryPatterns['default']
+        ;
     }
 
     public function init()
@@ -329,8 +339,6 @@ class Tidbit_Generator_Activity
 
     protected function fetchNextModuleRecords($moduleName)
     {
-        $queryPattern = isset($this->fetchQueryPatterns[$moduleName]) ? $this->fetchQueryPatterns[$moduleName] : $this->fetchQueryPatterns['default'];
-
         $extraFields = array();
         $hasName = !empty($this->beans[$moduleName]->field_defs['name']) && empty($this->beans[$moduleName]->field_defs['name']['source']);
         if ($hasName) {
@@ -351,7 +359,7 @@ class Tidbit_Generator_Activity
 
         if ($limit > 0) {
             $sql = sprintf(
-                $queryPattern,
+                $this->fetchQueryPattern,
                 empty($extraFields) ? '' : ', ' . implode(', ', $extraFields),
                 $this->beans[$moduleName]->table_name,
                 $this->currentOffsets[$moduleName]['offset'],
