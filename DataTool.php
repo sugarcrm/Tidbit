@@ -304,18 +304,12 @@ class DataTool
             if ($GLOBALS['sugar_config']['dbconfig']['db_type'] == 'oci8'
                 || $GLOBALS['sugar_config']['dbconfig']['db_type'] == 'ibm_db2'
             ) {
-                return strtoupper($this->table_name . '_' . $field . '_seq') . '.nextval';
+                return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
             } else {
                 return '';
             }
         }
-        if (!empty($typeData['autoincrement'])) {
-            if ($GLOBALS['sugar_config']['dbconfig']['db_type'] != 'oci8') {
-                return '';
-            } else {
-                return strtoupper($this->table_name . '_' . $field . '_seq') . '.nextval';
-            }
-        }
+
         /* This type alternates between two specified options */
         if (!empty($typeData['binary_enum'])) {
             static $inc = -1;

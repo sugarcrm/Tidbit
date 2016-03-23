@@ -609,7 +609,7 @@ if (!empty($_SESSION['as_populate'])) {
         $timer = microtime(1);
 
         require_once 'Tidbit/Generator/Activity.php';
-        $tga = new Tidbit_Generator_Activity($storageAdapter, $insertBatchSize);
+        $tga = new Tidbit_Generator_Activity($GLOBALS['db'], $storageAdapter, $insertBatchSize);
         $asModules = array();
         foreach ($GLOBALS['modules'] as $moduleName => $recordsCount) {
             /** @var SugarBean $bean */
@@ -621,7 +621,6 @@ if (!empty($_SESSION['as_populate'])) {
         $tga->userCount = $GLOBALS['modules']['Users'];
         $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
         $tga->modules = $asModules;
-        $tga->db = $GLOBALS['db'];
         $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
         $tga->lastNRecords = $activityStreamOptions['last_n_records'];
         if (isset($_SESSION['iterator'])) {
