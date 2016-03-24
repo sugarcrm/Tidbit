@@ -52,6 +52,7 @@ class DataTool
     public $table_name = '';
     public $module = '';
     public $count = 0;
+
     // TeamSet with all teams inside
     static public $max_team_set_id = null;
     static $team_sets_array = array();
@@ -67,6 +68,12 @@ class DataTool
     static $datetimeCacheIndex = 0;
     static $datetimeIndexMax = 1000;
 
+    /**
+     * Type of output storage
+     *
+     * @var string
+     */
+    protected $storageType;
     /**
      * Array of generated relation data
      *
@@ -101,6 +108,15 @@ class DataTool
     );
 
     /**
+     * DataTool constructor.
+     * @param string $storageType
+     */
+    public function __construct($storageType)
+    {
+       $this->storageType = $storageType;
+    }
+
+    /**
      * Related modules getter
      *
      * @return array
@@ -130,6 +146,7 @@ class DataTool
          * one element of seed data for it.*/
         foreach ($this->fields as $field => $data) {
             if (!empty($data['source'])) continue;
+
             $type = (!empty($data['dbType'])) ? $data['dbType'] : $data['type'];
             $GLOBALS['fieldData'] = $data;
 
@@ -301,8 +318,7 @@ class DataTool
         }
 
         if (!empty($typeData['autoincrement'])) {
-            if ($GLOBALS['sugar_config']['dbconfig']['db_type'] == 'oci8'
-                || $GLOBALS['sugar_config']['dbconfig']['db_type'] == 'ibm_db2'
+            if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_ORACLE
             ) {
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
             } else {
@@ -553,7 +569,9 @@ class DataTool
         }
 
         // Run db convert only for specific types. see DBManager::convert()
-        if (!in_array($type, self::$notConvertedTypes)) {
+        if ( $this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV
+             && !in_array($type, self::$notConvertedTypes)
+        ) {
             $baseValue = $GLOBALS['db']->convert($baseValue, $type);
         }
 
@@ -655,7 +673,7 @@ class DataTool
             if (file_exists('Tidbit/Data/' . $bean->module_dir . '.php')) {
                 require_once('Tidbit/Data/' . $bean->module_dir . '.php');
             }
-            $rbfd = new DataTool();
+            $rbfd = new DataTool($this->storageType);
             $rbfd->fields = $bean->field_defs;
             $rbfd->table_name = $bean->table_name;
             $rbfd->module = $module;
@@ -892,7 +910,10 @@ class DataTool
         self::$datetimeCacheIndex++;
 
         if ((self::$datetimeCacheIndex > self::$datetimeIndexMax) || empty($datetime)) {
-            $datetime = $GLOBALS['db']->convert("'" . date('Y-m-d H:i:s') . "'", 'datetime');
+            $datetime = "'" .date('Y-m-d H:i:s') . "'";
+            if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+                $datetime = $GLOBALS['db']->convert($datetime, 'datetime');
+            }
             self::$datetimeCacheIndex = 0;
         }
 
@@ -916,12 +937,9 @@ class DataTool
         }
 
         shuffle($words);
+        $resWords = ($wordCount > 0) ? array_slice($words, 0, $wordCount) : $words;
 
-        if ($wordCount > 0) {
-            $words = array_slice($words, 0, $wordCount);
-        }
-
-        return implode(' ', $words);
+        return implode(' ', $resWords);
     }
 
     /**

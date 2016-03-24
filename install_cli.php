@@ -498,7 +498,7 @@ foreach ($module_keys as $module) {
         require_once('Tidbit/Data/' . $bean->module_dir . '.php');
     }
 
-    $dTool = new DataTool();
+    $dTool = new DataTool($storageType);
     $dTool->fields = $bean->field_defs;
 
     $dTool->table_name = $bean->table_name;

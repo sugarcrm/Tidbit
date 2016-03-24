@@ -119,6 +119,13 @@ class Tidbit_Generator_Activity
     );
 
     /**
+     * Type of output storage
+     *
+     * @var string
+     */
+    private $storageType;
+
+    /**
      * Constructor
      *
      * @param DBManager $db
@@ -128,6 +135,7 @@ class Tidbit_Generator_Activity
     public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $adapter, $insertBatchSize)
     {
         $this->storageAdapter = $adapter;
+        $this->storageType = $adapter::STORE_TYPE;
         $this->insertBatchSize = $insertBatchSize;
         $this->db = $db;
 
@@ -229,7 +237,7 @@ class Tidbit_Generator_Activity
 
     protected function createActivity($index)
     {
-        $activityEntity = new Tidbit_Generator_Activity_Entity($this->activityFields);
+        $activityEntity = new Tidbit_Generator_Activity_Entity($this->activityFields, $this->storageType);
         $activityEntity->moduleId1 = $this->currentUser['id'];
         $activityEntity->moduleId2 = $this->currentModuleRecord['id'];
         $activityEntity->moduleName1 = 'Users';

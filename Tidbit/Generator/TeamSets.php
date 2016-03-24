@@ -74,11 +74,11 @@ class Tidbit_Generator_TeamSets extends TeamSet
     protected $teamSets = array();
 
     /**
-     * Flag to use db or not
+     * Type of output storage
      *
-     * @var bool
+     * @var string
      */
-    private $storageTypeDb = true;
+    private $storageType;
 
     /**
      * Constructor.
@@ -94,7 +94,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
         $this->insertBufferTeamSets = new Tidbit_InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
         $this->insertBufferTeamSetsTeams = new Tidbit_InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
         $this->teamIds = $teamIds;
-        $this->storageTypeDb = $storageAdapter::STORE_TYPE != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV;
+        $this->storageType = $storageAdapter::STORE_TYPE;
         $this->loadTeamIds();
         $this->loadTeamMd5();
     }
@@ -199,7 +199,10 @@ class Tidbit_Generator_TeamSets extends TeamSet
             } else {
                 $id = create_guid();
             }
-            $date_modified = $this->db->convert("'" . $GLOBALS['timedate']->nowDb() . "'", 'datetime');
+            $date_modified = "'" . $GLOBALS['timedate']->nowDb() . "'";
+            if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+                $date_modified = $this->db->convert($date_modified, 'datetime');
+            }
 
             $installDataTS = array(
                 'id' => "'" . $id . "'",
@@ -250,7 +253,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      */
     private function loadTeamIds()
     {
-        if ($this->storageTypeDb) {
+        if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
             $result = $this->db->query("SELECT id FROM teams");
             while ($row = $this->db->fetchByAssoc($result)) {
                 $this->teamIds[] = $row['id'];
@@ -265,7 +268,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      */
     private function loadTeamMd5()
     {
-        if (!$this->storageTypeDb) {
+        if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
             return;
         }
 
