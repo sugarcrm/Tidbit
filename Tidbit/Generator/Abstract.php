@@ -48,11 +48,11 @@ abstract class Tidbit_Generator_Abstract
     protected $storageAdapter;
 
     /**
-     * Using storage in db or not
+     * Type of output storage
      *
-     * @var
+     * @var string
      */
-    protected $storageTypeDb = true;
+    protected $storageType;
 
     /**
      * @var int
@@ -84,7 +84,7 @@ abstract class Tidbit_Generator_Abstract
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
-        $this->storageTypeDb = $storageAdapter::STORE_TYPE != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV;
+        $this->storageType = $storageAdapter::STORE_TYPE;
         $this->insertBatchSize = $insertBatchSize;
     }
 
@@ -142,7 +142,7 @@ abstract class Tidbit_Generator_Abstract
     {
         $bean = BeanFactory::getBean($modelName);
 
-        $dataTool = new DataTool();
+        $dataTool = new DataTool($this->storageType);
         $dataTool->fields = $bean->field_defs;
         $dataTool->table_name = $bean->table_name;
         $dataTool->module = $modelName;

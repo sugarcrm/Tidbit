@@ -230,7 +230,7 @@ class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
     private function loadAclRoleIds()
     {
         // if storage isn't db we use just setted in constructor ids
-        if (!$this->storageTypeDb) {
+        if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
             return;
         }
         $this->aclRoleIds = array();

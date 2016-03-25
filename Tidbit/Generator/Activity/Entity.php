@@ -54,9 +54,14 @@ class Tidbit_Generator_Activity_Entity
      */
     protected $dataTool;
 
-    public function __construct($fields)
+    /**
+     * Tidbit_Generator_Activity_Entity constructor.
+     * @param array $fields
+     * @param string $storageType
+     */
+    public function __construct($fields, $storageType)
     {
-        $this->dataTool = new DataTool();
+        $this->dataTool = new DataTool($storageType);
 
         foreach ($fields as $field => $data) {
             $this->setField($field, null);
