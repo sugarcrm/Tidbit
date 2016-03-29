@@ -153,19 +153,22 @@ Options
 
 EOS;
 
+if (!function_exists('getopt')) {
+    die('"getopt" function not found. Please make sure you are running PHP 5+ version');
+}
 
-// TODO: changed command line arg handling to detect --allmodules & --allrelationships
-if (function_exists('getopt')) {
-    $opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'storage:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
-    if ($opts === false) {
-        die($usageStr);
-    }
-    if (isset($opts['v'])) {
-        die($versionStr);
-    }
-    if (isset($opts['h'])) {
-        die($helpStr);
-    }
+$opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'storage:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
+
+if ($opts === false) {
+    die($usageStr);
+}
+
+if (isset($opts['v'])) {
+    die($versionStr);
+}
+
+if (isset($opts['h'])) {
+    die($helpStr);
 }
 
 $allrelationships = false;
