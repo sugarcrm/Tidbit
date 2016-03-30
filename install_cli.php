@@ -250,7 +250,7 @@ $_SESSION['modules'] = $modules;
 $_SESSION['startTime'] = microtime();
 $_SESSION['baseTime'] = time();
 $_SESSION['totalRecords'] = 0;
-
+$GLOBALS['time_spend'] = array();
 
 foreach ($modules as $records) {
     $_SESSION['totalRecords'] += $records;
@@ -372,27 +372,46 @@ $relationStorageBuffers = array();
 
 $obliterated = array();
 foreach ($module_keys as $module) {
-    if (!is_dir('modules/' . $module)) continue;
+
+    $GLOBALS['time_spend'][$module] = microtime();
+
+    if (!is_dir('modules/' . $module)) {
+        echo "Module not found $module\n";
+        continue;
+    }
+
     if ((($module == 'Users') || ($module == 'Teams')) && isset($_SESSION['UseExistUsers'])) {
         echo "Skipping $module\n";
         continue;
     }
 
-    echo "Processing Module $module\n";
+    echo "\nProcessing Module $module\n";
     $total = $modules[$module];
 
     if (in_array($module, $moduleUsingGenerators)) {
         require_once('Tidbit/Tidbit/Generator/' . $module . '.php');
         $generatorName = 'Tidbit_Generator_' . $module;
+
         /** @var Tidbit_Generator_Abstract $generator */
         $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize);
         if (isset($_SESSION['obliterate'])) {
+            echo "\tObliterating all existing data ... ";
             $generator->obliterateDB();
+            echo "DONE";
         } elseif (isset($_SESSION['clean'])) {
+            echo "\tCleaning up Tidbit and demo data ... ";
             $generator->clearDB();
+            echo "DONE";
         }
+
+        echo "\n\tHitting DB... ";
         $generator->generate($modules[$module]);
         $total = $generator->getInsertCounter();
+        echo " DONE";
+
+        $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
+        echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
+
         continue;
     }
 
@@ -470,7 +489,7 @@ foreach ($module_keys as $module) {
                 $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1 = 1");
             }
         }
-        echo "DONE\n";
+        echo "DONE";
     } elseif (isset($_SESSION['clean'])) {
         echo "\tCleaning up demo data ... ";
         /* Make sure not to delete the admin! */
@@ -495,7 +514,7 @@ foreach ($module_keys as $module) {
                 $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1=1 AND id LIKE 'seed-%'");
             }
         }
-        echo "DONE\n";
+        echo "DONE";
     }
 
     if (file_exists('Tidbit/Data/' . $bean->module_dir . '.php')) {
@@ -553,8 +572,6 @@ foreach ($module_keys as $module) {
         if ($i % 1000 == 0) echo '*';
     } //for
 
-    echo microtime_diff($storageAdapter->getQueryExecStartTime(), microtime()) . "s ";
-
     if ($module == 'Teams') {
         require_once 'Tidbit/Generator/TeamSets.php';
         $teamGenerator = new Tidbit_Generator_TeamSets($GLOBALS['db'], $storageAdapter, $insertBatchSize, $generatedIds);
@@ -587,7 +604,10 @@ foreach ($module_keys as $module) {
         $prefsGenerator->generate($generatedIds);
     }
 
-    echo "DONE\n";
+    echo " DONE";
+
+    $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
+    echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
 }
 
 // force immediately destructors work
@@ -597,6 +617,7 @@ if (!empty($GLOBALS['queryFP'])) {
     fclose($GLOBALS['queryFP']);
 }
 
+echo "\n";
 echo "Total Time: " . microtime_diff($_SESSION['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $_SESSION['processedRecords'] . "\n";
 echo "Total Records Inserted: " . $_SESSION['allProcessedRecords'] . "\n";
