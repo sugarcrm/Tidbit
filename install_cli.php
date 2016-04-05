@@ -234,6 +234,7 @@ require_once('Tidbit/install_functions.php');
 require_once('Tidbit/Data/contactSeedData.php');
 require_once('Tidbit/StorageAdapter/Factory.php');
 require_once ('Tidbit/InsertBuffer.php');
+require_once ('Tidbit/Generator/UserPreferences.php');
 require_once('Tidbit/CsvConverter.php');
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
@@ -581,13 +582,16 @@ foreach ($module_keys as $module) {
         }
     }
 
+    if ($module == 'Users') {
+        $prefsGenerator = new Tidbit_Generator_UserPreferences($GLOBALS['db'], $storageAdapter);
+        $prefsGenerator->generate($generatedIds);
+    }
+
     echo "DONE\n";
 }
 
 // force immediately destructors work
 unset($relationStorageBuffers);
-
-generateUserPreferences($GLOBALS['db'], $storageAdapter);
 
 if (!empty($GLOBALS['queryFP'])) {
     fclose($GLOBALS['queryFP']);
@@ -684,7 +688,9 @@ if ($storageType == 'csv') {
     $converter = new Tidbit_CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
     $converter->convert('config');
     $converter->convert('acl_actions');
-    $converter->convert('user_preferences');
+    if (isset($_SESSION['UseExistUsers'])) {
+        $converter->convert('user_preferences');
+    }
 }
 
 echo "Done\n\n\n";

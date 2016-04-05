@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,64 +35,69 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-/**
- * Given an array return random array elements from the array
- *
- * @param array $array
- * @param int $num
- * @return array
- */
-function get_random_array($array, $num)
+class Tidbit_Generator_UserPreferences
 {
-    $rand = array_rand($array, $num);
-    $result = array();
+    /** @var DBManager */
+    private $db;
 
-    for ($i = 0; $i < $num; $i++) {
-        $result[$i] = $array[$rand[$i]];
-    }
-    return $result;
-}
+    /** @var  Tidbit_StorageAdapter_Storage_Abstract */
+    private $storageAdapter;
 
-/**
- * generate_team_set
- * Helper function to recursively create team sets
- *
- * @param $primary string The primary team
- * @param $teams string The teams to use
- */
-function generate_team_set($primary, $teams)
-{
-    if (!in_array($primary, $teams)) {
-        array_push($teams, $primary);
-    }
-    $teams = array_reverse($teams);
-    $team_count = count($teams);
-    for ($i = 0; $i < $team_count; $i++) {
-        /** @var TeamSet $teamSet */
-        $teamSet = BeanFactory::getBean('TeamSets');
-        $teamSet->addTeams($teams);
-        array_pop($teams);
-    }
-}
+    /** @var array  */
+    private $defaultContentsArr = array(
+        'timezone' => "America/Phoenix",
+        'ut' => 1,
+        'Home_TEAMNOTICE_ORDER_BY' => 'date_start',
+        'userPrivGuid' => 'a4836211-ee89-0714-a4a2-466987c284f4',
+    );
 
-function generate_full_teamset($set, $teams)
-{
-    $team_count = count($teams);
-    for ($i = 0; $i < $team_count; $i++) {
-        $teamset = new TeamSet();
-        $teamset->addTeams(array_unique(array_merge($set, array($teams[$i]))));
+    /**
+     * Tidbit_Generator_UserPreferences constructor.
+     *
+     * @param DBManager $db
+     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     */
+    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter)
+    {
+        $this->db = $db;
+        $this->storageAdapter = $storageAdapter;
     }
-}
 
-/**
- * @param string $dir
- */
-function clearCsvDir($dir)
-{
-    $fileToDelete = glob($dir . '/*csv');
-    foreach($fileToDelete as $file){
-        if(is_file($file)) {
-            unlink($file);
+    /**
+     * @param array $userIds
+     */
+    public function generate(array $userIds)
+    {
+        if ($insertData = $this->prepareInsertData($userIds)) {
+            $this->storageAdapter->save('user_preferences', $insertData);
         }
+    }
+
+    /**
+     * @param array $userIds
+     * @return array
+     */
+    private function prepareInsertData(array $userIds)
+    {
+        $insertData = array();
+        if (!$userIds) {
+            return $insertData;
+        }
+
+        $defaultContents = "'" . base64_encode(serialize($this->defaultContentsArr)) . "'";
+        $currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+
+        foreach ($userIds as $id) {
+            $insertData[] = array(
+                'id' => "'" . md5($id) . "'",
+                'category' => "'global'",
+                'date_entered' => $currentDateTime,
+                'date_modified' => $currentDateTime,
+                'assigned_user_id' => "'" . $id . "'",
+                'contents' => $defaultContents,
+            );
+        }
+
+        return $insertData;
     }
 }
