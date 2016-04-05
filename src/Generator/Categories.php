@@ -35,10 +35,9 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Data/Categories.php');
-require_once('Tidbit/Tidbit/Generator/Abstract.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
+class Categories extends Common
 {
     const MODEL_NAME = 'Categories';
 
@@ -57,11 +56,11 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
     /**
      * Constructor.
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
     {
         global $kbCategoriesNestingLevel;
         if ($kbCategoriesNestingLevel) {
@@ -85,7 +84,7 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
         }
 
         $categoriesCounter = 1;
-        $root = new stdClass();
+        $root = new \stdClass();
         $root->lvl = 0;
         $categoryByLevels = array(array($root));
         while ($categoriesCounter < $number) {
@@ -94,7 +93,7 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
                     continue;
                 }
                 $categoriesCounter++;
-                $category = new stdClass();
+                $category = new \stdClass();
                 $category->lvl = $i;
                 $categoryByLevels[$i][] = $category;
                 $parent = $categoryByLevels[$i - 1][0];
@@ -150,10 +149,10 @@ class Tidbit_Generator_Categories extends Tidbit_Generator_Abstract
     /**
      * Add insert record and return id of it.
      *
-     * @param stdClass $category
+     * @param \stdClass $category
      * @param string $rootId
      */
-    private function createInsertRecord(stdClass $category, $rootId = '')
+    private function createInsertRecord(\stdClass $category, $rootId = '')
     {
         $dataTool = $this->getDataToolForModel(static::MODEL_NAME, $this->modelCounter++);
         $dataTool->installData['root'] = $rootId ? $rootId : $dataTool->installData['id'];

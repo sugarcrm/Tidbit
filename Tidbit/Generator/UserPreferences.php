@@ -35,6 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
+
 class Tidbit_Generator_UserPreferences
 {
     /** @var DBManager */

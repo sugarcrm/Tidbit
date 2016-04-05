@@ -38,6 +38,13 @@
 
 ini_set('memory_limit', '8096M');
 if (!defined('sugarEntry')) define('sugarEntry', true);
+define('SUGAR_DIR', __DIR__ . '/..');
+define('DATA_DIR', __DIR__ . '/Data');
+define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
+
+
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/install_config.php';
 
 chdir('..');
 require_once('include/entryPoint.php');
@@ -46,19 +53,13 @@ set_time_limit(0);
 /* Are we going to use this? */
 $recordsPerPage = 1000;
 
-require_once('install_config.php');
-
 // TODO: This loads additional definitions into beanList and beanFiles for
 // custom modules
-if (file_exists('custom/application/Ext/Include/modules.ext.php')) {
-    require_once('custom/application/Ext/Include/modules.ext.php');
+if (file_exists(SUGAR_DIR . '/custom/application/Ext/Include/modules.ext.php')) {
+    require_once(SUGAR_DIR . '/custom/application/Ext/Include/modules.ext.php');
 }
-if (file_exists('include/modules_override.php')) {
-    require_once('include/modules_override.php');
-}
-
-if (!isset($argc)) {
-    header("Location: install.php");
+if (file_exists(SUGAR_DIR . '/include/modules_override.php')) {
+    require_once(SUGAR_DIR . '/include/modules_override.php');
 }
 
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] . " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
@@ -223,19 +224,17 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
         get_include_path()
     );
 }
-require_once('include/utils.php');
-require_once('config.php');
-require_once('include/modules.php');
-require_once('include/database/DBManagerFactory.php');
-require_once('include/SugarTheme/SugarTheme.php');
-require_once('Tidbit/Data/DefaultData.php');
-require_once('Tidbit/DataTool.php');
-require_once('Tidbit/install_functions.php');
-require_once('Tidbit/Data/contactSeedData.php');
-require_once('Tidbit/StorageAdapter/Factory.php');
-require_once ('Tidbit/InsertBuffer.php');
-require_once ('Tidbit/Generator/UserPreferences.php');
-require_once('Tidbit/CsvConverter.php');
+
+require_once SUGAR_DIR . '/config.php';
+require_once SUGAR_DIR . '/include/modules.php';
+require_once SUGAR_DIR . '/include/utils.php';
+require_once SUGAR_DIR . '/include/database/DBManagerFactory.php';
+require_once SUGAR_DIR . '/include/SugarTheme/SugarTheme.php';
+require_once SUGAR_DIR . '/include/utils/db_utils.php';
+require_once SUGAR_DIR . '/modules/Teams/TeamSet.php';
+require_once DATA_DIR . '/DefaultData.php';
+require_once DATA_DIR . '/contactSeedData.php';
+require_once __DIR__ . '/install_functions.php';
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
 if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
@@ -367,7 +366,7 @@ if ($storageType == 'csv') {
 } else {
     $storage = $GLOBALS['db'];
 }
-$storageAdapter = Tidbit_StorageAdapter_Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
+$storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
 $relationStorageBuffers = array();
 
 $obliterated = array();
@@ -388,11 +387,13 @@ foreach ($module_keys as $module) {
     echo "\nProcessing Module $module\n";
     $total = $modules[$module];
 
-    if (in_array($module, $moduleUsingGenerators)) {
-        require_once('Tidbit/Tidbit/Generator/' . $module . '.php');
-        $generatorName = 'Tidbit_Generator_' . $module;
+    if (file_exists(DATA_DIR . '/' . $module . '.php')) {
+        require_once(DATA_DIR . '/' . $module . '.php');
+    }
 
-        /** @var Tidbit_Generator_Abstract $generator */
+    if (in_array($module, $moduleUsingGenerators)) {
+        $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
+        /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
         $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize);
         if (isset($_SESSION['obliterate'])) {
             echo "\tObliterating all existing data ... ";
@@ -517,18 +518,14 @@ foreach ($module_keys as $module) {
         echo "DONE";
     }
 
-    if (file_exists('Tidbit/Data/' . $bean->module_dir . '.php')) {
-        require_once('Tidbit/Data/' . $bean->module_dir . '.php');
-    }
-
-    $dTool = new DataTool($storageType);
+    $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
     $dTool->fields = $bean->field_defs;
 
     $dTool->table_name = $bean->table_name;
     $dTool->module = $module;
 
     echo "\n\tHitting DB... ";
-    $beanInsertBuffer = new Tidbit_InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
+    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
 
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
@@ -556,7 +553,11 @@ foreach ($module_keys as $module) {
         if ($dTool->getRelatedModules()) {
             foreach ($dTool->getRelatedModules() as $table => $installDataArray) {
                 if (empty($relationStorageBuffers[$table])) {
-                    $relationStorageBuffers[$table] = new Tidbit_InsertBuffer($table, $storageAdapter, $insertBatchSize);
+                    $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
+                        $table,
+                        $storageAdapter,
+                        $insertBatchSize
+                    );
                 }
                 foreach ($installDataArray as $data) {
                     $relationStorageBuffers[$table]->addInstallData($data);
@@ -573,16 +574,16 @@ foreach ($module_keys as $module) {
     } //for
 
     if ($module == 'Teams') {
-        require_once 'Tidbit/Generator/TeamSets.php';
-        $teamGenerator = new Tidbit_Generator_TeamSets($GLOBALS['db'], $storageAdapter, $insertBatchSize, $generatedIds);
+        $teamGenerator = new \Sugarcrm\Tidbit\Generator\TeamSets(
+            $GLOBALS['db'], $storageAdapter, $insertBatchSize, $generatedIds
+        );
         $teamGenerator->generate();
     }
 
     // Apply TBA Rules for some modules
     // $roleActions are defined in install_config.php
     if ($module == 'ACLRoles') {
-        require_once 'Tidbit/Generator/TBA.php';
-        $tbaGenerator = new Tidbit_Generator_TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+        $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
 
         if (isset($_SESSION['clean'])) {
             $tbaGenerator->clearDB();
@@ -636,8 +637,7 @@ if (!empty($_SESSION['as_populate'])) {
         echo "\nPopulating Activity Stream\n";
         $timer = microtime(1);
 
-        require_once 'Tidbit/Generator/Activity.php';
-        $tga = new Tidbit_Generator_Activity($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+        $tga = new \Sugarcrm\Tidbit\Generator\Activity($GLOBALS['db'], $storageAdapter, $insertBatchSize);
         $asModules = array();
         foreach ($GLOBALS['modules'] as $moduleName => $recordsCount) {
             /** @var SugarBean $bean */
@@ -706,7 +706,7 @@ if (!empty($_SESSION['as_populate'])) {
 
 if ($storageType == 'csv') {
     // Save table-dictionaries
-    $converter = new Tidbit_CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+    $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
     $converter->convert('config');
     $converter->convert('acl_actions');
     if (isset($_SESSION['UseExistUsers'])) {

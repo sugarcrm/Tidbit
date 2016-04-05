@@ -1,4 +1,5 @@
 <?php
+
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
@@ -34,6 +35,66 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Exception extends Exception{
+namespace Sugarcrm\Tidbit;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
+
+/**
+ * Class for convert tables from db to csv
+ */
+class CsvConverter
+{
+    /**
+     * @var \DBManager
+     */
+    protected $db;
+
+    /**
+     * @var Csv
+     */
+    protected $csvAdapter;
+
+    /**
+     * Size of insert buffer
+     *
+     * @var int
+     */
+    protected $insertBatchSize;
+
+    /**
+     * CsvConverter constructor.
+     *
+     * @param \DBManager $db
+     * @param Csv $csvAdapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(\DBManager $db, Csv $csvAdapter, $insertBatchSize)
+    {
+        $this->db = $db;
+        $this->csvAdapter = $csvAdapter;
+        $this->insertBatchSize = $insertBatchSize;
+    }
+
+    /**
+     * Gets data from table fields and place it into csv file
+     *
+     * @param string $tableName
+     * @param array $fieldsArr
+     */
+    public function convert($tableName, array $fieldsArr = array())
+    {
+        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
+
+        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
+        $sql = "SELECT " . $fields . " FROM " . $tableName;
+        $result = $this->db->query($sql);
+
+        while ($row = $this->db->fetchByAssoc($result)) {
+            foreach ($row as $k=>$v) {
+                $row[$k] = "'" . $v . "'";
+            }
+            $insertBuffer->addInstallData($row);
+        }
+
+    }
 
 }

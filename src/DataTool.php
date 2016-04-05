@@ -35,8 +35,6 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('include/utils/db_utils.php');
-
 /**
  * DataTool randomly generates data to be inserted into the Sugar application
  * A DataTool object corresponds to a Sugar module.
@@ -44,6 +42,11 @@ require_once('include/utils/db_utils.php');
  * initializes its fields based on values from that Sugar module.
  *
  */
+
+namespace Sugarcrm\Tidbit;
+
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
 class DataTool
 {
 
@@ -270,10 +273,13 @@ class DataTool
 
     /**
      * Returns a randomly generated piece of data for the current module and field.
+     *
      * @param $typeData - An array from a .php file in the Tidbit/Data directory
      * @param $type - The type of the current field
      * @param $field - The name of the current field
      * @param $seed - Number to be used as the seed for mt_srand()
+     *
+     * @return string
      */
     function handleType($typeData, $type, $field, $seed)
     {
@@ -318,7 +324,7 @@ class DataTool
         }
 
         if (!empty($typeData['autoincrement'])) {
-            if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_ORACLE
+            if ($this->storageType == \Sugarcrm\Tidbit\StorageAdapter\Factory::OUTPUT_TYPE_ORACLE
             ) {
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
             } else {
@@ -569,7 +575,7 @@ class DataTool
         }
 
         // Run db convert only for specific types. see DBManager::convert()
-        if ( $this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV
+        if ( $this->storageType != \Sugarcrm\Tidbit\StorageAdapter\Factory::OUTPUT_TYPE_CSV
              && !in_array($type, self::$notConvertedTypes)
         ) {
             $baseValue = $GLOBALS['db']->convert($baseValue, $type);
@@ -594,9 +600,12 @@ class DataTool
 
     /**
      * Returns the value of this module's field called $fieldname.
+     *
      * If a value has already been generated, it uses that one, otherwise
      * it calls getData() to generate the value.
      * @param $fieldName - Name of the local field you want to retrieve
+     *
+     * @return string
      */
     function accessLocalField($fieldName)
     {
@@ -632,10 +641,14 @@ class DataTool
 
     /**
      * Returns the value of $module's field called $fieldName.
+     *
      * Calls accessLocalField($fieldName) on a separate DataTool object
      * for the remote module.
+     *
      * @param $module - Name of remote module to access.
      * @param $fieldName - Name of field in remote module to retrieve.
+     *
+     * @return string
      */
     function accessRemoteField($module, $fieldName)
     {
@@ -670,8 +683,8 @@ class DataTool
             $class = $beanList[$module];
             require_once($beanFiles[$class]);
             $bean = new $class();
-            if (file_exists('Tidbit/Data/' . $bean->module_dir . '.php')) {
-                require_once('Tidbit/Data/' . $bean->module_dir . '.php');
+            if (file_exists(SUGAR_DIR . '/' . $bean->module_dir . '.php')) {
+                require_once(SUGAR_DIR . '/' . $bean->module_dir . '.php');
             }
             $rbfd = new DataTool($this->storageType);
             $rbfd->fields = $bean->field_defs;
@@ -807,9 +820,9 @@ class DataTool
                 }
 
                 /* Load any custom feilds for this relationship */
-                if (file_exists('Tidbit/Relationships/' . $relationship['table'] . '.php')) {
+                if (file_exists(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php')) {
                     //echo "\n". 'loading custom fields from ' . 'Tidbit/Relationships/' . $relationship['table'] . '.php' . "\n";
-                    require_once('Tidbit/Relationships/' . $relationship['table'] . '.php');
+                    require_once(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php');
                 }
 
                 /* According to $relationship['ratio'],
@@ -911,7 +924,7 @@ class DataTool
 
         if ((self::$datetimeCacheIndex > self::$datetimeIndexMax) || empty($datetime)) {
             $datetime = "'" .date('Y-m-d H:i:s') . "'";
-            if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+            if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
                 $datetime = $GLOBALS['db']->convert($datetime, 'datetime');
             }
             self::$datetimeCacheIndex = 0;

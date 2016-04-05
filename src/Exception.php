@@ -1,8 +1,7 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,24 +34,8 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Random_FirstName
-{
-    private $_list = array();
-    private $_used = array();
+namespace Sugarcrm\Tidbit;
 
-    public function __construct(array $list)
-    {
-        $this->_list = $list;
-    }
+class Exception extends \Exception{
 
-    public function __toString()
-    {
-        if (count($this->_list) == 0) {
-            $this->_list = $this->_used;
-            $this->_used = array();
-        }
-
-        shuffle($this->_list);
-        return $this->_used[] = array_shift($this->_list);
-    }
 }

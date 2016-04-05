@@ -34,46 +34,112 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/StorageAdapter/Storage/Abstract.php');
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-class Tidbit_StorageAdapter_Storage_Mysql extends Tidbit_StorageAdapter_Storage_Abstract {
+abstract class Common {
 
     /**
      * @var string
      */
-    const STORE_TYPE = Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_MYSQL;
+    const STORE_TYPE = 'abstract';
 
     /**
-     * {@inheritdoc}
+     * Connector to db or dir-path for store data
      *
+     * @var mixed
      */
-    public function save($tableName, array $installData)
+    protected $storageResource = null;
+
+    /**
+     * Descriptor of file for query logging
+     *
+     * @var Resource
+     */
+    protected $logQueriesFile = null;
+
+    /**
+     * Unix timestamp of start query execution
+     *
+     * @var string
+     */
+    protected $queryStartUnixTS = '';
+
+    /**
+     * Constructor
+     *
+     * @param mixed $storageResource
+     * @param string $logQueryPath
+     */
+    public function __construct($storageResource, $logQueryPath = '')
     {
-        $sql = $this->prepareQuery($tableName, $installData);
-        $this->logQuery($sql);
-        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+        $this->storageResource = $storageResource;
+        if ($logQueryPath) {
+            $this->logQueriesFile = fopen($logQueryPath, 'a');
+        }
+        $this->queryStartUnixTS = microtime();
     }
 
     /**
-     * rtfn
+     *  Saves data from tool to storage
      *
      * @param string $tableName
      * @param array $installData
-     * @return string
-     * @throws Tidbit_Exception
      */
-    protected function prepareQuery($tableName, array $installData)
+    abstract public function save($tableName, array $installData);
+
+    /**
+     * Getter for query exec start time
+     *
+     * @return string
+     */
+    public function getQueryExecStartTime()
     {
-        if (!$tableName || !$installData) {
-            throw new Tidbit_Exception("Mysql adapter error: wrong data to insert");
+        return $this->queryStartUnixTS;
+    }
+
+    /**
+     * Makes commit in db
+     */
+    public function commitQuery()
+    {
+        $this->storageResource->query('COMMIT');
+    }
+
+    /**
+     * Straight request into storage
+     *
+     * @param string $query
+     * @param bool $quote
+     */
+    public function executeQuery($query, $quote = true)
+    {
+        $this->logQuery($query);
+        if ($quote) {
+            $query = $this->storageResource->quote($query);
         }
+        $this->storageResource->query($query, true, "QUERY FAILED");
+    }
 
-        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
-
-        foreach ($installData as $data) {
-            $sql .= '(' . implode(', ', $data) . "),";
+    /**
+     * Destructor
+     *
+     */
+    public function __destruct()
+    {
+        if ($this->logQueriesFile) {
+            fclose($this->logQueriesFile);
         }
+    }
 
-        return substr($sql, 0, -1) . ';';
+    /**
+     * Log query into the file if it provided
+     *
+     * @param string $query
+     */
+    protected function logQuery($query)
+    {
+        if (is_resource($this->logQueriesFile)) {
+            fwrite($this->logQueriesFile, $query . "\n");
+        }
     }
 }

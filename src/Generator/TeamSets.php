@@ -35,22 +35,27 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('modules/Teams/TeamSet.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_TeamSets extends TeamSet
+use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\InsertBuffer;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
+
+class TeamSets extends \TeamSet
 {
     /**
-     * @var DBManager
+     * @var \DBManager
      */
     public $db;
 
     /**
-     * @var Tidbit_InsertBuffer
+     * @var InsertBuffer
      */
     protected $insertBufferTeamSets;
 
     /**
-     * @var Tidbit_InsertBuffer
+     * @var InsertBuffer
      */
     protected $insertBufferTeamSetsTeams;
 
@@ -83,16 +88,16 @@ class Tidbit_Generator_TeamSets extends TeamSet
     /**
      * Constructor.
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param \DBManager $db
+     * @param Common $storageAdapter
      * @param int $insertBatchSize
      * @param array $teamIds
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize, $teamIds)
+    public function __construct(\DBManager $db, Common $storageAdapter, $insertBatchSize, $teamIds)
     {
         $this->db = $db;
-        $this->insertBufferTeamSets = new Tidbit_InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
-        $this->insertBufferTeamSetsTeams = new Tidbit_InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
+        $this->insertBufferTeamSets = new InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
+        $this->insertBufferTeamSetsTeams = new InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
         $this->teamIds = $teamIds;
         $this->storageType = $storageAdapter::STORE_TYPE;
         $this->loadTeamIds();
@@ -104,7 +109,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      */
     public function generate()
     {
-        TeamSetManager::flushBackendCache();
+        \TeamSetManager::flushBackendCache();
 
         $max_teams_per_set = 10;
         if (isset($opts['s']) && $opts['s'] > 0) {
@@ -200,7 +205,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
                 $id = create_guid();
             }
             $date_modified = "'" . $GLOBALS['timedate']->nowDb() . "'";
-            if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+            if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
                 $date_modified = $this->db->convert($date_modified, 'datetime');
             }
 
@@ -253,7 +258,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      */
     private function loadTeamIds()
     {
-        if ($this->storageType != Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+        if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
             $result = $this->db->query("SELECT id FROM teams");
             while ($row = $this->db->fetchByAssoc($result)) {
                 $this->teamIds[] = $row['id'];
@@ -268,7 +273,7 @@ class Tidbit_Generator_TeamSets extends TeamSet
      */
     private function loadTeamMd5()
     {
-        if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+        if ($this->storageType == Factory::OUTPUT_TYPE_CSV) {
             return;
         }
 

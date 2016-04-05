@@ -35,9 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/Generator/Activity/Entity.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_Activity
+use Sugarcrm\Tidbit\Generator\Activity\Entity;
+use Sugarcrm\Tidbit\InsertBuffer;
+
+class Activity
 {
     public $userCount;
     public $activitiesPerModuleRecord;
@@ -59,7 +62,7 @@ class Tidbit_Generator_Activity
     protected $totalModulesRecords = 0;
 
     /**
-     * @var Tidbit_StorageAdapter_Storage_Abstract
+     * @var \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
      */
     protected $storageAdapter;
 
@@ -128,11 +131,11 @@ class Tidbit_Generator_Activity
     /**
      * Constructor
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $adapter
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter
      * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $adapter, $insertBatchSize)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter, $insertBatchSize)
     {
         $this->storageAdapter = $adapter;
         $this->storageType = $adapter::STORE_TYPE;
@@ -149,7 +152,7 @@ class Tidbit_Generator_Activity
     {
         $loadedModules = array();
         foreach ($this->modules as $module => $moduleRecordCount) {
-            if (!$bean = BeanFactory::getBean($module)) {
+            if (!$bean = \BeanFactory::getBean($module)) {
                 continue;
             }
             $loadedModules[$module] = $moduleRecordCount;
@@ -172,7 +175,7 @@ class Tidbit_Generator_Activity
         }
         $this->activitiesPerUser = $this->totalModulesRecords * $this->activitiesPerModuleRecord;
         $this->activityModuleCount = count($this->activityModules);
-        $this->activityBean = BeanFactory::getBean('Activities');
+        $this->activityBean = \BeanFactory::getBean('Activities');
         foreach ($this->activityBean->field_defs as $field => $data) {
             if (empty($data['source'])) {
                 $this->activityFields[$field] = $data;
@@ -237,7 +240,7 @@ class Tidbit_Generator_Activity
 
     protected function createActivity($index)
     {
-        $activityEntity = new Tidbit_Generator_Activity_Entity($this->activityFields, $this->storageType);
+        $activityEntity = new Entity($this->activityFields, $this->storageType);
         $activityEntity->moduleId1 = $this->currentUser['id'];
         $activityEntity->moduleId2 = $this->currentModuleRecord['id'];
         $activityEntity->moduleName1 = 'Users';
@@ -294,12 +297,12 @@ class Tidbit_Generator_Activity
      * Lazy creator of insert buffers
      *
      * @param string $tableName
-     * @return Tidbit_InsertBuffer
+     * @return InsertBuffer
      */
     protected function getInsertBufferForTable($tableName)
     {
         if (empty($this->insertBuffers[$tableName])) {
-            $this->insertBuffers[$tableName] = new Tidbit_InsertBuffer(
+            $this->insertBuffers[$tableName] = new InsertBuffer(
                 $tableName,
                 $this->storageAdapter,
                 $this->insertBatchSize
@@ -310,7 +313,8 @@ class Tidbit_Generator_Activity
 
     protected function initNextModuleName()
     {
-        $moduleName = isset($this->activityModules[$this->nextActivityModule]) ? $this->activityModules[$this->nextActivityModule++] : null;
+        $moduleName = isset($this->activityModules[$this->nextActivityModule]) ?
+            $this->activityModules[$this->nextActivityModule++] : null;
         if ($moduleName) {
             $this->currentModuleName = $moduleName;
             return true;
@@ -322,7 +326,9 @@ class Tidbit_Generator_Activity
     {
         if (empty($this->fetchedData[$moduleName][$this->currentOffsets[$moduleName]['next']])) {
             if (empty($this->fullyLoadedModules[$moduleName])) {
-                $this->fetchedData[$moduleName] = isset($this->fetchedData[$moduleName]) ? $this->fetchedData[$moduleName] : array();
+                $this->fetchedData[$moduleName] = isset($this->fetchedData[$moduleName]) ?
+                    $this->fetchedData[$moduleName]
+                    : array();
                 if ($data = $this->fetchNextModuleRecords($moduleName)) {
                     foreach ($data as $k => $v) {
                         $this->fetchedData[$moduleName][$k] = $v;
@@ -348,11 +354,13 @@ class Tidbit_Generator_Activity
     protected function fetchNextModuleRecords($moduleName)
     {
         $extraFields = array();
-        $hasName = !empty($this->beans[$moduleName]->field_defs['name']) && empty($this->beans[$moduleName]->field_defs['name']['source']);
+        $hasName = !empty($this->beans[$moduleName]->field_defs['name'])
+            && empty($this->beans[$moduleName]->field_defs['name']['source']);
         if ($hasName) {
             $extraFields[] = 'name';
         }
-        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name']) && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
+        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name'])
+            && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
         if ($hasLastName) {
             $extraFields[] = 'last_name';
         }

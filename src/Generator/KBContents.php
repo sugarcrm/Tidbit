@@ -35,11 +35,9 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Data/KBContents.php');
-require_once('Tidbit/Tidbit/Generator/Abstract.php');
-require_once('Tidbit/Tidbit/Generator/Exception.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
+class KBContents extends Common
 {
     /**
      * @var int
@@ -84,11 +82,11 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
     /**
      * Constructor.
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
     {
         global $kbNumberOfArticlesWithNotes;
         if ($kbNumberOfArticlesWithNotes) {
@@ -119,7 +117,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
 
         global $kbLanguage;
         if (empty($kbLanguage)) {
-            throw new Tidbit_Generator_Exception("KBContents languages not configured");
+            throw new Exception("KBContents languages not configured");
         }
         $this->setKBLanguagesInConfig($kbLanguage);
     }

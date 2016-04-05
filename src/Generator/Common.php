@@ -35,15 +35,20 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-abstract class Tidbit_Generator_Abstract
+namespace Sugarcrm\Tidbit\Generator;
+
+use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\InsertBuffer;
+
+abstract class Common
 {
     /**
-     * @var DBManager
+     * @var \DBManager
      */
     protected $db;
 
     /**
-     * @var Tidbit_StorageAdapter_Storage_Abstract
+     * @var \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
      */
     protected $storageAdapter;
 
@@ -67,7 +72,7 @@ abstract class Tidbit_Generator_Abstract
     protected $insertCounter = 0;
 
     /**
-     * List of Tidbit_InsertBuffer's instances
+     * List of InsertBuffer's instances
      *
      * @var array
      */
@@ -76,11 +81,11 @@ abstract class Tidbit_Generator_Abstract
     /**
      * Constructor.
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
@@ -114,15 +119,15 @@ abstract class Tidbit_Generator_Abstract
     }
 
     /**
-     * Lazy Tidbit_InsertBuffer creator
+     * Lazy InsertBuffer creator
      *
      * @param string $tableName
-     * @return Tidbit_InsertBuffer
+     * @return InsertBuffer
      */
     public function getInsertBuffer($tableName)
     {
         if (empty($this->insertBuffers[$tableName])) {
-            $this->insertBuffers[$tableName] = new Tidbit_InsertBuffer(
+            $this->insertBuffers[$tableName] = new InsertBuffer(
                 $tableName,
                 $this->storageAdapter,
                 $this->insertBatchSize);
@@ -140,7 +145,7 @@ abstract class Tidbit_Generator_Abstract
      */
     protected function getDataToolForModel($modelName, $modelCounter)
     {
-        $bean = BeanFactory::getBean($modelName);
+        $bean = \BeanFactory::getBean($modelName);
 
         $dataTool = new DataTool($this->storageType);
         $dataTool->fields = $bean->field_defs;

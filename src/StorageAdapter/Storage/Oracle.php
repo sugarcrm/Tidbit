@@ -34,14 +34,17 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/StorageAdapter/Storage/Abstract.php');
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-class Tidbit_StorageAdapter_Storage_Oracle extends Tidbit_StorageAdapter_Storage_Abstract {
+use Sugarcrm\Tidbit\Exception;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
+class Oracle extends Common {
 
     /**
      * @var string
      */
-    const STORE_TYPE = Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_ORACLE;
+    const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
 
     /**
      * {@inheritdoc}
@@ -61,12 +64,12 @@ class Tidbit_StorageAdapter_Storage_Oracle extends Tidbit_StorageAdapter_Storage
      * @param string $tableName
      * @param array $installData
      * @return string
-     * @throws Tidbit_Exception
+     * @throws \Sugarcrm\Tidbit\Exception
      */
     protected function prepareQuery($tableName, array $installData)
     {
         if (!$tableName || !$installData) {
-            throw new Tidbit_Exception("Oracle adapter error: wrong data to insert");
+            throw new Exception("Oracle adapter error: wrong data to insert");
         }
 
         $sql = 'INSERT /*+APPEND*/ ALL';
