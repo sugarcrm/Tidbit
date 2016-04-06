@@ -55,3 +55,7 @@ Example usages:
       
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)
       $php -f install_cli.php -- -o --insert_batch_size 1000
+
+Contributing:
+------------
+See [CONTRIBUTING](CONTRIBUTING.md) for how you can contribute changes back into this project.
