@@ -189,7 +189,7 @@ class DataTool
             $this->installData['team_set_id'] = "'" . $this->installData['team_set_id'] . "'";
 
             //check if TbACLs is enabled
-            if (!empty($_SESSION['tba'])) {
+            if (!empty($GLOBALS['tba'])) {
                 $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
             }
         }
@@ -860,7 +860,7 @@ class DataTool
                         );
                     }
 
-                    $_SESSION['allProcessedRecords']++;
+                    $GLOBALS['allProcessedRecords']++;
 
                     /* Restore the relationship settings */
                     if ($relOverridesStore) {
@@ -970,7 +970,7 @@ class DataTool
         if (empty($assembleIdCache[$module])) {
             $assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
                 ? 'seed-' . $module
-                : 'seed-' . $module . $_SESSION['baseTime'];
+                : 'seed-' . $module . $GLOBALS['baseTime'];
         }
 
         $seedId = $assembleIdCache[$module] . $id;
@@ -1013,7 +1013,7 @@ class DataTool
          * doesn't work well when you give it
          * consecutive integers.
          */
-        return 2 * (self::$seedModules[$module] + self::$seedFields[$field] + $count + $_SESSION['baseTime']);
+        return 2 * (self::$seedModules[$module] + self::$seedFields[$field] + $count + $GLOBALS['baseTime']);
     }
 
     /**
