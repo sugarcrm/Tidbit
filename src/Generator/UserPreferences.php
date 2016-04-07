@@ -35,13 +35,14 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_UserPreferences
+class UserPreferences
 {
-    /** @var DBManager */
+    /** @var \DBManager */
     private $db;
 
-    /** @var  Tidbit_StorageAdapter_Storage_Abstract */
+    /** @var  \Sugarcrm\Tidbit\StorageAdapter\Storage\Common */
     private $storageAdapter;
 
     /** @var array  */
@@ -53,12 +54,12 @@ class Tidbit_Generator_UserPreferences
     );
 
     /**
-     * Tidbit_Generator_UserPreferences constructor.
+     * UserPreferences constructor.
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;

@@ -601,7 +601,7 @@ foreach ($module_keys as $module) {
     }
 
     if ($module == 'Users') {
-        $prefsGenerator = new Tidbit_Generator_UserPreferences($GLOBALS['db'], $storageAdapter);
+        $prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
         $prefsGenerator->generate($generatedIds);
     }
 
