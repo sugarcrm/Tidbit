@@ -1,4 +1,5 @@
 <?php
+
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
@@ -34,6 +35,71 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Exception extends Exception{
+namespace Sugarcrm\Tidbit\Generator;
 
+class UserPreferences
+{
+    /** @var \DBManager */
+    private $db;
+
+    /** @var  \Sugarcrm\Tidbit\StorageAdapter\Storage\Common */
+    private $storageAdapter;
+
+    /** @var array  */
+    private $defaultContentsArr = array(
+        'timezone' => "America/Phoenix",
+        'ut' => 1,
+        'Home_TEAMNOTICE_ORDER_BY' => 'date_start',
+        'userPrivGuid' => 'a4836211-ee89-0714-a4a2-466987c284f4',
+    );
+
+    /**
+     * UserPreferences constructor.
+     *
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     */
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter)
+    {
+        $this->db = $db;
+        $this->storageAdapter = $storageAdapter;
+    }
+
+    /**
+     * @param array $userIds
+     */
+    public function generate(array $userIds)
+    {
+        if ($insertData = $this->prepareInsertData($userIds)) {
+            $this->storageAdapter->save('user_preferences', $insertData);
+        }
+    }
+
+    /**
+     * @param array $userIds
+     * @return array
+     */
+    private function prepareInsertData(array $userIds)
+    {
+        $insertData = array();
+        if (!$userIds) {
+            return $insertData;
+        }
+
+        $defaultContents = "'" . base64_encode(serialize($this->defaultContentsArr)) . "'";
+        $currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+
+        foreach ($userIds as $id) {
+            $insertData[] = array(
+                'id' => "'" . md5($id) . "'",
+                'category' => "'global'",
+                'date_entered' => $currentDateTime,
+                'date_modified' => $currentDateTime,
+                'assigned_user_id' => "'" . $id . "'",
+                'contents' => $defaultContents,
+            );
+        }
+
+        return $insertData;
+    }
 }

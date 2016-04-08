@@ -1,4 +1,5 @@
 <?php
+
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
@@ -34,46 +35,66 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/StorageAdapter/Storage/Abstract.php');
+namespace Sugarcrm\Tidbit;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
 
-class Tidbit_StorageAdapter_Storage_Mysql extends Tidbit_StorageAdapter_Storage_Abstract {
-
+/**
+ * Class for convert tables from db to csv
+ */
+class CsvConverter
+{
     /**
-     * @var string
+     * @var \DBManager
      */
-    const STORE_TYPE = Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_MYSQL;
+    protected $db;
 
     /**
-     * {@inheritdoc}
+     * @var Csv
+     */
+    protected $csvAdapter;
+
+    /**
+     * Size of insert buffer
      *
+     * @var int
      */
-    public function save($tableName, array $installData)
+    protected $insertBatchSize;
+
+    /**
+     * CsvConverter constructor.
+     *
+     * @param \DBManager $db
+     * @param Csv $csvAdapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(\DBManager $db, Csv $csvAdapter, $insertBatchSize)
     {
-        $sql = $this->prepareQuery($tableName, $installData);
-        $this->logQuery($sql);
-        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+        $this->db = $db;
+        $this->csvAdapter = $csvAdapter;
+        $this->insertBatchSize = $insertBatchSize;
     }
 
     /**
-     * rtfn
+     * Gets data from table fields and place it into csv file
      *
      * @param string $tableName
-     * @param array $installData
-     * @return string
-     * @throws Tidbit_Exception
+     * @param array $fieldsArr
      */
-    protected function prepareQuery($tableName, array $installData)
+    public function convert($tableName, array $fieldsArr = array())
     {
-        if (!$tableName || !$installData) {
-            throw new Tidbit_Exception("Mysql adapter error: wrong data to insert");
+        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
+
+        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
+        $sql = "SELECT " . $fields . " FROM " . $tableName;
+        $result = $this->db->query($sql);
+
+        while ($row = $this->db->fetchByAssoc($result)) {
+            foreach ($row as $k=>$v) {
+                $row[$k] = "'" . $v . "'";
+            }
+            $insertBuffer->addInstallData($row);
         }
 
-        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
-
-        foreach ($installData as $data) {
-            $sql .= '(' . implode(', ', $data) . "),";
-        }
-
-        return substr($sql, 0, -1) . ';';
     }
+
 }

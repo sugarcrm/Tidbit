@@ -1,8 +1,7 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,20 +34,49 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Framework
-{
-    public static function autoload($class_name)
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
+
+use Sugarcrm\Tidbit\Exception;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
+class Mysql extends Common {
+
+    /**
+     * @var string
+     */
+    const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
+
+    /**
+     * {@inheritdoc}
+     *
+     */
+    public function save($tableName, array $installData)
     {
-        if (substr($class_name, 0, 7) != 'Tidbit_') {
-            return false;
+        $sql = $this->prepareQuery($tableName, $installData);
+        $this->logQuery($sql);
+        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+    }
+
+    /**
+     * rtfn
+     *
+     * @param string $tableName
+     * @param array $installData
+     * @return string
+     * @throws \Sugarcrm\Tidbit\Exception
+     */
+    protected function prepareQuery($tableName, array $installData)
+    {
+        if (!$tableName || !$installData) {
+            throw new Exception("Mysql adapter error: wrong data to insert");
         }
-        $class = substr($class_name, 7);
-        @include_once 'Tidbit/' . str_replace('_', '/', $class) . '.php';
+
+        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
+
+        foreach ($installData as $data) {
+            $sql .= '(' . implode(', ', $data) . "),";
+        }
+
+        return substr($sql, 0, -1) . ';';
     }
 }
-
-spl_autoload_register(array(
-    'Tidbit_Framework',
-    'autoload',
-));
-

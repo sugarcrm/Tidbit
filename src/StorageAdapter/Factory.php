@@ -35,13 +35,14 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/Exception.php');
+namespace Sugarcrm\Tidbit\StorageAdapter;
 
-class Tidbit_StorageAdapter_Factory {
+use Sugarcrm\Tidbit\Exception;
+
+class Factory {
 
     const OUTPUT_TYPE_MYSQL     = 'mysql';
     const OUTPUT_TYPE_ORACLE    = 'oracle';
-    const OUTPUT_TYPE_IBM       = 'ibm';
     const OUTPUT_TYPE_CSV       = 'csv';
 
     /**
@@ -51,7 +52,6 @@ class Tidbit_StorageAdapter_Factory {
      */
     private static $availableTypes = [
         self::OUTPUT_TYPE_CSV,
-        self::OUTPUT_TYPE_IBM,
         self::OUTPUT_TYPE_MYSQL,
         self::OUTPUT_TYPE_ORACLE,
     ];
@@ -63,17 +63,17 @@ class Tidbit_StorageAdapter_Factory {
      * @param mixed $storageResource
      * @param string $logQueryPath
      *
-     * @throws Tidbit_Exception
+     * @throws Exception
      *
-     * @return Tidbit_StorageAdapter_Storage_Abstract
+     * @return \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
      */
     public static function getAdapterInstance($storageType, $storageResource, $logQueryPath = '')
     {
         if (!in_array($storageType, self::$availableTypes)) {
-            throw new Tidbit_Exception('Unsupported storage type');
+            throw new Exception('Unsupported storage type');
         }
 
-        $storageAdapterName = self::plugAdapterClass($storageType);
+        $storageAdapterName = self::getAdapterClassName($storageType);
         return new $storageAdapterName($storageResource, $logQueryPath);
     }
 
@@ -83,10 +83,9 @@ class Tidbit_StorageAdapter_Factory {
      * @param string $storageType
      * @return string
      */
-    private static function plugAdapterClass($storageType)
+    private static function getAdapterClassName($storageType)
     {
         $adapterSuffixName = ucfirst($storageType);
-        require_once("Tidbit/Tidbit/StorageAdapter/Storage/" . $adapterSuffixName . '.php');
-        return 'Tidbit_StorageAdapter_Storage_' . $adapterSuffixName;
+        return '\Sugarcrm\Tidbit\StorageAdapter\Storage\\' . $adapterSuffixName;
     }
 }

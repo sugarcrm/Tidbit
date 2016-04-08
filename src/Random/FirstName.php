@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,69 +35,26 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_UserPreferences
+namespace Sugarcrm\Tidbit\Random;
+
+class FirstName
 {
-    /** @var DBManager */
-    private $db;
+    private $_list = array();
+    private $_used = array();
 
-    /** @var  Tidbit_StorageAdapter_Storage_Abstract */
-    private $storageAdapter;
-
-    /** @var array  */
-    private $defaultContentsArr = array(
-        'timezone' => "America/Phoenix",
-        'ut' => 1,
-        'Home_TEAMNOTICE_ORDER_BY' => 'date_start',
-        'userPrivGuid' => 'a4836211-ee89-0714-a4a2-466987c284f4',
-    );
-
-    /**
-     * Tidbit_Generator_UserPreferences constructor.
-     *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Abstract $storageAdapter
-     */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Abstract $storageAdapter)
+    public function __construct(array $list)
     {
-        $this->db = $db;
-        $this->storageAdapter = $storageAdapter;
+        $this->_list = $list;
     }
 
-    /**
-     * @param array $userIds
-     */
-    public function generate(array $userIds)
+    public function __toString()
     {
-        if ($insertData = $this->prepareInsertData($userIds)) {
-            $this->storageAdapter->save('user_preferences', $insertData);
-        }
-    }
-
-    /**
-     * @param array $userIds
-     * @return array
-     */
-    private function prepareInsertData(array $userIds)
-    {
-        $insertData = array();
-        if (!$userIds) {
-            return $insertData;
+        if (count($this->_list) == 0) {
+            $this->_list = $this->_used;
+            $this->_used = array();
         }
 
-        $defaultContents = "'" . base64_encode(serialize($this->defaultContentsArr)) . "'";
-        $currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
-
-        foreach ($userIds as $id) {
-            $insertData[] = array(
-                'id' => "'" . md5($id) . "'",
-                'category' => "'global'",
-                'date_entered' => $currentDateTime,
-                'date_modified' => $currentDateTime,
-                'assigned_user_id' => "'" . $id . "'",
-                'contents' => $defaultContents,
-            );
-        }
-
-        return $insertData;
+        shuffle($this->_list);
+        return $this->_used[] = array_shift($this->_list);
     }
 }

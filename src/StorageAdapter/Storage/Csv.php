@@ -34,112 +34,100 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once("Tidbit/Tidbit/Exception.php");
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-abstract class Tidbit_StorageAdapter_Storage_Abstract {
+use Sugarcrm\Tidbit\Exception;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
+class Csv extends Common {
 
     /**
      * @var string
      */
-    const STORE_TYPE = 'abstract';
+    const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
 
     /**
-     * Connector to db or dir-path for store data
+     * {@inheritdoc}
      *
-     * @var mixed
      */
-    protected $storageResource = null;
-
-    /**
-     * Descriptor of file for query logging
-     *
-     * @var Resource
-     */
-    protected $logQueriesFile = null;
-
-    /**
-     * Unix timestamp of start query execution
-     *
-     * @var string
-     */
-    protected $queryStartUnixTS = '';
-
-    /**
-     * Constructor
-     *
-     * @param mixed $storageResource
-     * @param string $logQueryPath
-     */
-    public function __construct($storageResource, $logQueryPath = '')
+    public function save($tableName, array $installData)
     {
-        $this->storageResource = $storageResource;
-        if ($logQueryPath) {
-            $this->logQueriesFile = fopen($logQueryPath, 'a');
+
+        if (!$tableName || !$installData) {
+            throw new Exception("Csv adapter error: wrong data to save");
         }
-        $this->queryStartUnixTS = microtime();
+
+        $fileName = $this->getCurrentFilePathName($tableName);
+        $needHeader = !file_exists($fileName);
+        $storeFile = fopen($fileName, 'a');
+
+        if ($needHeader) {
+            $head = $this->prepareCsvString(array_keys($installData[0]), "'");
+            fwrite($storeFile, $head);
+        }
+
+        foreach ($installData as $data) {
+            fwrite($storeFile, $this->prepareCsvString($data));
+        }
+
+        fclose($storeFile);
     }
 
     /**
-     *  Saves data from tool to storage
+     * Remove spaces and wrap to quotes values in the list
      *
-     * @param string $tableName
-     * @param array $installData
-     */
-    abstract public function save($tableName, array $installData);
-
-    /**
-     * Getter for query exec start time
-     *
+     * @param array $values
+     * @param string $quote
      * @return string
      */
-    public function getQueryExecStartTime()
+    protected function prepareCsvString(array $values, $quote = '')
     {
-        return $this->queryStartUnixTS;
+        foreach ($values as $k => $v) {
+            if (strtolower($v) == 'null') {
+                $values[$k] = '';
+            } else {
+                $values[$k] = $quote . trim($v) . $quote;
+            }
+        }
+        return join(',', $values) . "\n";
     }
 
     /**
-     * Makes commit in db
+     * Return full path to file for data storing
+     *
+     * @param string $tableName
+     * @return string
+     * @throws \Sugarcrm\Tidbit\Exception
+     */
+    protected function getCurrentFilePathName($tableName)
+    {
+        if (!$this->storageResource
+            || !is_string($this->storageResource)
+            || !file_exists($this->storageResource)
+        ) {
+            throw new Exception(
+                "For csv generation storageResource must be string with path to saving directory"
+            );
+        }
+        return $this->storageResource . '/' . $tableName . '.csv';
+    }
+
+    /**
+     * Stubbed for csv
      */
     public function commitQuery()
     {
-        $this->storageResource->query('COMMIT');
+
     }
 
     /**
-     * Straight request into storage
+     * Stubbed for csv
      *
      * @param string $query
      * @param bool $quote
      */
     public function executeQuery($query, $quote = true)
     {
-        $this->logQuery($query);
-        if ($quote) {
-            $query = $this->storageResource->quote($query);
-        }
-        $this->storageResource->query($query, true, "QUERY FAILED");
-    }
 
-    /**
-     * Destructor
-     *
-     */
-    public function __destruct()
-    {
-        if ($this->logQueriesFile) {
-            fclose($this->logQueriesFile);
-        }
-    }
-
-    /**
-     * Log query into the file if it provided
-     *
-     * @param string $query
-     */
-    protected function logQuery($query)
-    {
-        if (is_resource($this->logQueriesFile)) {
-            fwrite($this->logQueriesFile, $query . "\n");
-        }
     }
 }

@@ -35,9 +35,11 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Tidbit/Generator/Abstract.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
+class TBA extends Common
 {
     /**
      * @var array
@@ -97,7 +99,7 @@ class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
      * @param int $number (this param is here for compatibility only)
      * @ToDo remove number param from generator call
      *
-     * @throws Tidbit_Generator_Exception
+     * @throws Exception
      */
     public function generate($number=0)
     {
@@ -106,7 +108,7 @@ class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
             || !$this->tbaRestrictionLevel
             || !$this->tbaFieldAccess
         ) {
-            throw new Tidbit_Generator_Exception(
+            throw new Exception (
                 "One or more of needed settings isn't set (aclRoleIds, roleActions, tbaRestrictionLevel, tbaFieldAccess"
             );
         }
@@ -179,7 +181,7 @@ class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
      * @param $dateModified
      */
     private function generateACLFields($moduleName, $id, $dateModified) {
-        $beanACLFields = BeanFactory::getBean('ACLFields');
+        $beanACLFields = \BeanFactory::getBean('ACLFields');
         $roleFields = $beanACLFields->getFields($moduleName, '', $id);
         foreach ($roleFields as $fieldName => $fieldValues) {
             if ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only'
@@ -230,7 +232,7 @@ class Tidbit_Generator_TBA extends Tidbit_Generator_Abstract
     private function loadAclRoleIds()
     {
         // if storage isn't db we use just setted in constructor ids
-        if ($this->storageType == Tidbit_StorageAdapter_Factory::OUTPUT_TYPE_CSV) {
+        if ($this->storageType == Factory::OUTPUT_TYPE_CSV) {
             return;
         }
         $this->aclRoleIds = array();

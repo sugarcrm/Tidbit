@@ -1,0 +1,15 @@
+{
+  "name" : "sugarcrm/Tidbit",
+  "description" : "Random data generator for SugarCRM",
+  "license" : "proprietary",
+  "require" : {
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.*"
+  },
+  "autoload" : {
+    "psr-4" : {
+      "Sugarcrm\\Tidbit\\": "src/"
+    }
+  }
+}

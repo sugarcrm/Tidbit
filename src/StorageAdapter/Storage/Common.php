@@ -1,5 +1,4 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
@@ -35,64 +34,112 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-/**
- * Class for convert tables from db to csv
- */
-class Tidbit_CsvConverter
-{
-    /**
-     * @var DBManager
-     */
-    protected $db;
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
+
+abstract class Common {
 
     /**
-     * @var Tidbit_StorageAdapter_Storage_Csv
+     * @var string
      */
-    protected $csvAdapter;
+    const STORE_TYPE = 'abstract';
 
     /**
-     * Size of insert buffer
+     * Connector to db or dir-path for store data
      *
-     * @var int
+     * @var mixed
      */
-    protected $insertBatchSize;
+    protected $storageResource = null;
 
     /**
-     * Tidbit_CsvConverter constructor.
+     * Descriptor of file for query logging
      *
-     * @param DBManager $db
-     * @param Tidbit_StorageAdapter_Storage_Csv $csvAdapter
-     * @param int $insertBatchSize
+     * @var Resource
      */
-    public function __construct(DBManager $db, Tidbit_StorageAdapter_Storage_Csv $csvAdapter, $insertBatchSize)
+    protected $logQueriesFile = null;
+
+    /**
+     * Unix timestamp of start query execution
+     *
+     * @var string
+     */
+    protected $queryStartUnixTS = '';
+
+    /**
+     * Constructor
+     *
+     * @param mixed $storageResource
+     * @param string $logQueryPath
+     */
+    public function __construct($storageResource, $logQueryPath = '')
     {
-        $this->db = $db;
-        $this->csvAdapter = $csvAdapter;
-        $this->insertBatchSize = $insertBatchSize;
+        $this->storageResource = $storageResource;
+        if ($logQueryPath) {
+            $this->logQueriesFile = fopen($logQueryPath, 'a');
+        }
+        $this->queryStartUnixTS = microtime();
     }
 
     /**
-     * Gets data from table fields and place it into csv file
+     *  Saves data from tool to storage
      *
      * @param string $tableName
-     * @param array $fieldsArr
+     * @param array $installData
      */
-    public function convert($tableName, array $fieldsArr = array())
+    abstract public function save($tableName, array $installData);
+
+    /**
+     * Getter for query exec start time
+     *
+     * @return string
+     */
+    public function getQueryExecStartTime()
     {
-        $insertBuffer = new Tidbit_InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
-
-        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
-        $sql = "SELECT " . $fields . " FROM " . $tableName;
-        $result = $this->db->query($sql);
-
-        while ($row = $this->db->fetchByAssoc($result)) {
-            foreach ($row as $k=>$v) {
-                $row[$k] = "'" . $v . "'";
-            }
-            $insertBuffer->addInstallData($row);
-        }
-
+        return $this->queryStartUnixTS;
     }
 
+    /**
+     * Makes commit in db
+     */
+    public function commitQuery()
+    {
+        $this->storageResource->query('COMMIT');
+    }
 
+    /**
+     * Straight request into storage
+     *
+     * @param string $query
+     * @param bool $quote
+     */
+    public function executeQuery($query, $quote = true)
+    {
+        $this->logQuery($query);
+        if ($quote) {
+            $query = $this->storageResource->quote($query);
+        }
+        $this->storageResource->query($query, true, "QUERY FAILED");
+    }
+
+    /**
+     * Destructor
+     *
+     */
+    public function __destruct()
+    {
+        if ($this->logQueriesFile) {
+            fclose($this->logQueriesFile);
+        }
+    }
+
+    /**
+     * Log query into the file if it provided
+     *
+     * @param string $query
+     */
+    protected function logQuery($query)
+    {
+        if (is_resource($this->logQueriesFile)) {
+            fwrite($this->logQueriesFile, $query . "\n");
+        }
+    }
 }
