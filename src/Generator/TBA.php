@@ -121,7 +121,7 @@ class TBA extends Common
         foreach ($this->aclRoleIds as $roleId) {
             foreach ($this->roleActions as $moduleName) {
                 $this->generateACLRoleActions($moduleName, $roleId, $actionsIds, $dateModified);
-                if ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['fields']) {
+                if ($this->tbaRestrictionLevel[$GLOBALS['tba_level']]['fields']) {
                     $this->generateACLFields($moduleName, $roleId, $dateModified);
                 }
             }
@@ -155,7 +155,7 @@ class TBA extends Common
      * @param $dateModified
      */
     private function generateACLRoleActions($moduleName, $id, $actionsIds, $dateModified) {
-        foreach ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['modules'] as $action => $access_override) {
+        foreach ($this->tbaRestrictionLevel[$GLOBALS['tba_level']]['modules'] as $action => $access_override) {
             if (!isset($actionsIds[$moduleName . '_' . $action])) {
                 continue;
             }
@@ -184,7 +184,7 @@ class TBA extends Common
         $beanACLFields = \BeanFactory::getBean('ACLFields');
         $roleFields = $beanACLFields->getFields($moduleName, '', $id);
         foreach ($roleFields as $fieldName => $fieldValues) {
-            if ($this->tbaRestrictionLevel[$_SESSION['tba_level']]['fields'] === 'required_only'
+            if ($this->tbaRestrictionLevel[$GLOBALS['tba_level']]['fields'] === 'required_only'
                 && !$fieldValues['required']
             ) {
                 continue;

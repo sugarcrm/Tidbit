@@ -116,7 +116,7 @@ class TeamSets extends \TeamSet
             $max_teams_per_set = $opts['s'];
         }
 
-        if (isset($_SESSION['fullteamset'])) {
+        if (isset($GLOBALS['fullteamset'])) {
             for ($i = 0, $max = count($this->teamIds); $i < $max; $i++) {
                 for ($j = 1; $j <= $max; $j++) {
                     $set = array_slice($this->teamIds, $i, $j);

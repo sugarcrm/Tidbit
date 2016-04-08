@@ -245,34 +245,34 @@ if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['s
     unset($modules['KBContents']);
 }
 
-$_SESSION['modules'] = $modules;
-$_SESSION['startTime'] = microtime();
-$_SESSION['baseTime'] = time();
-$_SESSION['totalRecords'] = 0;
+$GLOBALS['modules'] = $modules;
+$GLOBALS['startTime'] = microtime();
+$GLOBALS['baseTime'] = time();
+$GLOBALS['totalRecords'] = 0;
 $GLOBALS['time_spend'] = array();
 
 foreach ($modules as $records) {
-    $_SESSION['totalRecords'] += $records;
+    $GLOBALS['totalRecords'] += $records;
 }
 if (isset($opts['e'])) {
-    $_SESSION['UseExistUsers'] = true;
+    $GLOBALS['UseExistUsers'] = true;
 }
 if (isset($opts['c'])) {
-    $_SESSION['clean'] = true;
+    $GLOBALS['clean'] = true;
 }
 if (isset($opts['o'])) {
-    $_SESSION['obliterate'] = true;
+    $GLOBALS['obliterate'] = true;
 }
 if (isset($opts['t'])) {
-    $_SESSION['turbo'] = true;
+    $GLOBALS['turbo'] = true;
 }
 if (isset($opts['d'])) {
-    $_SESSION['debug'] = true;
+    $GLOBALS['debug'] = true;
 }
 
 if (isset($opts['tba'])) {
     if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {
-        $_SESSION['tba'] = true;
+        $GLOBALS['tba'] = true;
     } else {
         echo "!!! WARNING !!!\n";
         echo "Team Based ACL Settings could not be enabled for SugarCRM version less than 7.8 \n";
@@ -281,34 +281,34 @@ if (isset($opts['tba'])) {
     }
 }
 
-if (isset($_SESSION['tba']) && $_SESSION['tba'] == true) {
-    $_SESSION['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
+    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
 }
 
 if(isset($opts['fullteamset']))
 {
-    $_SESSION['fullteamset'] = true;
+    $GLOBALS['fullteamset'] = true;
 }
 
 if (isset($opts['as_populate'])) {
-    $_SESSION['as_populate'] = true;
+    $GLOBALS['as_populate'] = true;
     if (isset($opts['as_number'])) {
-        $_SESSION['as_number'] = $opts['as_number'];
+        $GLOBALS['as_number'] = $opts['as_number'];
     }
     if (isset($opts['as_buffer'])) {
-        $_SESSION['as_buffer'] = $opts['as_buffer'];
+        $GLOBALS['as_buffer'] = $opts['as_buffer'];
     }
     if (isset($opts['as_last_rec'])) {
-        $_SESSION['as_last_rec'] = $opts['as_last_rec'];
+        $GLOBALS['as_last_rec'] = $opts['as_last_rec'];
     }
 }
 if (isset($opts['iterator'])) {
-    $_SESSION['iterator'] = $opts['iterator'];
+    $GLOBALS['iterator'] = $opts['iterator'];
 }
-$_SESSION['processedRecords'] = 0;
-$_SESSION['allProcessedRecords'] = 0;
+$GLOBALS['processedRecords'] = 0;
+$GLOBALS['allProcessedRecords'] = 0;
 
-if (isset($_SESSION['debug'])) {
+if (isset($GLOBALS['debug'])) {
     $GLOBALS['queryFP'] = fopen('Tidbit/executedQueries.txt', 'w');
 }
 
@@ -348,14 +348,14 @@ foreach ($module_keys as $module) {
 }
 
 echo "\n";
-echo "With Clean Mode " . (isset($_SESSION['clean']) ? "ON" : "OFF") . "\n";
-echo "With Turbo Mode " . (isset($_SESSION['turbo']) ? "ON" : "OFF") . "\n";
+echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
+echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
-echo "With Obliterate Mode " . (isset($_SESSION['obliterate']) ? "ON" : "OFF") . "\n";
-echo "With Existing Users Mode " . (isset($_SESSION['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
-echo "With ActivityStream Populating Mode " . (isset($_SESSION['as_populate']) ? "ON" : "OFF") . "\n";
-echo "With Team-based ACL Mode " . (isset($_SESSION['tba']) ? "ON" : "OFF") . "\n";
-echo "With Team-based Restriction Level " . (isset($_SESSION['tba_level']) ? strtoupper($_SESSION['tba_level']) : "OFF") . "\n";
+echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
+echo "With Existing Users Mode " . (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
+echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
+echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
+echo "With Team-based Restriction Level " . (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
 echo "\n";
 
 // creating storage adapter
@@ -379,7 +379,7 @@ foreach ($module_keys as $module) {
         continue;
     }
 
-    if ((($module == 'Users') || ($module == 'Teams')) && isset($_SESSION['UseExistUsers'])) {
+    if ((($module == 'Users') || ($module == 'Teams')) && isset($GLOBALS['UseExistUsers'])) {
         echo "Skipping $module\n";
         continue;
     }
@@ -395,11 +395,11 @@ foreach ($module_keys as $module) {
         $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
         /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
         $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize);
-        if (isset($_SESSION['obliterate'])) {
+        if (isset($GLOBALS['obliterate'])) {
             echo "\tObliterating all existing data ... ";
             $generator->obliterateDB();
             echo "DONE";
-        } elseif (isset($_SESSION['clean'])) {
+        } elseif (isset($GLOBALS['clean'])) {
             echo "\tCleaning up Tidbit and demo data ... ";
             $generator->clearDB();
             echo "DONE";
@@ -418,8 +418,8 @@ foreach ($module_keys as $module) {
 
     echo "Inserting ${total} records.\n";
     $total_iterator = 0;
-    if (isset($_SESSION['iterator']) && ($total > $_SESSION['iterator'])) {
-        $total_iterator = $total - $_SESSION['iterator'];
+    if (isset($GLOBALS['iterator']) && ($total > $GLOBALS['iterator'])) {
+        $total_iterator = $total - $GLOBALS['iterator'];
         echo $total_iterator . " records will be skipped from generation.\n";
     }
 
@@ -469,7 +469,7 @@ foreach ($module_keys as $module) {
         }
     }
 
-    if (isset($_SESSION['obliterate'])) {
+    if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
         /* Make sure not to delete the admin! */
         if ($module == 'Users') {
@@ -491,7 +491,7 @@ foreach ($module_keys as $module) {
             }
         }
         echo "DONE";
-    } elseif (isset($_SESSION['clean'])) {
+    } elseif (isset($GLOBALS['clean'])) {
         echo "\tCleaning up demo data ... ";
         /* Make sure not to delete the admin! */
         if ($module == 'Users') {
@@ -532,22 +532,22 @@ foreach ($module_keys as $module) {
      * $module and $bean->table_name. */
     $generatedIds = array();
     for ($i = 0; $i < $total; $i++) {
-        if (isset($_SESSION['iterator']) && ($i <= $total_iterator)) {
+        if (isset($GLOBALS['iterator']) && ($i <= $total_iterator)) {
             continue;
         }
         $dTool->count = $i;
         /* Don't turbo Users or Teams */
-        if (!isset($_SESSION['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
+        if (!isset($GLOBALS['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
             $dTool->clean();
             $dTool->count = $i;
             $dTool->generateData();
         }
 
         $generatedIds[] = $dTool->generateId();
-        $_SESSION['allProcessedRecords']++;
+        $GLOBALS['allProcessedRecords']++;
         $dTool->generateRelationships();
 
-        $_SESSION['processedRecords']++;
+        $GLOBALS['processedRecords']++;
         $beanInsertBuffer->addInstallData($dTool->installData);
 
         if ($dTool->getRelatedModules()) {
@@ -585,13 +585,13 @@ foreach ($module_keys as $module) {
     if ($module == 'ACLRoles') {
         $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
 
-        if (isset($_SESSION['clean'])) {
+        if (isset($GLOBALS['clean'])) {
             $tbaGenerator->clearDB();
-        } elseif (isset($_SESSION['obliterate'])) {
+        } elseif (isset($GLOBALS['obliterate'])) {
             $tbaGenerator->obliterateDB();
         }
 
-        if (!empty($_SESSION['tba'])) {
+        if (!empty($GLOBALS['tba'])) {
             $tbaGenerator->setAclRoleIds($generatedIds);
             $tbaGenerator->setRoleActions($roleActions);
             $tbaGenerator->setTbaFieldAccess($tbaFieldAccess);
@@ -619,17 +619,17 @@ if (!empty($GLOBALS['queryFP'])) {
 }
 
 echo "\n";
-echo "Total Time: " . microtime_diff($_SESSION['startTime'], microtime()) . "\n";
-echo "Core Records Inserted: " . $_SESSION['processedRecords'] . "\n";
-echo "Total Records Inserted: " . $_SESSION['allProcessedRecords'] . "\n";
+echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
+echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
+echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
 
 // BEGIN Activity Stream populating
-if (!empty($_SESSION['as_populate'])) {
+if (!empty($GLOBALS['as_populate'])) {
 
     $activityStreamOptions = array(
-        'activities_per_module_record' => !empty($_SESSION['as_number']) ? $_SESSION['as_number'] : 10,
-        'insertion_buffer_size' => !empty($_SESSION['as_buffer']) ? $_SESSION['as_buffer'] : 1000,
-        'last_n_records' => !empty($_SESSION['as_last_rec']) ? $_SESSION['as_last_rec'] : 0,
+        'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
+        'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : 1000,
+        'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
     );
 
     if (!empty($GLOBALS['beanList']['Activities'])) {
@@ -651,10 +651,10 @@ if (!empty($_SESSION['as_populate'])) {
         $tga->modules = $asModules;
         $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
         $tga->lastNRecords = $activityStreamOptions['last_n_records'];
-        if (isset($_SESSION['iterator'])) {
-            $tga->iterator = $_SESSION['iterator'];
-            if ($tga->lastNRecords >= $_SESSION['iterator']) {
-                $tga->lastNRecords = $_SESSION['iterator'];
+        if (isset($GLOBALS['iterator'])) {
+            $tga->iterator = $GLOBALS['iterator'];
+            if ($tga->lastNRecords >= $GLOBALS['iterator']) {
+                $tga->lastNRecords = $GLOBALS['iterator'];
             }
         }
 
@@ -667,7 +667,7 @@ if (!empty($_SESSION['as_populate'])) {
         echo " - total activities to insert: " . ($tga->activitiesPerUser * $tga->userCount) . "\n";
         echo " - activities per user: {$tga->activitiesPerUser}\n";
         echo " - insertion buffer size: {$tga->insertionBufferSize} records\n";
-        if (isset($_SESSION['obliterate'])) {
+        if (isset($GLOBALS['obliterate'])) {
             echo "\tObliterating existing Activity Stream data ... ";
             echo ($tga->obliterateActivities() ? "OK" : "FAIL") . "\n";
         }
@@ -709,7 +709,7 @@ if ($storageType == 'csv') {
     $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
     $converter->convert('config');
     $converter->convert('acl_actions');
-    if (isset($_SESSION['UseExistUsers'])) {
+    if (isset($GLOBALS['UseExistUsers'])) {
         $converter->convert('user_preferences');
     }
 }
