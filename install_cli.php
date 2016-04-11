@@ -366,10 +366,12 @@ if ($storageType == 'csv') {
 } else {
     $storage = $GLOBALS['db'];
 }
-$storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
-$relationStorageBuffers = array();
 
 $obliterated = array();
+$relationStorageBuffers = array();
+$storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
+$prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
+
 foreach ($module_keys as $module) {
 
     $GLOBALS['time_spend'][$module] = microtime();
@@ -474,7 +476,7 @@ foreach ($module_keys as $module) {
         /* Make sure not to delete the admin! */
         if ($module == 'Users') {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1'");
-            $GLOBALS['db']->query("DELETE FROM user_preferences WHERE 1=1");
+            $prefsGenerator->obliterate();
         } else if ($module == 'Teams') {
             $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1'");
             $GLOBALS['db']->query("DELETE FROM team_sets");
@@ -495,10 +497,7 @@ foreach ($module_keys as $module) {
         echo "\tCleaning up demo data ... ";
         /* Make sure not to delete the admin! */
         if ($module == 'Users') {
-            $GLOBALS['db']->query(
-                "DELETE FROM user_preferences WHERE id IN " .
-                "(SELECT md5(id) FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%')"
-            );
+            $prefsGenerator->clean();
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%'");
         } else if ($module == 'Teams') {
             $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1' AND id LIKE 'seed-%'");
@@ -601,7 +600,6 @@ foreach ($module_keys as $module) {
     }
 
     if ($module == 'Users') {
-        $prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
         $prefsGenerator->generate($generatedIds);
     }
 

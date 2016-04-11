@@ -76,6 +76,24 @@ class UserPreferences
     }
 
     /**
+     * Clean user_preferences table in db
+     */
+    public function clean()
+    {
+        $this->db->query(
+            "DELETE FROM user_preferences WHERE id IN (SELECT md5(id) FROM users WHERE id != '1' AND id LIKE 'seed-%')"
+        );
+    }
+
+    /**
+     * Obliterate user_preferences table in db
+     */
+    public function obliterate()
+    {
+        $this->db->query($this->db->truncateTableSQL('user_preferences'));
+    }
+
+    /**
      * @param array $userIds
      * @return array
      */
