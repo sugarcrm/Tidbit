@@ -136,10 +136,6 @@ Options
                         Default level is medium.
     --fullteamset       Build fully intersected teamset list.
 
-    --allmodules	Automatically detect all installed modules and generate data for them.
-
-    --allrelationships	Automatically detect all relationships and generate data for them.
-
     --iterator count    This will only insert in the DB the last (count) records specified, meanwhile the
                         iterator will continue running in the loop. Used to check for orphaned records.
 
@@ -158,7 +154,22 @@ if (!function_exists('getopt')) {
     die('"getopt" function not found. Please make sure you are running PHP 5+ version');
 }
 
-$opts = getopt('l:u:s:x:ecothvd', array('fullteamset', 'tba_level:', 'tba', 'with-tags', 'allmodules', 'allrelationships', 'as_populate', 'as_number:', 'as_buffer:', 'storage:', 'as_last_rec:', 'iterator:', 'insert_batch_size:'));
+$opts = getopt(
+    'l:u:s:x:ecothvd',
+    array(
+        'fullteamset',
+        'tba_level:',
+        'tba',
+        'with-tags',
+        'as_populate',
+        'as_number:',
+        'as_buffer:',
+        'storage:',
+        'as_last_rec:',
+        'iterator:',
+        'insert_batch_size:',
+    )
+);
 
 if ($opts === false) {
     die($usageStr);
@@ -167,26 +178,10 @@ if ($opts === false) {
 if (isset($opts['v'])) {
     die($versionStr);
 }
-
 if (isset($opts['h'])) {
     die($helpStr);
 }
 
-$allrelationships = false;
-if (isset($opts['allmodules'])) {
-    echo "automatically detecting installed modules\n";
-    foreach ($GLOBALS['moduleList'] as $candidate_module) {
-        if (!isset($modules[$candidate_module])) {
-            // TODO: Load for modules not defined in install_config
-            // is the same as for Contacts (4000)
-            $modules[$candidate_module] = 4000;
-        }
-    }
-}
-if (isset($opts['allrelationships'])) {
-    echo "automatically generating relationships\n";
-    $allrelationships = true;
-}
 if (isset($opts['l'])) {
     if (!is_numeric($opts['l'])) {
         die($usageStr);
@@ -439,37 +434,6 @@ foreach ($module_keys as $module) {
     }
     require_once($beanFiles[$class]);
     $bean = new $class();
-
-    // TODO: if allrelationships is true, pull from relationships
-    // table and add to $GLOBALS['tidbit_relationships']
-    if ($allrelationships && $module != 'Teams' && $module != 'Emails') { // Teams & Emails module relationships handled separately
-        $result = $GLOBALS['db']->query(
-            "SELECT * FROM relationships WHERE lhs_module='$module'");
-        global $tidbit_relationships;
-        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            if (!isset($row['join_table']) || !isset($row['join_key_lhs'])
-                || !isset($row['join_key_rhs'])
-            ) {
-                continue;
-            }
-            $rhs_module = $row['rhs_module'];
-            $table = $row['join_table'];
-            $self = $row['join_key_lhs'];
-            $you = $row['join_key_rhs'];
-            if ($rhs_module == 'Teams' || $rhs_module == 'Emails') { // Teams & Emails module relationships handled separately
-                continue;
-            }
-            if (!isset($tidbit_relationships[$module])) {
-                $tidbit_relationships[$module] = array();
-            }
-            if (!isset($tidbit_relationships[$module][$rhs_module])) {
-                $tidbit_relationships[$module][$rhs_module] = array();
-            }
-            $tidbit_relationships[$module][$rhs_module]['table'] = $table;
-            $tidbit_relationships[$module][$rhs_module]['self'] = $self;
-            $tidbit_relationships[$module][$rhs_module]['you'] = $you;
-        }
-    }
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";

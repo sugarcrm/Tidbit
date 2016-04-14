@@ -46,10 +46,6 @@ Example usages:
     * Obliterate all data when generating new records with 300 users:
       $php -f install_cli.php -- -o -u 400
       
-    * Create data using a load factor of 10, automatically detecting modules
-      and automatically adding relationships.
-      $php -f install_cli.php -- -l 10 -o --allmodules --allrelationships
-      
     * Generate TeamBasedACL action restrictions for chosen level (check level options in install_config.php)
       $php -f install_cli.php -- -o --tba -tba_level full
       
