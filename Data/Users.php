@@ -48,7 +48,7 @@ $GLOBALS['dataTool']['Users']['external_auth_only'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['receive_notifications'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));
 $GLOBALS['dataTool']['Users']['user_name'] = array('incname' => 'user');
-$GLOBALS['dataTool']['Users']['user_hash'] = array('same_hash' => 'user_name');
+$GLOBALS['dataTool']['Users']['user_hash'] = array('same_sugar_hash' => 'user_name');
 $GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");

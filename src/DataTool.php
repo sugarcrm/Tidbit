@@ -47,6 +47,8 @@ namespace Sugarcrm\Tidbit;
 
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
+require_once SUGAR_DIR . '/src/Security/Password/Hash.php';
+
 class DataTool
 {
 
@@ -388,6 +390,9 @@ class DataTool
             //echo "SR: ";
             return @trim($this->accessRemoteField($typeData['same_ref']['module'], $typeData['same_ref']['field']));
         }
+        if (!empty($typeData['same_sugar_hash'])) {
+            return $this->getSameSugarHash($typeData['same_sugar_hash']);
+        }
         if (!empty($typeData['same_hash'])) {
             if (is_string($typeData['same_hash']) && !empty($this->fields[$typeData['same_hash']])) {
                 $value = $this->accessLocalField($typeData['same_hash']);
@@ -623,14 +628,12 @@ class DataTool
              * then just use it.
              */
             if (!empty($this->installData[$fieldName])) {
-                //echo "AAA: {$this->installData[$fieldName]}\n";
                 return $this->installData[$fieldName];
                 /* Otherwise, we have to pre-render it. */
             } else {
                 $recSeed = $this->generateSeed($this->module, $fieldName, $this->count);
                 $recData = $this->fields[$fieldName];
                 $recType = (!empty($recData['dbType'])) ? $recData['dbType'] : $recData['type'];
-                //echo "BBB: $fieldName, $recType, {$recData['type']}, $recSeed\n";
                 return $this->getData($fieldName, $recType, $recData['type'], $recSeed);
             }
         } else {
@@ -1071,5 +1074,27 @@ class DataTool
 
         // Return N(days/hours/minutes)*$shift = number of seconds to shift
         return $value * $shift;
+    }
+
+    /**
+     * Get hash from field according current sugar
+     * hashing settings
+     *
+     * @param $hashFromField
+     * @return string
+     */
+    protected function getSameSugarHash($hashFromField)
+    {
+        $value = $this->accessLocalField($hashFromField);
+        if (is_string($value)) {
+            $value = substr($value, 1, strlen($value) - 2);
+        }
+
+        if ( version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
+            return md5($value);
+        }
+
+        $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();
+        return "'" . $hash->hash($value) . "'";
     }
 }
