@@ -1,8 +1,7 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,51 +34,112 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Insert_Object
-{
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
+
+abstract class Common {
+
     /**
      * @var string
      */
-    private $head;
-
+    const STORE_TYPE = 'abstract';
 
     /**
-     * @var array
+     * Connector to db or dir-path for store data
+     *
+     * @var mixed
      */
-    private $values = array();
-
+    protected $storageResource = null;
 
     /**
+     * Descriptor of file for query logging
+     *
+     * @var Resource
+     */
+    protected $logQueriesFile = null;
+
+    /**
+     * Unix timestamp of start query execution
+     *
+     * @var string
+     */
+    protected $queryStartUnixTS = '';
+
+    /**
+     * Constructor
+     *
+     * @param mixed $storageResource
+     * @param string $logQueryPath
+     */
+    public function __construct($storageResource, $logQueryPath = '')
+    {
+        $this->storageResource = $storageResource;
+        if ($logQueryPath) {
+            $this->logQueriesFile = fopen($logQueryPath, 'a');
+        }
+        $this->queryStartUnixTS = microtime();
+    }
+
+    /**
+     *  Saves data from tool to storage
+     *
+     * @param string $tableName
+     * @param array $installData
+     */
+    abstract public function save($tableName, array $installData);
+
+    /**
+     * Getter for query exec start time
+     *
      * @return string
      */
-    public function getHead()
+    public function getQueryExecStartTime()
     {
-        return $this->head;
+        return $this->queryStartUnixTS;
     }
 
     /**
-     * @return array
+     * Makes commit in db
      */
-    public function getValues()
+    public function commitQuery()
     {
-        return $this->values;
+        $this->storageResource->query('COMMIT');
     }
 
     /**
-     * @param string $values
+     * Straight request into storage
+     *
+     * @param string $query
+     * @param bool $quote
      */
-    public function addValues($values)
+    public function executeQuery($query, $quote = true)
     {
-        $this->values[] = $values;
+        $this->logQuery($query);
+        if ($quote) {
+            $query = $this->storageResource->quote($query);
+        }
+        $this->storageResource->query($query, true, "QUERY FAILED");
     }
 
     /**
-     * @param string $head
-     * @param array $values
+     * Destructor
+     *
      */
-    public function __construct($head, $values)
+    public function __destruct()
     {
-        $this->head = $head;
-        $this->values = $values;
+        if ($this->logQueriesFile) {
+            fclose($this->logQueriesFile);
+        }
+    }
+
+    /**
+     * Log query into the file if it provided
+     *
+     * @param string $query
+     */
+    protected function logQuery($query)
+    {
+        if (is_resource($this->logQueriesFile)) {
+            fwrite($this->logQueriesFile, $query . "\n");
+        }
     }
 }

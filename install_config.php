@@ -35,6 +35,10 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
+$storageType = 'mysql';
+$logQueriesPath = '';
+$dirToSaveCsv = 'Tidbit/csv';
+
 $modules = array(
     'Tags' => 100,
     'EmailAddresses' => 12000,
@@ -69,6 +73,7 @@ $aliases = array(
 $activityModulesBlackList = array(
     'Users',
     'Teams',
+    'Products',
     'ProductBundles',
     'EmailAddresses',
     'Documents'

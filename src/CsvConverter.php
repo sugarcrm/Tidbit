@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,36 +35,66 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Activity_Db_Oracle extends Tidbit_Generator_Activity_Db_Common
+namespace Sugarcrm\Tidbit;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
+
+/**
+ * Class for convert tables from db to csv
+ */
+class CsvConverter
 {
     /**
-     * {@inheritdoc}
+     * @var \DBManager
      */
-    protected $fetchQueryPatterns = array(
-        'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC OFFSET %d ROWS FETCH NEXT %d ROWS ONLY",
-    );
+    protected $db;
 
     /**
-     * {@inheritdoc}
+     * @var Csv
      */
-    protected function insertDataSet(array $dataSet, $tableName)
+    protected $csvAdapter;
+
+    /**
+     * Size of insert buffer
+     *
+     * @var int
+     */
+    protected $insertBatchSize;
+
+    /**
+     * CsvConverter constructor.
+     *
+     * @param \DBManager $db
+     * @param Csv $csvAdapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(\DBManager $db, Csv $csvAdapter, $insertBatchSize)
     {
-        if (empty($dataSet)) {
-            return false;
-        }
-
-        $columns = "(" . implode(", ", array_keys($dataSet[0])) . ")";
-
-        $sql = 'INSERT ALL';
-        foreach ($dataSet as $row) {
-            $sql .= ' INTO ' . $tableName . $columns . ' VALUES ' . "(" . implode(", ", $row) . ")";
-        }
-        // select-command below needed because syntax of insert-all command suggests what we take data
-        // from db object: 'insert all ... select from ...', but in this case we generating
-        // the data in code, so in select section of query we substitute dummy-table 'dual'
-        // see http://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9014.htm#i2111652
-        $sql .= ' SELECT * FROM dual';
-
-        return $this->query($sql) && $this->db->query('COMMIT');
+        $this->db = $db;
+        $this->csvAdapter = $csvAdapter;
+        $this->insertBatchSize = $insertBatchSize;
     }
+
+    /**
+     * Gets data from table fields and place it into csv file
+     *
+     * @param string $tableName
+     * @param array $fieldsArr
+     */
+    public function convert($tableName, array $fieldsArr = array())
+    {
+        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
+
+        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
+        $sql = "SELECT " . $fields . " FROM " . $tableName;
+        $result = $this->db->query($sql);
+
+        while ($row = $this->db->fetchByAssoc($result)) {
+            foreach ($row as $k=>$v) {
+                $row[$k] = "'" . $v . "'";
+            }
+            $insertBuffer->addInstallData($row);
+        }
+
+    }
+
 }

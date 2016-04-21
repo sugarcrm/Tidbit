@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,23 +35,57 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Entity.php');
-require_once('Db/Common.php');
-require_once('Db/Oracle.php');
+namespace Sugarcrm\Tidbit\StorageAdapter;
 
-class Tidbit_Generator_Activity_Factory
-{
+use Sugarcrm\Tidbit\Exception;
+
+class Factory {
+
+    const OUTPUT_TYPE_MYSQL     = 'mysql';
+    const OUTPUT_TYPE_ORACLE    = 'oracle';
+    const OUTPUT_TYPE_CSV       = 'csv';
+
     /**
-     * Create and return activity generator according needed db type
+     * List of storage types
      *
-     * @param string $dbType
-     * @return Tidbit_Generator_Activity_Db_Common|Tidbit_Generator_Activity_Db_Oracle
+     * @var array
      */
-    public static function getGeneratorForDb($dbType)
+    private static $availableTypes = [
+        self::OUTPUT_TYPE_CSV,
+        self::OUTPUT_TYPE_MYSQL,
+        self::OUTPUT_TYPE_ORACLE,
+    ];
+
+    /**
+     * Storage Adapter Creator
+     *
+     * @param string $storageType
+     * @param mixed $storageResource
+     * @param string $logQueryPath
+     *
+     * @throws Exception
+     *
+     * @return \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
+     */
+    public static function getAdapterInstance($storageType, $storageResource, $logQueryPath = '')
     {
-        if ($dbType == 'oci8') {
-            return new Tidbit_Generator_Activity_Db_Oracle();
+        if (!in_array($storageType, self::$availableTypes)) {
+            throw new Exception('Unsupported storage type');
         }
-        return new Tidbit_Generator_Activity_Db_Common();
+
+        $storageAdapterName = self::getAdapterClassName($storageType);
+        return new $storageAdapterName($storageResource, $logQueryPath);
+    }
+
+    /**
+     * Determine full storage-adapter name and include it
+     *
+     * @param string $storageType
+     * @return string
+     */
+    private static function getAdapterClassName($storageType)
+    {
+        $adapterSuffixName = ucfirst($storageType);
+        return '\Sugarcrm\Tidbit\StorageAdapter\Storage\\' . $adapterSuffixName;
     }
 }

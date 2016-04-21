@@ -1,8 +1,7 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,24 +34,49 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Random_FirstName
-{
-    private $_list = array();
-    private $_used = array();
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-    public function __construct(array $list)
+use Sugarcrm\Tidbit\Exception;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
+
+class Mysql extends Common {
+
+    /**
+     * @var string
+     */
+    const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
+
+    /**
+     * {@inheritdoc}
+     *
+     */
+    public function save($tableName, array $installData)
     {
-        $this->_list = $list;
+        $sql = $this->prepareQuery($tableName, $installData);
+        $this->logQuery($sql);
+        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
     }
 
-    public function __toString()
+    /**
+     * rtfn
+     *
+     * @param string $tableName
+     * @param array $installData
+     * @return string
+     * @throws \Sugarcrm\Tidbit\Exception
+     */
+    protected function prepareQuery($tableName, array $installData)
     {
-        if (count($this->_list) == 0) {
-            $this->_list = $this->_used;
-            $this->_used = array();
+        if (!$tableName || !$installData) {
+            throw new Exception("Mysql adapter error: wrong data to insert");
         }
 
-        shuffle($this->_list);
-        return $this->_used[] = array_shift($this->_list);
+        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
+
+        foreach ($installData as $data) {
+            $sql .= '(' . implode(', ', $data) . "),";
+        }
+
+        return substr($sql, 0, -1) . ';';
     }
 }

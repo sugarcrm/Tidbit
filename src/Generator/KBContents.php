@@ -35,20 +35,10 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once('Tidbit/Data/KBContents.php');
-require_once('Tidbit/Tidbit/Generator/Insert/Object.php');
-require_once('Tidbit/Tidbit/Generator/Abstract.php');
-require_once('Tidbit/Tidbit/Generator/Exception.php');
+namespace Sugarcrm\Tidbit\Generator;
 
-class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
+class KBContents extends Common
 {
-    /**
-     * Hash of insert objects with table name as key
-     *
-     * @var array
-     */
-    private $insertObjects = array();
-
     /**
      * @var int
      */
@@ -92,9 +82,11 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
     /**
      * Constructor.
      *
-     * @param DBManager $db
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
     {
         global $kbNumberOfArticlesWithNotes;
         if ($kbNumberOfArticlesWithNotes) {
@@ -106,7 +98,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
             $this->kbNumberOfArticlesWithRevision = $kbNumberOfArticlesWithRevision;
         }
 
-        parent::__construct($db);
+        parent::__construct($db, $storageAdapter, $insertBatchSize);
     }
 
     /**
@@ -123,17 +115,9 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
             $this->createArticleInserts($i);
         }
 
-        if (!empty($this->insertObjects)) {
-            foreach ($this->insertObjects as $object) {
-                /** @var Tidbit_Generator_Insert_Object $object */
-                processQueries($object->getHead(), $object->getValues());
-                $this->insertCounter += count($object->getValues());
-            }
-        }
-
         global $kbLanguage;
         if (empty($kbLanguage)) {
-            throw new Tidbit_Generator_Exception("KBContents languages not configured");
+            throw new Exception("KBContents languages not configured");
         }
         $this->setKBLanguagesInConfig($kbLanguage);
     }
@@ -198,7 +182,7 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
             $noteTool->installData['parent_id'] = $contentTool->installData['id'];
             $noteTool->installData['team_id'] = $contentTool->installData['team_id'];
             $noteTool->installData['team_set_id'] = $contentTool->installData['team_set_id'];
-            $this->addInsertData($noteTool, 'notes2');
+            $this->addInsertData($noteTool);
             $this->numberOfArticlesWithNotes--;
         }
 
@@ -234,20 +218,11 @@ class Tidbit_Generator_KBContents extends Tidbit_Generator_Abstract
      * Create/update insert object.
      *
      * @param DataTool $dataTool
-     * @param string $storeKey
      */
-    private function addInsertData($dataTool, $storeKey = '')
+    private function addInsertData($dataTool)
     {
-        $storeKey = empty($storeKey) ? $dataTool->table_name : $storeKey;
-        $insertBody = $dataTool->createInsertBody();
-        if (empty($this->insertObjects[$storeKey])) {
-            $this->insertObjects[$storeKey] = new Tidbit_Generator_Insert_Object(
-                $dataTool->createInsertHead($dataTool->table_name),
-                array($insertBody)
-            );
-        } else {
-            $this->insertObjects[$storeKey]->addValues($insertBody);
-        }
+        $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
+        $this->insertCounter++;
     }
 
     /**

@@ -35,7 +35,11 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Activity_Entity
+namespace Sugarcrm\Tidbit\Generator\Activity;
+
+use Sugarcrm\Tidbit\DataTool;
+
+class Entity
 {
     public $moduleId1;
     public $moduleId2;
@@ -54,9 +58,14 @@ class Tidbit_Generator_Activity_Entity
      */
     protected $dataTool;
 
-    public function __construct($fields)
+    /**
+     * Constructor.
+     * @param array $fields
+     * @param string $storageType
+     */
+    public function __construct($fields, $storageType)
     {
-        $this->dataTool = new DataTool();
+        $this->dataTool = new DataTool($storageType);
 
         foreach ($fields as $field => $data) {
             $this->setField($field, null);

@@ -35,12 +35,34 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-abstract class Tidbit_Generator_Abstract
+namespace Sugarcrm\Tidbit\Generator;
+
+use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\InsertBuffer;
+
+abstract class Common
 {
     /**
-     * @var DBManager
+     * @var \DBManager
      */
     protected $db;
+
+    /**
+     * @var \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
+     */
+    protected $storageAdapter;
+
+    /**
+     * Type of output storage
+     *
+     * @var string
+     */
+    protected $storageType;
+
+    /**
+     * @var int
+     */
+    protected $insertBatchSize;
 
     /**
      * Counter of inserting objects.
@@ -50,13 +72,25 @@ abstract class Tidbit_Generator_Abstract
     protected $insertCounter = 0;
 
     /**
+     * List of InsertBuffer's instances
+     *
+     * @var array
+     */
+    private $insertBuffers = array();
+
+    /**
      * Constructor.
      *
-     * @param DBManager $db
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     * @param int $insertBatchSize
      */
-    public function __construct(DBManager $db)
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
     {
         $this->db = $db;
+        $this->storageAdapter = $storageAdapter;
+        $this->storageType = $storageAdapter::STORE_TYPE;
+        $this->insertBatchSize = $insertBatchSize;
     }
 
     /**
@@ -85,6 +119,24 @@ abstract class Tidbit_Generator_Abstract
     }
 
     /**
+     * Lazy InsertBuffer creator
+     *
+     * @param string $tableName
+     * @return InsertBuffer
+     */
+    public function getInsertBuffer($tableName)
+    {
+        if (empty($this->insertBuffers[$tableName])) {
+            $this->insertBuffers[$tableName] = new InsertBuffer(
+                $tableName,
+                $this->storageAdapter,
+                $this->insertBatchSize);
+        }
+
+        return $this->insertBuffers[$tableName];
+    }
+
+    /**
      * Generate DataTool object with data for model.
      *
      * @param string $modelName
@@ -93,9 +145,9 @@ abstract class Tidbit_Generator_Abstract
      */
     protected function getDataToolForModel($modelName, $modelCounter)
     {
-        $bean = BeanFactory::getBean($modelName);
+        $bean = \BeanFactory::getBean($modelName);
 
-        $dataTool = new DataTool();
+        $dataTool = new DataTool($this->storageType);
         $dataTool->fields = $bean->field_defs;
         $dataTool->table_name = $bean->table_name;
         $dataTool->module = $modelName;

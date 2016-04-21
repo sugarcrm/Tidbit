@@ -1,0 +1,23 @@
+{
+  "name" : "sugarcrm/Tidbit",
+  "description" : "Random data generator for Sugar",
+  "license" : "proprietary",
+  "version" : "2.0.0",
+  "keywords" : ["Sugar", "SugarCRM", "Tidbit"],
+  "homepage": "https://github.com/sugarcrm/Tidbit",
+  "support": {
+    "wiki" : "https://github.com/sugarcrm/Tidbit/wiki",
+    "source" : "https://github.com/sugarcrm/Tidbit",
+    "issues" : "https://github.com/sugarcrm/Tidbit/issues"
+  },
+  "require" : {
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.*"
+  },
+  "autoload" : {
+    "psr-4" : {
+      "Sugarcrm\\Tidbit\\": "src/"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 Tidbit v2.0
 ===========
-Tidbit is random data generator for Sugar versions 5.5 and later.  By optimizing
+Tidbit is random data generator for Sugar versions 6.5 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
 
@@ -11,17 +11,28 @@ Documentation in [the wiki](https://github.com/sugarcrm/Tidbit/wiki)!
 Requirements
 ------------
 PHP 5.3+
-Sugar Already installed
+Sugar Already installed (6.5+ versions)
 
 Installation
 ------------
 To install Tidbit, unpack the Tidbit-v###.tar.bz2 file, and place the Tidbit/
 directory within your SugarCRM installation (Tidbit Directory need to be created inside SugarCRM Installation folder).
 
-The only requirement of Tidbit is that you have an installed and properly
+Download composer
+```
+curl -sS https://getcomposer.org/installer | php
+```
+
+Install composer dependencies inside Tidbit directory
+```
+./composer.phar install
+```
+
+The only other requirement of Tidbit is that you have an installed and properly
 configured copy of Sugar in the directory above it.
 
-Example:
+Installation of Vagrant Stack (Example):
+------------
 
 1. SSH into vagrant stack you are using via command line.
     ```
@@ -53,6 +64,11 @@ Example:
     ```
     $ cd /Tidbit
     ```
+    
+7. Install Composer dependencies
+    ```
+    $ ./composer.phar install
+    ```
 
 Usage
 -----
@@ -75,16 +91,19 @@ Example usages:
 
     * Insert 500 users:
       $ php -f install_cli.php -- -u 500
+      
+    * Generate data into csv (mysql is default):
+      $ php -f install_cli.php -- --storage csv
 
     * Obliterate all data when generating new records with 300 users:
       $php -f install_cli.php -- -o -u 400
-      
-    * Create data using a load factor of 10, automatically detecting modules
-      and automatically adding relationships.
-      $php -f install_cli.php -- -l 10 -o --allmodules --allrelationships
       
     * Generate TeamBasedACL action restrictions for chosen level (check level options in install_config.php)
       $php -f install_cli.php -- -o --tba -tba_level full
       
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)
       $php -f install_cli.php -- -o --insert_batch_size 1000
+
+Contributing:
+------------
+See [CONTRIBUTING](CONTRIBUTING.md) for how you can contribute changes back into this project.

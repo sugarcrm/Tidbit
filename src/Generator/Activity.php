@@ -35,7 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Generator_Activity_Db_Common
+namespace Sugarcrm\Tidbit\Generator;
+
+use Sugarcrm\Tidbit\Generator\Activity\Entity;
+use Sugarcrm\Tidbit\InsertBuffer;
+
+class Activity
 {
     public $userCount;
     public $activitiesPerModuleRecord;
@@ -43,7 +48,6 @@ class Tidbit_Generator_Activity_Db_Common
     public $activityModules;
     public $activityModuleCount;
     public $modules;
-    public $db;
     public $insertionBufferSize = 100;
     public $fetchBuffer = 1000;
     public $lastNRecords = 0;
@@ -52,9 +56,29 @@ class Tidbit_Generator_Activity_Db_Common
     public $progress = 0;
     public $countQuery = 0;
     public $countFetch = 0;
+    protected $db;
     protected $beans = array();
     protected $activityFields = array();
     protected $totalModulesRecords = 0;
+
+    /**
+     * @var \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
+     */
+    protected $storageAdapter;
+
+    /**
+     * Size of insert buffers
+     *
+     * @var int
+     */
+    protected $insertBatchSize;
+
+    /**
+     * List of insert buffers for tables.
+     *
+     * @var array
+     */
+    protected $insertBuffers = array();
 
     /**
      * Dynamic variable using to pass values to another iteration of createDataSet -> flushDataSet
@@ -70,8 +94,10 @@ class Tidbit_Generator_Activity_Db_Common
      */
     protected $fetchQueryPatterns = array(
         'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
+        'oci8' => "SELECT id%s FROM %s ORDER BY date_modified DESC OFFSET %d ROWS FETCH NEXT %d ROWS ONLY",
     );
-    protected $insertQueryPattern = "INSERT INTO %s (%s) VALUES %s";
+    /** @var string */
+    protected $fetchQueryPattern;
     protected $fetchedData = array();
     protected $fullyLoadedModules = array();
     protected $currentUser;
@@ -95,11 +121,38 @@ class Tidbit_Generator_Activity_Db_Common
         'post' => 0,
     );
 
+    /**
+     * Type of output storage
+     *
+     * @var string
+     */
+    private $storageType;
+
+    /**
+     * Constructor
+     *
+     * @param \DBManager $db
+     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter
+     * @param int $insertBatchSize
+     */
+    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter, $insertBatchSize)
+    {
+        $this->storageAdapter = $adapter;
+        $this->storageType = $adapter::STORE_TYPE;
+        $this->insertBatchSize = $insertBatchSize;
+        $this->db = $db;
+
+        $this->fetchQueryPattern = array_key_exists($this->db->dbType, $this->fetchQueryPatterns) ?
+            $this->fetchQueryPatterns[$this->db->dbType] :
+            $this->fetchQueryPatterns['default']
+        ;
+    }
+
     public function init()
     {
         $loadedModules = array();
         foreach ($this->modules as $module => $moduleRecordCount) {
-            if (!$bean = BeanFactory::getBean($module)) {
+            if (!$bean = \BeanFactory::getBean($module)) {
                 continue;
             }
             $loadedModules[$module] = $moduleRecordCount;
@@ -122,7 +175,7 @@ class Tidbit_Generator_Activity_Db_Common
         }
         $this->activitiesPerUser = $this->totalModulesRecords * $this->activitiesPerModuleRecord;
         $this->activityModuleCount = count($this->activityModules);
-        $this->activityBean = BeanFactory::getBean('Activities');
+        $this->activityBean = \BeanFactory::getBean('Activities');
         foreach ($this->activityBean->field_defs as $field => $data) {
             if (empty($data['source'])) {
                 $this->activityFields[$field] = $data;
@@ -187,7 +240,7 @@ class Tidbit_Generator_Activity_Db_Common
 
     protected function createActivity($index)
     {
-        $activityEntity = new Tidbit_Generator_Activity_Entity($this->activityFields);
+        $activityEntity = new Entity($this->activityFields, $this->storageType);
         $activityEntity->moduleId1 = $this->currentUser['id'];
         $activityEntity->moduleId2 = $this->currentModuleRecord['id'];
         $activityEntity->moduleName1 = 'Users';
@@ -208,29 +261,20 @@ class Tidbit_Generator_Activity_Db_Common
 
     public function flushDataSet($final = false)
     {
-        if (!empty($this->dataSet) && (($this->dataSetLength >= $this->insertionBufferSize) || $final)) {
-            // activities
-            $result = $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
-            if ($result) {
-                // relationships
-                $result = $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
-
-                if ($result) {
-                    $this->insertedActivities += $this->dataSetLength;
-                    $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
-
-                    $this->dataSet = $this->dataSetRelationships = array();
-                    $this->dataSetLength = 0;
-
-                    return true;
-                }
-            }
-            // incorrect query or db error is fatal error
-            return false;
-        } else {
-            // empty dataSet is not an error
-            return true;
+        if (empty($this->dataSet) || (($this->dataSetLength < $this->insertionBufferSize) && !$final)) {
+            return;
         }
+
+        $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
+
+        // relationships
+        $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
+
+        $this->insertedActivities += $this->dataSetLength;
+        $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
+
+        $this->dataSet = $this->dataSetRelationships = array();
+        $this->dataSetLength = 0;
     }
 
     /**
@@ -238,31 +282,39 @@ class Tidbit_Generator_Activity_Db_Common
      *
      * @param array $dataSet
      * @param string $tableName
-     * @return bool
      */
     protected function insertDataSet(array $dataSet, $tableName)
     {
-        if (!empty($dataSet)) {
-            $columns = array_keys($dataSet[0]);
-            $dataRows = array();
-            foreach ($dataSet as $row) {
-                $dataRows[] = "(" . implode(", ", $row) . ")";
-            }
-            $sql = sprintf(
-                $this->insertQueryPattern,
-                $tableName,
-                implode(', ', $columns),
-                implode(', ', $dataRows)
-            );
-            return $this->query($sql);
-        } else {
-            return false;
+        if (empty($dataSet)) {
+            return;
         }
+        foreach ($dataSet as $set) {
+            $this->getInsertBufferForTable($tableName)->addInstallData($set);
+        }
+    }
+
+    /**
+     * Lazy creator of insert buffers
+     *
+     * @param string $tableName
+     * @return InsertBuffer
+     */
+    protected function getInsertBufferForTable($tableName)
+    {
+        if (empty($this->insertBuffers[$tableName])) {
+            $this->insertBuffers[$tableName] = new InsertBuffer(
+                $tableName,
+                $this->storageAdapter,
+                $this->insertBatchSize
+            );
+        }
+        return $this->insertBuffers[$tableName];
     }
 
     protected function initNextModuleName()
     {
-        $moduleName = isset($this->activityModules[$this->nextActivityModule]) ? $this->activityModules[$this->nextActivityModule++] : null;
+        $moduleName = isset($this->activityModules[$this->nextActivityModule]) ?
+            $this->activityModules[$this->nextActivityModule++] : null;
         if ($moduleName) {
             $this->currentModuleName = $moduleName;
             return true;
@@ -274,7 +326,9 @@ class Tidbit_Generator_Activity_Db_Common
     {
         if (empty($this->fetchedData[$moduleName][$this->currentOffsets[$moduleName]['next']])) {
             if (empty($this->fullyLoadedModules[$moduleName])) {
-                $this->fetchedData[$moduleName] = isset($this->fetchedData[$moduleName]) ? $this->fetchedData[$moduleName] : array();
+                $this->fetchedData[$moduleName] = isset($this->fetchedData[$moduleName]) ?
+                    $this->fetchedData[$moduleName]
+                    : array();
                 if ($data = $this->fetchNextModuleRecords($moduleName)) {
                     foreach ($data as $k => $v) {
                         $this->fetchedData[$moduleName][$k] = $v;
@@ -299,14 +353,14 @@ class Tidbit_Generator_Activity_Db_Common
 
     protected function fetchNextModuleRecords($moduleName)
     {
-        $queryPattern = isset($this->fetchQueryPatterns[$moduleName]) ? $this->fetchQueryPatterns[$moduleName] : $this->fetchQueryPatterns['default'];
-
         $extraFields = array();
-        $hasName = !empty($this->beans[$moduleName]->field_defs['name']) && empty($this->beans[$moduleName]->field_defs['name']['source']);
+        $hasName = !empty($this->beans[$moduleName]->field_defs['name'])
+            && empty($this->beans[$moduleName]->field_defs['name']['source']);
         if ($hasName) {
             $extraFields[] = 'name';
         }
-        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name']) && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
+        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name'])
+            && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
         if ($hasLastName) {
             $extraFields[] = 'last_name';
         }
@@ -321,7 +375,7 @@ class Tidbit_Generator_Activity_Db_Common
 
         if ($limit > 0) {
             $sql = sprintf(
-                $queryPattern,
+                $this->fetchQueryPattern,
                 empty($extraFields) ? '' : ', ' . implode(', ', $extraFields),
                 $this->beans[$moduleName]->table_name,
                 $this->currentOffsets[$moduleName]['offset'],

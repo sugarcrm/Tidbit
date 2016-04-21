@@ -35,20 +35,26 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Framework
+namespace Sugarcrm\Tidbit\Random;
+
+class FirstName
 {
-    public static function autoload($class_name)
+    private $_list = array();
+    private $_used = array();
+
+    public function __construct(array $list)
     {
-        if (substr($class_name, 0, 7) != 'Tidbit_') {
-            return false;
+        $this->_list = $list;
+    }
+
+    public function __toString()
+    {
+        if (count($this->_list) == 0) {
+            $this->_list = $this->_used;
+            $this->_used = array();
         }
-        $class = substr($class_name, 7);
-        @include_once 'Tidbit/' . str_replace('_', '/', $class) . '.php';
+
+        shuffle($this->_list);
+        return $this->_used[] = array_shift($this->_list);
     }
 }
-
-spl_autoload_register(array(
-    'Tidbit_Framework',
-    'autoload',
-));
-
