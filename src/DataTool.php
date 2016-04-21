@@ -47,8 +47,6 @@ namespace Sugarcrm\Tidbit;
 
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-require_once SUGAR_DIR . '/src/Security/Password/Hash.php';
-
 class DataTool
 {
 
@@ -1091,10 +1089,13 @@ class DataTool
         }
 
         if ( version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
-            return md5($value);
+            $password = "'" . md5($value) . "'";
+        } else {
+            require_once SUGAR_DIR . '/src/Security/Password/Hash.php';
+            $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();
+            $password = "'" . $hash->hash($value) . "'";
         }
 
-        $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();
-        return "'" . $hash->hash($value) . "'";
+        return $password;
     }
 }

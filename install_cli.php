@@ -371,8 +371,13 @@ foreach ($module_keys as $module) {
 
     $GLOBALS['time_spend'][$module] = microtime();
 
-    if (!is_dir('modules/' . $module)) {
-        echo "Module not found $module\n";
+    // Check module class exists in bean factory
+    // For old versions - getBeanName is used
+    // For new versions - getBeanClass, cause getBeanName is deprecated
+    if ((method_exists('BeanFactory', 'getBeanClass') && !BeanFactory::getBeanClass($module))
+        || method_exists('BeanFactory', 'getBeanName') && !BeanFactory::getBeanName($module)) {
+        echo "Module $module is not found in 'modules/' folder or \$beanList, \$beanFiles global variables do not contain it\n";
+        echo "Skipping module: " . $module . "\n";
         continue;
     }
 
@@ -420,20 +425,7 @@ foreach ($module_keys as $module) {
         echo $total_iterator . " records will be skipped from generation.\n";
     }
 
-    // TODO: ignoring modules who aren't keys in $beanList
-    // and  classes who aren't keys in $beanFiles
-    // Not sure if this is the right thing to do
-    if (!isset($beanList[$module])) {
-        echo "skipping module: " . $module . "\n";
-        continue;
-    }
-    $class = $beanList[$module];
-    if (!isset($beanFiles[$class])) {
-        echo "skipping module: " . $module . "\n";
-        continue;
-    }
-    require_once($beanFiles[$class]);
-    $bean = new $class();
+    $bean = BeanFactory::getBean($module);
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
