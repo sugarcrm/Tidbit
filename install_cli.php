@@ -62,7 +62,7 @@ echo "\n";
 // creating storage adapter
 $storageType = empty($opts['storage']) ? $storageType : $opts['storage'];
 if ($storageType == 'csv') {
-    $storage = $dirToSaveCsv;
+    $storage = TIDBIT_DIR . '/' . $tidbitCsvDir;
     clearCsvDir($storage);
 } else {
     $storage = $GLOBALS['db'];

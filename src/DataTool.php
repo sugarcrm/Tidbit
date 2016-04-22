@@ -680,12 +680,9 @@ class DataTool
         if (!empty($GLOBALS['foreignDataTools']) && !empty($GLOBALS['foreignDataTools'][$module])) {
             $rbfd = $GLOBALS['foreignDataTools'][$module];
         } else {
-            include('include/modules.php');
-            $class = $beanList[$module];
-            require_once($beanFiles[$class]);
-            $bean = new $class();
-            if (file_exists(SUGAR_DIR . '/' . $bean->module_dir . '.php')) {
-                require_once(SUGAR_DIR . '/' . $bean->module_dir . '.php');
+            $bean = \BeanFactory::getBean($module);
+            if (file_exists(DATA_DIR . '/' . $module . '.php')) {
+                require_once(DATA_DIR . '/' . $module . '.php');
             }
             $rbfd = new DataTool($this->storageType);
             $rbfd->fields = $bean->field_defs;
@@ -1091,7 +1088,7 @@ class DataTool
         if ( version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
             $password = "'" . md5($value) . "'";
         } else {
-            require_once SUGAR_DIR . '/src/Security/Password/Hash.php';
+            require_once SUGAR_PATH . '/src/Security/Password/Hash.php';
             $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();
             $password = "'" . $hash->hash($value) . "'";
         }
