@@ -37,7 +37,8 @@
 
 $storageType = 'mysql';
 $logQueriesPath = '';
-$dirToSaveCsv = 'Tidbit/csv';
+$tidbitCsvDir = 'csv';
+$sugarDir = __DIR__ . '/..';
 
 $modules = array(
     'Tags' => 100,
