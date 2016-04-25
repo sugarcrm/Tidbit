@@ -91,19 +91,19 @@ Options
                         - oracle
                         - csv
 
-    --sugar_path        Path to sugarcrm
+    --sugar_path        Path to Sugar installation directory
 
-    -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
-                    	logged in a file called 'executedQueries.txt' in your
-                    	Tidbit folder.
+    -d                  Turn Debug Mode on.  With Debug Mode, all queries will be
+                        logged in a file called 'executedQueries.txt' in your
+                        Tidbit folder.
 
-    -v              	Display version information.
+    -v                  Display version information.
 
-    -h              	Display this help text.
+    -h                  Display this help text.
 
     -x count            How often to commit module records - important on DBs like DB2. Default is no batches.
 
-    -s             	Specify the number of teams per team set and per record.
+    -s                  Specify the number of teams per team set and per record.
 
     --tba               Turn Team-based ACL Mode on.
 

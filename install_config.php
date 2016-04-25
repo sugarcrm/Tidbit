@@ -38,7 +38,9 @@
 $storageType = 'mysql';
 $logQueriesPath = '';
 $tidbitCsvDir = 'csv';
-$sugarDir = __DIR__ . '/..';
+
+// Default Sugar location path, could be overrided by "--sugar_path" argument
+$sugarPath = __DIR__ . '/..';
 
 $modules = array(
     'Tags' => 100,
