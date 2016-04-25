@@ -39,6 +39,7 @@ namespace Sugarcrm\Tidbit\Generator;
 
 use Sugarcrm\Tidbit\Generator\Activity\Entity;
 use Sugarcrm\Tidbit\InsertBuffer;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
 class Activity
 {
@@ -132,10 +133,10 @@ class Activity
      * Constructor
      *
      * @param \DBManager $db
-     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter
+     * @param StorageCommon $adapter
      * @param int $insertBatchSize
      */
-    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $adapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $adapter, $insertBatchSize)
     {
         $this->storageAdapter = $adapter;
         $this->storageType = $adapter::STORE_TYPE;
@@ -168,7 +169,8 @@ class Activity
         $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->getModulesBlackList()));
         foreach ($this->activityModules as $module) {
             // apply lastNRecords option
-            $this->currentOffsets[$module]['total'] = $this->lastNRecords > 0 && $this->modules[$module] > $this->lastNRecords
+            $this->currentOffsets[$module]['total'] =
+                $this->lastNRecords > 0 && $this->modules[$module] > $this->lastNRecords
                 ? $this->lastNRecords
                 : $this->modules[$module];
             $this->totalModulesRecords += $this->currentOffsets[$module]['total'];
@@ -271,7 +273,9 @@ class Activity
         $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
 
         $this->insertedActivities += $this->dataSetLength;
-        $this->progress = round(($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100);
+        $this->progress = round(
+            ($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100
+        );
 
         $this->dataSet = $this->dataSetRelationships = array();
         $this->dataSetLength = 0;
@@ -423,7 +427,7 @@ class Activity
      * Activities won't be created for these modules
      * @return array
      */
-    function getModulesBlackList()
+    protected function getModulesBlackList()
     {
         global $activityModulesBlackList;
         return $activityModulesBlackList;

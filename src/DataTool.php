@@ -49,7 +49,6 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
 class DataTool
 {
-
     public $installData = array();
     public $fields = array();
     public $table_name = '';
@@ -58,18 +57,18 @@ class DataTool
 
     // TeamSet with all teams inside
     static public $max_team_set_id = null;
-    static $team_sets_array = array();
-    static $relmodule_index = 0;
+    static public $team_sets_array = array();
+    static public $relmodule_index = 0;
 
     // Cache for generateSeed function
-    static $seedModules = array();
-    static $seedFields = array();
+    static public $seedModules = array();
+    static public $seedFields = array();
 
     // based on xhprof, db_convert for datetime and time generation, consume a lot of time.
     // getConvertDatetime() function re-generate time only when this index reach max number
     // so we will re-generate time only for self::$datetimeIndexMax record
-    static $datetimeCacheIndex = 0;
-    static $datetimeIndexMax = 1000;
+    protected static $datetimeCacheIndex = 0;
+    protected static $datetimeIndexMax = 1000;
 
     /**
      * Type of output storage
@@ -93,7 +92,7 @@ class DataTool
 
     // Skip db_convert for those types for optimization
     // TODO: move this to config
-    static $notConvertedTypes = array(
+    protected static $notConvertedTypes = array(
         'int',
         'uint',
         'double',
@@ -116,7 +115,7 @@ class DataTool
      */
     public function __construct($storageType)
     {
-       $this->storageType = $storageType;
+        $this->storageType = $storageType;
     }
 
     /**
@@ -143,12 +142,14 @@ class DataTool
      * value as an argument to getData.  This is done for each
      * field.
      */
-    function generateData()
+    public function generateData()
     {
-        /* For each of the fields in this record, we want to generate 
+        /* For each of the fields in this record, we want to generate
          * one element of seed data for it.*/
         foreach ($this->fields as $field => $data) {
-            if (!empty($data['source'])) continue;
+            if (!empty($data['source'])) {
+                continue;
+            }
 
             $type = (!empty($data['dbType'])) ? $data['dbType'] : $data['type'];
             $GLOBALS['fieldData'] = $data;
@@ -201,20 +202,22 @@ class DataTool
      *
      * @return string
      */
-    function generateId()
+    public function generateId()
     {
         $currentModule = $this->getAlias($this->module);
         $this->installData['id'] = $this->assembleId($currentModule, $this->count);
 
         if (strlen($this->installData['id']) > 36) {
             $moduleLength = strlen($currentModule);
-            $this->installData['id'] = '\'seed-' . $currentModule . substr(md5($this->installData['id']), 0, -($moduleLength + 1)) . "'";
+            // example seed-Calls146161708310000
+            $this->installData['id'] = '\'seed-' . $currentModule .
+                substr(md5($this->installData['id']), 0, -($moduleLength + 1)) . "'";
         }
 
         return substr($this->installData['id'], 1, -1);
     }
 
-    function clean()
+    public function clean()
     {
         $this->installData = array();
         $this->count = 0;
@@ -235,37 +238,39 @@ class DataTool
      *
      * @return string
      */
-    function getData($fieldName, $fieldDBType, $sugarType, $seed)
+    public function getData($fieldName, $fieldDBType, $sugarType, $seed)
     {
+        $rules = $GLOBALS['dataTool'];
+
         //echo "GD: $fieldName, $fieldType, $sugarType, $seed\n";
         // Check if the fieldName is defined
-        if (!empty($GLOBALS['dataTool'][$this->module][$fieldName])) {
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldName], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules[$this->module][$fieldName])) {
+            return $this->handleType($rules[$this->module][$fieldName], $fieldDBType, $fieldName, $seed);
         }
 
         // Check if fieldType is defined
-        if (!empty($GLOBALS['dataTool'][$this->module][$fieldDBType])) {
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$fieldDBType], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules[$this->module][$fieldDBType])) {
+            return $this->handleType($rules[$this->module][$fieldDBType], $fieldDBType, $fieldName, $seed);
         }
 
         // Check if the Sugar type is defined
-        if (!empty($GLOBALS['dataTool'][$this->module][$sugarType])) {
-            return $this->handleType($GLOBALS['dataTool'][$this->module][$sugarType], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules[$this->module][$sugarType])) {
+            return $this->handleType($rules[$this->module][$sugarType], $fieldDBType, $fieldName, $seed);
         }
 
         // If the fieldName is undefined for this module, see if a default value is defined
-        if (!empty($GLOBALS['dataTool']['default'][$fieldName])) {
-            return $this->handleType($GLOBALS['dataTool']['default'][$fieldName], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules['default'][$fieldName])) {
+            return $this->handleType($rules['default'][$fieldName], $fieldDBType, $fieldName, $seed);
         }
 
         // If the fieldType is undefined for this module, see if a default value is defined
-        if (!empty($GLOBALS['dataTool']['default'][$fieldDBType])) {
-            return $this->handleType($GLOBALS['dataTool']['default'][$fieldDBType], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules['default'][$fieldDBType])) {
+            return $this->handleType($rules['default'][$fieldDBType], $fieldDBType, $fieldName, $seed);
         }
 
         // If the sugarType is undefined for this module, see if a default value is defined
-        if (!empty($GLOBALS['dataTool']['default'][$sugarType])) {
-            return $this->handleType($GLOBALS['dataTool']['default'][$sugarType], $fieldDBType, $fieldName, $seed);
+        if (!empty($rules['default'][$sugarType])) {
+            return $this->handleType($rules['default'][$sugarType], $fieldDBType, $fieldName, $seed);
         }
 
         return '';
@@ -281,15 +286,16 @@ class DataTool
      *
      * @return string
      */
-    function handleType($typeData, $type, $field, $seed)
+    public function handleType($typeData, $type, $field, $seed)
     {
-        /* We want all data to be predictable.  $seed should be charactaristic of 
+        /* We want all data to be predictable.  $seed should be charactaristic of
          * this entity or the remote entity we want to simulate
          */
         mt_srand($seed);
 
-//        echo "HT: $typeData, $type, $field, $seed\n";
-        if (!empty($typeData['skip'])) return '';
+        if (!empty($typeData['skip'])) {
+            return '';
+        }
 
         // Set TeamSet with all existings teams
         if (!empty($typeData['teamset_max'])) {
@@ -309,7 +315,8 @@ class DataTool
             static $inc = -1;
             $inc++;
             if ($typeData['increment']['max']) {
-                return $typeData['increment']['min'] + ($inc % ($typeData['increment']['max'] - $typeData['increment']['min']));
+                return $typeData['increment']['min'] +
+                ($inc % ($typeData['increment']['max'] - $typeData['increment']['min']));
             } else {
                 return $typeData['increment']['min'] + $inc;
             }
@@ -417,7 +424,6 @@ class DataTool
         }
 
         if (!empty($typeData['gibberish'])) {
-
             $baseValue = @trim($this->generateGibberish($typeData['gibberish']));
 
             // Check field length and truncate data depends on vardefs length
@@ -434,7 +440,8 @@ class DataTool
              * Note that this will break if date_start comes after
              * status in the vardefs for Meetings :-/.
              */
-            if (!empty($GLOBALS['fieldData']['options']) && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
+            if (!empty($GLOBALS['fieldData']['options'])
+                && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
                 $options = $GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']];
                 $keys = array_keys($options);
                 /* accessLocalField loads the value of that field or
@@ -468,7 +475,6 @@ class DataTool
         //we have a range then it should either be a number or a date
         $baseValue = '';
         if (!empty($typeData['range'])) {
-
             $baseValue = mt_rand($typeData['range']['min'], $typeData['range']['max']);
 
             if (!empty($typeData['multiply'])) {
@@ -492,11 +498,10 @@ class DataTool
                         $baseValue = date('H:i:s', $basetime);
                         break;
                 }
-
             } else {
                 $isQuote = false;
             }
-        } else if (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
+        } elseif (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
             $selected = mt_rand(0, count($GLOBALS[$typeData['list']]) - 1);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
@@ -509,7 +514,6 @@ class DataTool
             // Apply datetime modifications
             // Calculate modifications (e.g hours and minutes) and shift current base value
             if (!empty($typeData['modify']) && is_array($typeData['modify'])) {
-
                 $shift = 0;
 
                 foreach ($typeData['modify'] as $type => $value) {
@@ -529,23 +533,22 @@ class DataTool
 
         if (!empty($typeData['suffixlist'])) {
             foreach ($typeData['suffixlist'] as $suffixlist) {
-
                 if (!empty($GLOBALS[$suffixlist])) {
                     $selected = mt_rand(0, count($GLOBALS[$suffixlist]) - 1);
                     $baseValue .= ' ' . $GLOBALS[$suffixlist][$selected];
                 }
             }
-        } else if ($type == 'enum') {
-
-            if (!empty($GLOBALS['fieldData']['options']) && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
+        } elseif ($type == 'enum') {
+            if (!empty($GLOBALS['fieldData']['options'])
+                && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
                 $options = $GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']];
                 $keys = array_keys($options);
 
                 $selected = mt_rand(0, count($keys) - 1);
                 return "'" . @trim($keys[$selected]) . "'";
-
             }
         }
+
         // This is used to associate email addresses with rows in
         // Contacts or Leads.  See Relationships/email_addr_bean_rel.php
         if (!empty($typeData['getmodule'])) {
@@ -566,7 +569,6 @@ class DataTool
         }
         if (!empty($typeData['prefix'])) {
             $baseValue = $typeData['prefix'] . $baseValue;
-
         }
 
         if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
@@ -578,7 +580,7 @@ class DataTool
         }
 
         // Run db convert only for specific types. see DBManager::convert()
-        if ( $this->storageType != \Sugarcrm\Tidbit\StorageAdapter\Factory::OUTPUT_TYPE_CSV
+        if ($this->storageType != \Sugarcrm\Tidbit\StorageAdapter\Factory::OUTPUT_TYPE_CSV
              && !in_array($type, self::$notConvertedTypes)
         ) {
             $baseValue = $GLOBALS['db']->convert($baseValue, $type);
@@ -610,7 +612,7 @@ class DataTool
      *
      * @return string
      */
-    function accessLocalField($fieldName)
+    public function accessLocalField($fieldName)
     {
         /* TODO - OPTIMIZATION - if we have to render the data,
          * then save it to installData so we only do it once.
@@ -651,7 +653,7 @@ class DataTool
      *
      * @return string
      */
-    function accessRemoteField($module, $fieldName)
+    public function accessRemoteField($module, $fieldName)
     {
         /* Form is 'Module' => field */
         /* I need to call $this->getData. */
@@ -674,7 +676,9 @@ class DataTool
          */
 
         /* Should one accidentally refer to itsself, just call local */
-        if ($module == $this->module) return $this->accessLocalField($fieldName);
+        if ($module == $this->module) {
+            return $this->accessLocalField($fieldName);
+        }
 
         /* Check if a cached dataTool object exists. */
         if (!empty($GLOBALS['foreignDataTools']) && !empty($GLOBALS['foreignDataTools'][$module])) {
@@ -701,7 +705,7 @@ class DataTool
      * Generate a 'related' id for use
      * by handleType:'related' and 'generateRelationships'
      */
-    function getRelatedId($relModule, $baseModule, $thisToRelatedRatio = 0)
+    public function getRelatedId($relModule, $baseModule, $thisToRelatedRatio = 0)
     {
         if (empty($GLOBALS['counters'][$this->module . $relModule])) {
             $GLOBALS['counters'][$this->module . $relModule] = 0;
@@ -737,7 +741,7 @@ class DataTool
      * Generate a 'parent' id for use
      * by handleType:'parent'
      */
-    function getRelatedUpId($relModule, $thisToRelatedRatio = 0)
+    public function getRelatedUpId($relModule, $thisToRelatedRatio = 0)
     {
         /* The relModule that we point up to should be the base */
         return $this->getRelatedId($relModule, $relModule, $thisToRelatedRatio);
@@ -749,7 +753,7 @@ class DataTool
      * by handleType:'parent'
      * ToDo: add mapping for $baseModule.
      */
-    function getRelatedLinkId($relModule, $thisToRelatedRatio = 0)
+    public function getRelatedLinkId($relModule, $thisToRelatedRatio = 0)
     {
         /* The baseModule needs to be Accounts normally
          * but we need to keep Quotes inclusive
@@ -788,24 +792,23 @@ class DataTool
      * Generates and saves queries to create relationships in the Sugar app, based
      * on the contents of the global array $tidbit_relationships.
      */
-    function generateRelationships()
+    public function generateRelationships()
     {
         global $relQueryCount;
 
         $baseId = trim($this->installData['id'], "'");
 
-        if (empty($GLOBALS['tidbit_relationships'][$this->module])) return;
+        if (empty($GLOBALS['tidbit_relationships'][$this->module])) {
+            return;
+        }
 
         foreach ($GLOBALS['tidbit_relationships'][$this->module] as $relModule => $relationship) {
-
             // TODO: remove this check or replace with something else
             if (!is_dir('modules/' . $relModule)) {
                 continue;
             }
 
             if (!empty($GLOBALS['modules'][$relModule])) {
-
-
                 if (!empty($relationship['ratio'])) {
                     $thisToRelatedRatio = $relationship['ratio'];
                 } elseif (!empty($relationship['random_ratio'])) {
@@ -817,9 +820,8 @@ class DataTool
                     $thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
                 }
 
-                /* Load any custom feilds for this relationship */
+                /* Load any custom fields for this relationship */
                 if (file_exists(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php')) {
-                    //echo "\n". 'loading custom fields from ' . 'Tidbit/Relationships/' . $relationship['table'] . '.php' . "\n";
                     require_once(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php');
                 }
 
@@ -828,7 +830,6 @@ class DataTool
                  * through $relationship['table']
                  */
                 for ($j = 0; $j < $thisToRelatedRatio; $j++) {
-
                     $relIntervalID = (!empty($relationship['random_id']))
                         ? $this->getRandomInterval($relModule)
                         : $this->getRelatedLinkId($relModule);
@@ -837,8 +838,10 @@ class DataTool
                     $relId = $this->assembleId($currentRelModule, $relIntervalID, false);
 
                     $relOverridesStore = array();
+
                     /* If a repeat factor is specified, then we will process the body multiple times. */
-                    if (!empty($GLOBALS['dataTool'][$relationship['table']]) && !empty($GLOBALS['dataTool'][$relationship['table']]['repeat'])) {
+                    if (!empty($GLOBALS['dataTool'][$relationship['table']]) &&
+                        !empty($GLOBALS['dataTool'][$relationship['table']]['repeat'])) {
                         $multiply = $GLOBALS['dataTool'][$relationship['table']]['repeat']['factor'];
                         /* We don't want 'repeat' to get into the DB, but we'll put it back into
                          * the globals later.
@@ -914,7 +917,7 @@ class DataTool
      *
      * @return mixed
      */
-    function getConvertDatetime()
+    public function getConvertDatetime()
     {
         static $datetime = '';
 
@@ -938,12 +941,26 @@ class DataTool
      * @param $wordCount
      * @return string
      */
-    function generateGibberish($wordCount = 1)
+    public function generateGibberish($wordCount = 1)
     {
         static $words = array();
 
         if (empty($words)) {
-            $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, in aliquam magna sem.";
+            $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. " .
+                "Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, " .
+                "lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien " .
+                "et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. " .
+                "Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. " .
+                "Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae " .
+                "risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum " .
+                "sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. " .
+                "Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, " .
+                "congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, " .
+                "luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. " .
+                "Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor " .
+                "pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. " .
+                "Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, " .
+                "in aliquam magna sem.";
             $words = explode(' ', $baseText);
         }
 
@@ -961,7 +978,7 @@ class DataTool
      * @param bool $quotes
      * @return string
      */
-    function assembleId($module, $id, $quotes = true)
+    public function assembleId($module, $id, $quotes = true)
     {
         static $assembleIdCache = array();
 
@@ -994,16 +1011,16 @@ class DataTool
      * @param int $count - The current record number
      * @return int
      */
-    function generateSeed($module, $field, $count)
+    public function generateSeed($module, $field, $count)
     {
         // Cache module
         if (!isset(self::$seedModules[$module])) {
-            self::$seedModules[$module] = $this->str_sum($this->module);
+            self::$seedModules[$module] = $this->stringCheckSum($this->module);
         }
 
         // Cache fields
         if (!isset(self::$seedFields[$field])) {
-            self::$seedFields[$field] = $this->str_sum($field);
+            self::$seedFields[$field] = $this->stringCheckSum($field);
         }
 
         /*
@@ -1019,10 +1036,10 @@ class DataTool
      * @param $name - The current module
      * @return string
      */
-    function getAlias($name)
+    public function getAlias($name)
     {
         global $aliases;
-        return (isset ($aliases[$name]))
+        return (isset($aliases[$name]))
             ? $aliases[$name]
             : $name;
     }
@@ -1033,7 +1050,7 @@ class DataTool
      * @param $str
      * @return int
      */
-    function str_sum($str)
+    public function stringCheckSum($str)
     {
         $sum = 0;
 
@@ -1057,13 +1074,13 @@ class DataTool
         $shift = 60;
 
         switch ($type) {
-            case 'hours' :
+            case 'hours':
                 $shift = 3600;
                 break;
-            case 'minutes' :
+            case 'minutes':
                 $shift = 60;
                 break;
-            case 'days' :
+            case 'days':
                 $shift = 24 * 3600;
         }
 
@@ -1085,7 +1102,7 @@ class DataTool
             $value = substr($value, 1, strlen($value) - 2);
         }
 
-        if ( version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
+        if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
             $password = "'" . md5($value) . "'";
         } else {
             require_once SUGAR_PATH . '/src/Security/Password/Hash.php';

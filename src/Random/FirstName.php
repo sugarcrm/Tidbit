@@ -39,22 +39,22 @@ namespace Sugarcrm\Tidbit\Random;
 
 class FirstName
 {
-    private $_list = array();
-    private $_used = array();
+    private $list = array();
+    private $used = array();
 
     public function __construct(array $list)
     {
-        $this->_list = $list;
+        $this->list = $list;
     }
 
     public function __toString()
     {
-        if (count($this->_list) == 0) {
-            $this->_list = $this->_used;
-            $this->_used = array();
+        if (count($this->list) == 0) {
+            $this->list = $this->used;
+            $this->used = array();
         }
 
-        shuffle($this->_list);
-        return $this->_used[] = array_shift($this->_list);
+        shuffle($this->list);
+        return $this->used[] = array_shift($this->list);
     }
 }

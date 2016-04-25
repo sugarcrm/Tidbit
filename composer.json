@@ -13,11 +13,15 @@
   "require" : {
   },
   "require-dev": {
-    "phpunit/phpunit": "4.*"
+    "phpunit/phpunit": "4.*",
+    "squizlabs/php_codesniffer": "2.6"
   },
   "autoload" : {
     "psr-4" : {
       "Sugarcrm\\Tidbit\\": "src/"
     }
+  },
+  "scripts" : {
+    "check-style" : "./vendor/bin/phpcs --standard=PSR2 ./src"
   }
 }

@@ -39,6 +39,7 @@ namespace Sugarcrm\Tidbit\Generator;
 
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\InsertBuffer;
+use \Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
 abstract class Common
 {
@@ -82,10 +83,10 @@ abstract class Common
      * Constructor.
      *
      * @param \DBManager $db
-     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
@@ -130,7 +131,8 @@ abstract class Common
             $this->insertBuffers[$tableName] = new InsertBuffer(
                 $tableName,
                 $this->storageAdapter,
-                $this->insertBatchSize);
+                $this->insertBatchSize
+            );
         }
 
         return $this->insertBuffers[$tableName];

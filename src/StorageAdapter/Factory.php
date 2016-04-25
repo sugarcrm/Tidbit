@@ -39,8 +39,8 @@ namespace Sugarcrm\Tidbit\StorageAdapter;
 
 use Sugarcrm\Tidbit\Exception;
 
-class Factory {
-
+class Factory
+{
     const OUTPUT_TYPE_MYSQL     = 'mysql';
     const OUTPUT_TYPE_ORACLE    = 'oracle';
     const OUTPUT_TYPE_CSV       = 'csv';

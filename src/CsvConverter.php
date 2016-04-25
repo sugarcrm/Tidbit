@@ -36,6 +36,7 @@
  ********************************************************************************/
 
 namespace Sugarcrm\Tidbit;
+
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
 
 /**
@@ -89,12 +90,11 @@ class CsvConverter
         $result = $this->db->query($sql);
 
         while ($row = $this->db->fetchByAssoc($result)) {
-            foreach ($row as $k=>$v) {
+            foreach ($row as $k => $v) {
                 $row[$k] = "'" . $v . "'";
             }
             $insertBuffer->addInstallData($row);
         }
 
     }
-
 }

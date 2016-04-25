@@ -39,8 +39,8 @@ namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 use Sugarcrm\Tidbit\Exception;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-class Oracle extends Common {
-
+class Oracle extends Common
+{
     /**
      * @var string
      */
