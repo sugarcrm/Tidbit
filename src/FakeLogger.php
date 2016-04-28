@@ -35,8 +35,18 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['EmailAddresses']['email_address'] = array(
-    'list' => 'last_name_array',
-    'suffix' => "@example.com"
-);
-$GLOBALS['dataTool']['EmailAddresses']['email_address_caps'] = array('same' => 'email_address', 'toUpper' => true);
+namespace Sugarcrm\Tidbit;
+
+/**
+ * Class FakeLogger
+ *
+ * Fake all logging object usage
+ *
+ * @package Sugarcrm\Tidbit
+ */
+class FakeLogger
+{
+    public function __call($m, $a)
+    {
+    }
+}

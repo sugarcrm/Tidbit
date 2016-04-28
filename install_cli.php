@@ -56,7 +56,8 @@ echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . 
 echo "With Existing Users Mode " . (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
-echo "With Team-based Restriction Level " . (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
+echo "With Team-based Restriction Level " .
+    (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
 echo "\n";
 
 // creating storage adapter
@@ -74,7 +75,6 @@ $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($s
 $prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
 
 foreach ($module_keys as $module) {
-
     $GLOBALS['time_spend'][$module] = microtime();
 
     // Check module class exists in bean factory
@@ -82,7 +82,8 @@ foreach ($module_keys as $module) {
     // For new versions - getBeanClass, cause getBeanName is deprecated
     if ((method_exists('BeanFactory', 'getBeanClass') && !BeanFactory::getBeanClass($module))
         || method_exists('BeanFactory', 'getBeanName') && !BeanFactory::getBeanName($module)) {
-        echo "Module $module is not found in 'modules/' folder or \$beanList, \$beanFiles global variables do not contain it\n";
+        echo "Module $module is not found in 'modules/' folder or \$beanList, \$beanFiles global" .
+            " variables do not contain it\n";
         echo "Skipping module: " . $module . "\n";
         continue;
     }
@@ -139,7 +140,7 @@ foreach ($module_keys as $module) {
         if ($module == 'Users') {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1'");
             $prefsGenerator->obliterate();
-        } else if ($module == 'Teams') {
+        } elseif ($module == 'Teams') {
             $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1'");
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
@@ -149,7 +150,9 @@ foreach ($module_keys as $module) {
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
-                if (!empty($obliterated[$rel['table']])) continue;
+                if (!empty($obliterated[$rel['table']])) {
+                    continue;
+                }
                 $obliterated[$rel['table']] = true;
                 $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1 = 1");
             }
@@ -161,7 +164,7 @@ foreach ($module_keys as $module) {
         if ($module == 'Users') {
             $prefsGenerator->clean();
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%'");
-        } else if ($module == 'Teams') {
+        } elseif ($module == 'Teams') {
             $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1' AND id LIKE 'seed-%'");
             $GLOBALS['db']->query("DELETE FROM team_sets");
             $GLOBALS['db']->query("DELETE FROM team_sets_teams");
@@ -171,7 +174,9 @@ foreach ($module_keys as $module) {
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
-                if (!empty($obliterated[$rel['table']])) continue;
+                if (!empty($obliterated[$rel['table']])) {
+                    continue;
+                }
                 $obliterated[$rel['table']] = true;
                 $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1=1 AND id LIKE 'seed-%'");
             }
@@ -231,12 +236,17 @@ foreach ($module_keys as $module) {
             $storageAdapter->commitQuery();
             echo "#";
         }
-        if ($i % 1000 == 0) echo '*';
+        if ($i % 1000 == 0) {
+            echo '*';
+        }
     } //for
 
     if ($module == 'Teams') {
         $teamGenerator = new \Sugarcrm\Tidbit\Generator\TeamSets(
-            $GLOBALS['db'], $storageAdapter, $insertBatchSize, $generatedIds
+            $GLOBALS['db'],
+            $storageAdapter,
+            $insertBatchSize,
+            $generatedIds
         );
         $teamGenerator->generate();
     }
@@ -285,7 +295,6 @@ echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
 
 // BEGIN Activity Stream populating
 if (!empty($GLOBALS['as_populate'])) {
-
     $activityStreamOptions = array(
         'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
         'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : 1000,
@@ -293,7 +302,6 @@ if (!empty($GLOBALS['as_populate'])) {
     );
 
     if (!empty($GLOBALS['beanList']['Activities'])) {
-
         echo "\nPopulating Activity Stream\n";
         $timer = microtime(1);
 
@@ -357,7 +365,6 @@ if (!empty($GLOBALS['as_populate'])) {
         $timer = round(microtime(1) - $timer, 2);
         echo "SQL queries: {$tga->countQuery}, fetch requests: {$tga->countFetch}, time spent: {$timer} seconds\n\n";
         echo "END Activity Stream populating\n\n";
-
     } else {
         echo "Activity Stream doesn't support by SugarCRM instance\n\n";
     }

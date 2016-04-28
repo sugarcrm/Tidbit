@@ -22,6 +22,6 @@
     }
   },
   "scripts" : {
-    "check-style" : "./vendor/bin/phpcs --standard=PSR2 ./src"
+    "check-style" : "./vendor/bin/phpcs --standard=./ruleset.xml"
   }
 }

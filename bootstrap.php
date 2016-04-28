@@ -35,7 +35,9 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$usageStr = "Usage: " . $_SERVER['PHP_SELF'] . " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
+$usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
+    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
+
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
@@ -177,8 +179,10 @@ define('SUGAR_PATH', $sugarPath);
 define('TIDBIT_DIR', __DIR__);
 define('DATA_DIR', __DIR__ . '/Data');
 define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
-if (!defined('sugarEntry')) define('sugarEntry', true);
 
+if (!defined('sugarEntry')) {
+    define('sugarEntry', true);
+}
 
 require_once DATA_DIR . '/DefaultData.php';
 require_once DATA_DIR . '/contactSeedData.php';
@@ -208,14 +212,7 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
     set_include_path(INSTANCE_PATH . PATH_SEPARATOR . TEMPLATE_PATH . PATH_SEPARATOR . get_include_path());
 }
 
-class FakeLogger
-{
-    public function __call($m, $a)
-    {
-    }
-}
-
-$GLOBALS['log'] = new FakeLogger();
+$GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
 
@@ -292,11 +289,12 @@ if (isset($opts['tba'])) {
 }
 
 if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
-    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel))
+        ? strtolower($opts['tba_level'])
+        : $tbaRestrictionLevelDefault;
 }
 
-if(isset($opts['fullteamset']))
-{
+if (isset($opts['fullteamset'])) {
     $GLOBALS['fullteamset'] = true;
 }
 

@@ -110,3 +110,13 @@ Example usages:
 Contributing:
 ------------
 See [CONTRIBUTING](CONTRIBUTING.md) for how you can contribute changes back into this project.
+
+All Pull Requests should be targeted to "develop" branch and follow PSR2 Code Style Standard
+To run quick code check use
+
+    $ ./composer.phar check-style
+
+or call PHP CS directly
+
+    $ ./vendor/bin/phpcs --standard=./ruleset.xml
+    

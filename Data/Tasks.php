@@ -39,5 +39,10 @@ $GLOBALS['dataTool']['Tasks']['contact_id'] = array('related' => array('module' 
 $GLOBALS['dataTool']['Tasks']['parent_id'] = array('related' => array('module' => 'Accounts'));
 $GLOBALS['dataTool']['Tasks']['parent_type'] = array('value' => "'Accounts'");
 $GLOBALS['dataTool']['Tasks']['status'] = array('meeting_probability' => true);
+
 /* We want tasks to be in the past 90% of the time. */
-$GLOBALS['dataTool']['Tasks']['date'] = array('range' => array('min' => -400, 'max' => 36), 'type' => 'date', 'basetime' => time());
+$GLOBALS['dataTool']['Tasks']['date'] = array(
+    'range'    => array('min' => -400, 'max' => 36),
+    'type'     => 'date',
+    'basetime' => time(),
+);
