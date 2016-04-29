@@ -204,6 +204,9 @@ class DataTool
      */
     public function generateId()
     {
+        if (!array_key_exists('id', $this->fields)) {
+            return '';
+        }
         $currentModule = $this->getAlias($this->module);
         $this->installData['id'] = $this->assembleId($currentModule, $this->count);
 
@@ -795,6 +798,10 @@ class DataTool
     public function generateRelationships()
     {
         global $relQueryCount;
+
+        if (!array_key_exists('id', $this->installData)) {
+            return; // no id -- no relations
+        }
 
         $baseId = trim($this->installData['id'], "'");
 

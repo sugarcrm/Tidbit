@@ -231,7 +231,6 @@ $insertBatchSize = 0;       // zero means use default value provided by storage 
 $moduleUsingGenerators = array('KBContents', 'Categories');
 
 
-
 if (isset($opts['l'])) {
     if (!is_numeric($opts['l'])) {
         die($usageStr);
