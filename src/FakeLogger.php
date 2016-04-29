@@ -35,23 +35,18 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once dirname(__FILE__) . '/config.php';
+namespace Sugarcrm\Tidbit;
 
-class AllTestsOfTidbit extends TestSuite
+/**
+ * Class FakeLogger
+ *
+ * Fake all logging object usage
+ *
+ * @package Sugarcrm\Tidbit
+ */
+class FakeLogger
 {
-    public function __construct()
+    public function __call($m, $a)
     {
-        parent::TestSuite('All unit tests of Tidbit');
-        $this->addAllTests();
-    }
-
-    public function addAllTests()
-    {
-        $base_path = dirname(__FILE__) . '/Tidbit';
-        $this->addTestFile($base_path . '/Generator/KBDocumentTest.php');
-        $this->addTestFile($base_path . '/GibberishTest.php');
-        $this->addTestFile($base_path . '/Random/FirstNameTest.php');
-        $this->addTestFile($base_path . '/RegistryTest.php');
     }
 }
-

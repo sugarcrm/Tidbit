@@ -90,8 +90,8 @@ function generate_full_teamset($set, $teams)
 function clearCsvDir($dir)
 {
     $fileToDelete = glob($dir . '/*csv');
-    foreach($fileToDelete as $file){
-        if(is_file($file)) {
+    foreach ($fileToDelete as $file) {
+        if (is_file($file)) {
             unlink($file);
         }
     }

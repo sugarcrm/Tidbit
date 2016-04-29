@@ -45,14 +45,30 @@ $GLOBALS['dataTool']['default']['decimal2'] = array('range' => array('min' => 0,
 $GLOBALS['dataTool']['default']['short'] = array('range' => array('min' => 0, 'max' => 10));
 $GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
-$GLOBALS['dataTool']['default']['date'] = array('range' => array('min' => -30, 'max' => 30), 'type' => 'date', 'basetime' => time());
+$GLOBALS['dataTool']['default']['date'] = array(
+    'range' => array('min' => -30, 'max' => 30),
+    'type' => 'date',
+    'basetime' => time()
+);
 //NEEDS THE DROPDOWN LIST TO GET THE PROPER VALUE
 $GLOBALS['dataTool']['default']['enum'] = array('set' => false);
-$GLOBALS['dataTool']['default']['datetime'] = array('range' => array('min' => -30, 'max' => 30), 'type' => 'datetime', 'basetime' => time());
-$GLOBALS['dataTool']['default']['time'] = array('range' => array('min' => -30, 'max' => 30), 'type' => 'time', 'basetime' => time());
+$GLOBALS['dataTool']['default']['datetime'] = array(
+    'range' => array('min' => -30, 'max' => 30),
+    'type' => 'datetime',
+    'basetime' => time()
+);
+$GLOBALS['dataTool']['default']['time'] = array(
+    'range' => array('min' => -30, 'max' => 30),
+    'type' => 'time',
+    'basetime' => time()
+);
 $GLOBALS['dataTool']['default']['bool'] = array('range' => array('min' => 0, 'max' => 1));
 $GLOBALS['dataTool']['default']['email'] = array('list' => 'last_name_array', 'suffix' => '@example.com');
-$GLOBALS['dataTool']['default']['phone'] = array('range' => array('min' => 1000, 'max' => 9999), 'prefix' => '(555)555-', 'isQuoted' => true);
+$GLOBALS['dataTool']['default']['phone'] = array(
+    'range' => array('min' => 1000, 'max' => 9999),
+    'prefix' => '(555)555-',
+    'isQuoted' => true
+);
 $GLOBALS['dataTool']['default']['meeting_probability'] = array('set' => false);
 $GLOBALS['dataTool']['default']['team_set_id'] = array('teamset' => true);
 $GLOBALS['dataTool']['default']['created_by'] = array('related' => array('module' => 'Users'));
@@ -62,5 +78,3 @@ $GLOBALS['dataTool']['default']['modified_user_id'] = array('related' => array('
 // Tags generation, cause it fills to many data
 $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
-
-?>

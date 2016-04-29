@@ -97,18 +97,18 @@ class TBA extends Common
      * Generate TBA Rules
      *
      * @param int $number (this param is here for compatibility only)
-     * @ToDo remove number param from generator call
+     * @TODO remove number param from generator call
      *
      * @throws Exception
      */
-    public function generate($number=0)
+    public function generate($number = 0)
     {
         if (!$this->aclRoleIds
             || !$this->roleActions
             || !$this->tbaRestrictionLevel
             || !$this->tbaFieldAccess
         ) {
-            throw new Exception (
+            throw new Exception(
                 "One or more of needed settings isn't set (aclRoleIds, roleActions, tbaRestrictionLevel, tbaFieldAccess"
             );
         }
@@ -154,7 +154,8 @@ class TBA extends Common
      * @param $actionsIds
      * @param $dateModified
      */
-    private function generateACLRoleActions($moduleName, $id, $actionsIds, $dateModified) {
+    private function generateACLRoleActions($moduleName, $id, $actionsIds, $dateModified)
+    {
         foreach ($this->tbaRestrictionLevel[$GLOBALS['tba_level']]['modules'] as $action => $access_override) {
             if (!isset($actionsIds[$moduleName . '_' . $action])) {
                 continue;
@@ -180,7 +181,8 @@ class TBA extends Common
      * @param $id
      * @param $dateModified
      */
-    private function generateACLFields($moduleName, $id, $dateModified) {
+    private function generateACLFields($moduleName, $id, $dateModified)
+    {
         $beanACLFields = \BeanFactory::getBean('ACLFields');
         $roleFields = $beanACLFields->getFields($moduleName, '', $id);
         foreach ($roleFields as $fieldName => $fieldValues) {

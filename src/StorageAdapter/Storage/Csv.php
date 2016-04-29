@@ -39,8 +39,8 @@ namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 use Sugarcrm\Tidbit\Exception;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-class Csv extends Common {
-
+class Csv extends Common
+{
     /**
      * @var string
      */

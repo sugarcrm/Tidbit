@@ -48,21 +48,38 @@ $GLOBALS['dataTool']['Quotes']['subtotal_usdollar'] = array('same' => 'subtotal'
 $GLOBALS['dataTool']['Quotes']['shipping_usdollar'] = array('same' => 'shipping');
 $GLOBALS['dataTool']['Quotes']['tax_usdollar'] = array('same' => 'tax');
 $GLOBALS['dataTool']['Quotes']['total'] = array('sum' => array('subtotal', 'shipping', 'tax'));
-$GLOBALS['dataTool']['Quotes']['total_usdollar'] = array('sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar'));
+$GLOBALS['dataTool']['Quotes']['total_usdollar'] = array(
+    'sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar')
+);
 /* Eventually the following should reference Accounts */
 $GLOBALS['dataTool']['Quotes']['quote_stage'] = array('value' => "'Draft'");
-$GLOBALS['dataTool']['Quotes']['billing_address_street'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_street'));
-$GLOBALS['dataTool']['Quotes']['billing_address_city'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_city'));
-$GLOBALS['dataTool']['Quotes']['billing_address_state'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_state'));
-$GLOBALS['dataTool']['Quotes']['billing_address_postalcode'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_postalcode'));
-$GLOBALS['dataTool']['Quotes']['billing_address_country'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_country'));
-$GLOBALS['dataTool']['Quotes']['shipping_address_street'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_street'));
-$GLOBALS['dataTool']['Quotes']['shipping_address_city'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_city'));
-$GLOBALS['dataTool']['Quotes']['shipping_address_state'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_state'));
-$GLOBALS['dataTool']['Quotes']['shipping_address_postalcode'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_postalcode'));
-$GLOBALS['dataTool']['Quotes']['shipping_address_country'] = array('same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_country'));
-//$GLOBALS['dataTool']['Quotes']['billing_address_street'] = array('same' => 'shipping_address_street');
-//$GLOBALS['dataTool']['Quotes']['billing_address_city'] = array('same' => 'shipping_address_city');
-//$GLOBALS['dataTool']['Quotes']['billing_address_state'] = array('same' => 'shipping_address_state');
-//$GLOBALS['dataTool']['Quotes']['billing_address_postalcode'] = array('same' => 'shipping_address_postalcode');
-//$GLOBALS['dataTool']['Quotes']['billing_address_country'] = array('same' => 'shipping_address_country');
+$GLOBALS['dataTool']['Quotes']['billing_address_street'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_street')
+);
+$GLOBALS['dataTool']['Quotes']['billing_address_city'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_city')
+);
+$GLOBALS['dataTool']['Quotes']['billing_address_state'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_state')
+);
+$GLOBALS['dataTool']['Quotes']['billing_address_postalcode'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_postalcode')
+);
+$GLOBALS['dataTool']['Quotes']['billing_address_country'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_country')
+);
+$GLOBALS['dataTool']['Quotes']['shipping_address_street'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_street')
+);
+$GLOBALS['dataTool']['Quotes']['shipping_address_city'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_city')
+);
+$GLOBALS['dataTool']['Quotes']['shipping_address_state'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_state')
+);
+$GLOBALS['dataTool']['Quotes']['shipping_address_postalcode'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_postalcode')
+);
+$GLOBALS['dataTool']['Quotes']['shipping_address_country'] = array(
+    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_country')
+);

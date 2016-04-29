@@ -36,8 +36,8 @@
 
 namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-abstract class Common {
-
+abstract class Common
+{
     /**
      * @var string
      */

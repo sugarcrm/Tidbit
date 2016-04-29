@@ -35,9 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
-
-$last_name_array = Array(
+$last_name_array = array(
     "Smith",
     "Johnson",
     "Williams",
@@ -18880,7 +18878,7 @@ $last_name_array = Array(
     "Acres"
 );
 
-$first_name_array = Array(
+$first_name_array = array(
     "Mary",
     "Patricia",
     "Linda",
@@ -21157,7 +21155,7 @@ $first_name_array = Array(
     "Alonso"
 );
 
-$company_name_array = Array(
+$company_name_array = array(
     "24/7 Couriers",
     "2 Big Consolidation Corp",
     "2 Tall Stores",
@@ -21258,7 +21256,7 @@ $company_name_array = Array(
     "XY&Z Funding Inc",
 );
 
-$street_address_array = Array(
+$street_address_array = array(
     "123 Anywhere Street",
     "345 Sugar Blvd.",
     "1715 Scott Dr",
@@ -21271,7 +21269,7 @@ $street_address_array = Array(
     "321 University Ave.",
 );
 
-$city_array = Array(
+$city_array = array(
     "San Jose",
     "San Francisco",
     "Sunnyvale",
@@ -21291,7 +21289,27 @@ $city_array = Array(
 
 $streetTypes = array('blvd', 'Road', 'Street', 'CT', 'Ave', 'Pkwy', 'dr');
 
-$companyExt = array('Holdings', 'inc', 'co', 'COMPANY', 'FUNDS', 'Funding', ' Corp', 'CORPORATION', 'Division', 'LTD', 'International', 'UNITED', 'NATIONAL', 'Sugar', 'LLC', '1654', '123', '654');
+$companyExt = array(
+    'Holdings',
+    'inc',
+    'co',
+    'COMPANY',
+    'FUNDS',
+    'Funding',
+    ' Corp',
+    'CORPORATION',
+    'Division',
+    'LTD',
+    'International',
+    'UNITED',
+    'NATIONAL',
+    'Sugar',
+    'LLC',
+    '1654',
+    '123',
+    '654'
+);
+
 $companyPre = array('X/Z', 'Sugar', 'World', 'International', '', '', '', '', '194', '786', '3492',);
 
 $lang_array = array('en');

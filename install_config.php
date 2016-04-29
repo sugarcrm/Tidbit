@@ -302,18 +302,11 @@ $tidbit_relationships['Leads'] = array(
         'ratio' => 1,
     )
 );
-//$tidbit_relationships['EmailAddresses'] = array(
-//	'Contacts' => array(
-//		'self' => 'email_address_id',
-//		'you' => 'bean_id',
-//		'table' => 'email_addr_bean_rel',
-//
-//	),
-//	
-//);
 
-$tbaModuleAccess = 72; // This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
-$tbaFieldAccess = 68; // This value related to ACL_SELECTED_TEAMS_READ_OWNER_WRITE((Owner & Selected Teams) Read/Owner Write) constant
+// This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
+$tbaModuleAccess = 72;
+// This value related to ACL_SELECTED_TEAMS_READ_OWNER_WRITE((Owner & Selected Teams) Read/Owner Write) constant
+$tbaFieldAccess = 68;
 $tbaRestrictionLevelDefault = 'medium';
 $tbaRestrictionLevel = array(
     'minimum' => array(
