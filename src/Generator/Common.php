@@ -161,6 +161,17 @@ abstract class Common
     }
 
     /**
+     * Create/update insert object.
+     *
+     * @param DataTool $dataTool
+     */
+    protected function addInsertData($dataTool)
+    {
+        $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
+        $this->insertCounter++;
+    }
+
+    /**
      * Log generator message.
      *
      * @param string $message

@@ -54,6 +54,7 @@ $modules = array(
     'Products' => 4000,
     'Calls' => 24000,
     'Emails' => 16000,
+    'EmailText' => 16000,
     'Contacts' => 4000,
     'Leads' => 4000,
     'Opportunities' => 2000,
@@ -111,6 +112,11 @@ $tidbit_relationships['Users'] = array(
         'you' => 'meeting_id',
         'table' => 'meetings_users'
     ),
+    'EmailAddresses' => array(
+        'self'  => 'bean_id',
+        'you'   => 'email_address_id',
+        'table' => 'email_addr_bean_rel',
+    ),
 );
 $tidbit_relationships['Accounts'] = array(
     'EmailAddresses' => array(
@@ -148,6 +154,13 @@ $tidbit_relationships['Accounts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
+    ),
+    'Emails' => array(
+        'self' => 'bean_id',
+        'you' => 'email_id',
+        'table' => 'emails_beans',
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),
@@ -193,6 +206,13 @@ $tidbit_relationships['Contacts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
+        'random_ratio' => array('min' => 0, 'max' => 3),
+        'random_id' => true,
+    ),
+    'Emails' => array(
+        'self' => 'bean_id',
+        'you' => 'email_id',
+        'table' => 'emails_beans',
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),

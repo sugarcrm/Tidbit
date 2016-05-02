@@ -220,17 +220,6 @@ class KBContents extends Common
     }
 
     /**
-     * Create/update insert object.
-     *
-     * @param DataTool $dataTool
-     */
-    private function addInsertData($dataTool)
-    {
-        $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
-        $this->insertCounter++;
-    }
-
-    /**
      * Writes lang config structure in db.
      *
      * @param array $langConfig

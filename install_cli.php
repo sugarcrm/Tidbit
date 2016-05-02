@@ -209,10 +209,12 @@ foreach ($module_keys as $module) {
             $dTool->generateData();
         }
 
-        $generatedIds[] = $dTool->generateId();
-        $GLOBALS['allProcessedRecords']++;
-        $dTool->generateRelationships();
+        if ($beanId = $dTool->generateId()) {
+            $generatedIds[] = $beanId;
+            $dTool->generateRelationships();
+        }
 
+        $GLOBALS['allProcessedRecords']++;
         $GLOBALS['processedRecords']++;
         $beanInsertBuffer->addInstallData($dTool->installData);
 
