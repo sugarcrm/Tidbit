@@ -161,8 +161,7 @@ $tidbit_relationships['Accounts'] = array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
-        'random_ratio' => array('min' => 0, 'max' => 3),
-        'random_id' => true,
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
     ),
 );
 $tidbit_relationships['Contacts'] = array(
@@ -213,8 +212,7 @@ $tidbit_relationships['Contacts'] = array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
-        'random_ratio' => array('min' => 0, 'max' => 3),
-        'random_id' => true,
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
     ),
 
 );
