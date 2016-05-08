@@ -127,8 +127,10 @@ Options
 
 EOS;
 
+require_once __DIR__ . '/install_functions.php';
+
 if (!function_exists('getopt')) {
-    die('"getopt" function not found. Please make sure you are running PHP 5+ version');
+    exitWithError('"getopt" function not found. Please make sure you are running PHP 5+ version');
 }
 
 $opts = getopt(
@@ -150,7 +152,7 @@ $opts = getopt(
 );
 
 if ($opts === false) {
-    die($usageStr);
+    exitWithError($usageStr);
 }
 
 if (isset($opts['v'])) {
@@ -164,15 +166,15 @@ ini_set('memory_limit', '8096M');
 set_time_limit(0);
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/install_functions.php';
 require_once __DIR__ . '/install_config.php';
+
+set_exception_handler('uncaughtExceptionHandler');
 
 if (isset($opts['sugar_path'])) {
     $sugarPath = $opts['sugar_path'];
 }
 if (!is_file($sugarPath . '/include/entryPoint.php')) {
-    echo "Where is no Sugar on path " . $sugarPath . " ... exiting \n";
-    exit(1);
+    exitWithError("Where is no Sugar on path " . $sugarPath . " ... exiting");
 }
 
 define('SUGAR_PATH', $sugarPath);
@@ -233,7 +235,7 @@ $moduleUsingGenerators = array('KBContents', 'Categories');
 
 if (isset($opts['l'])) {
     if (!is_numeric($opts['l'])) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $factor = $opts['l'] / $modules['Accounts'];
     foreach ($modules as $m => $n) {
@@ -242,7 +244,7 @@ if (isset($opts['l'])) {
 }
 if (isset($opts['u'])) {
     if (!is_numeric($opts['u'])) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $modules['Teams'] = $opts['u'] * ($modules['Teams'] / $modules['Users']);
     $modules['Users'] = $opts['u'];
@@ -253,7 +255,7 @@ if (isset($opts['u'])) {
 
 if (isset($opts['x'])) {
     if (!is_numeric($opts['x']) || $opts['x'] < 1) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $_GLOBALS['txBatchSize'] = $opts['x'];
 } else {

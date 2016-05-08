@@ -96,3 +96,28 @@ function clearCsvDir($dir)
         }
     }
 }
+
+/**
+ * @param string $message
+ */
+function exitWithError($message)
+{
+    fwrite(STDERR, $message . PHP_EOL);
+    die(1);
+}
+
+/**
+ * Common exception handler.
+ *
+ * @param Exception $e
+ */
+function uncaughtExceptionHandler(\Exception $e)
+{
+    $message = sprintf(
+        "Uncaught exception \n - message: %s \n - file: %s \n - line: %s",
+        $e->getMessage(),
+        $e->getFile(),
+        $e->getLine()
+    );
+    exitWithError($message);
+}
