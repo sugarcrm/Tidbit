@@ -89,6 +89,9 @@ foreach ($module_keys as $module) {
     }
 
     if ((($module == 'Users') || ($module == 'Teams')) && isset($GLOBALS['UseExistUsers'])) {
+        if ($module == 'Teams') {
+            \Sugarcrm\Tidbit\Generator\TeamSets::loadExistingTeamSetsIntoDataTool($GLOBALS['db']);
+        }
         echo "Skipping $module\n";
         continue;
     }
@@ -379,7 +382,11 @@ if ($storageType == 'csv') {
     $converter->convert('config');
     $converter->convert('acl_actions');
     if (isset($GLOBALS['UseExistUsers'])) {
+        $converter->convert('users');
         $converter->convert('user_preferences');
+        $converter->convert('teams');
+        $converter->convert('team_sets');
+        $converter->convert('team_sets_teams');
     }
 }
 

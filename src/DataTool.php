@@ -58,7 +58,6 @@ class DataTool
     // TeamSet with all teams inside
     static public $max_team_set_id = null;
     static public $team_sets_array = array();
-    static public $relmodule_index = 0;
 
     // Cache for generateSeed function
     static public $seedModules = array();
