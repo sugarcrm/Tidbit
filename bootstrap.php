@@ -277,6 +277,7 @@ if (isset($opts['t'])) {
 if (isset($opts['d'])) {
     $GLOBALS['debug'] = true;
 }
+$maxTeamsPerSet = (!empty($opts['s'])) ? $opts['s'] : $defaultMaxTeamsPerSet;
 
 if (isset($opts['tba'])) {
     if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {

@@ -55,6 +55,7 @@ echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBA
 echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
 echo "With Existing Users Mode " . (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
+echo "With " . $maxTeamsPerSet ." teams in Team Sets \n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
 echo "With Team-based Restriction Level " .
     (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
@@ -248,7 +249,8 @@ foreach ($module_keys as $module) {
             $GLOBALS['db'],
             $storageAdapter,
             $insertBatchSize,
-            $generatedIds
+            $generatedIds,
+            $maxTeamsPerSet
         );
         $teamGenerator->generate();
     }

@@ -39,6 +39,8 @@ $storageType = 'mysql';
 $logQueriesPath = '';
 $tidbitCsvDir = 'csv';
 
+$defaultMaxTeamsPerSet = 10;
+
 // Default Sugar location path, could be overrided by "--sugar_path" argument
 $sugarPath = __DIR__ . '/..';
 

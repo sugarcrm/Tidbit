@@ -86,20 +86,29 @@ class TeamSets extends \TeamSet
     private $storageType;
 
     /**
+     * Maximum number of teams in set
+     *
+     * @var int
+     */
+    private $maxTeamsPerSet;
+
+    /**
      * Constructor.
      *
      * @param \DBManager $db
      * @param Common $storageAdapter
      * @param int $insertBatchSize
      * @param array $teamIds
+     * @param int $maxTeamsPerSet
      */
-    public function __construct(\DBManager $db, Common $storageAdapter, $insertBatchSize, $teamIds)
+    public function __construct(\DBManager $db, Common $storageAdapter, $insertBatchSize, $teamIds, $maxTeamsPerSet)
     {
         $this->db = $db;
         $this->insertBufferTeamSets = new InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
         $this->insertBufferTeamSetsTeams = new InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
         $this->teamIds = $teamIds;
         $this->storageType = $storageAdapter::STORE_TYPE;
+        $this->maxTeamsPerSet = $maxTeamsPerSet;
         $this->loadTeamIds();
         $this->loadTeamMd5();
     }
@@ -111,11 +120,6 @@ class TeamSets extends \TeamSet
     {
         \TeamSetManager::flushBackendCache();
 
-        $max_teams_per_set = 10;
-        if (isset($opts['s']) && $opts['s'] > 0) {
-            $max_teams_per_set = $opts['s'];
-        }
-
         if (isset($GLOBALS['fullteamset'])) {
             for ($i = 0, $max = count($this->teamIds); $i < $max; $i++) {
                 for ($j = 1; $j <= $max; $j++) {
@@ -126,10 +130,10 @@ class TeamSets extends \TeamSet
         } else {
             foreach ($this->teamIds as $team_id) {
                 //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
-                if ($max_teams_per_set == 1) {
+                if ($this->maxTeamsPerSet == 1) {
                     $this->generateTeamSet($team_id, array($team_id));
-                } elseif (count($this->teamIds) > $max_teams_per_set) {
-                    $this->generateTeamSet($team_id, $this->getRandomArray($this->teamIds, $max_teams_per_set));
+                } elseif (count($this->teamIds) > $this->maxTeamsPerSet) {
+                    $this->generateTeamSet($team_id, $this->getRandomArray($this->teamIds, $this->maxTeamsPerSet));
                 } else {
                     $this->generateTeamSet($team_id, $this->teamIds);
                 }
@@ -138,7 +142,7 @@ class TeamSets extends \TeamSet
 
         // If number of teams is bigger than max teams in team set,
         // also generate TeamSet with all Teams inside, for relate records
-        if (count($this->teamIds) > $max_teams_per_set) {
+        if (count($this->teamIds) > $this->maxTeamsPerSet) {
             $this->addTeamsToCreatedTeamSet($this->teamIds);
         }
 
@@ -178,6 +182,7 @@ class TeamSets extends \TeamSet
     private function generateTeamSet($primary, $teams)
     {
         if (!in_array($primary, $teams)) {
+            array_shift($teams);
             array_push($teams, $primary);
         }
         $teams = array_reverse($teams);
