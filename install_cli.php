@@ -283,6 +283,9 @@ foreach ($module_keys as $module) {
     echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
 }
 
+// Update enabled Modules Tabs
+\Sugarcrm\Tidbit\Helper\ModuleTabs::updateEnabledTabs($GLOBALS['db'], $module_keys, $GLOBALS['moduleList']);
+
 // force immediately destructors work
 unset($relationStorageBuffers);
 
