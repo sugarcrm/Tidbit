@@ -140,22 +140,7 @@ class TeamSets extends \TeamSet
             }
         }
 
-        // If number of teams is bigger than max teams in team set,
-        // also generate TeamSet with all Teams inside, for relate records
-        if (count($this->teamIds) > $this->maxTeamsPerSet) {
-            $this->addTeamsToCreatedTeamSet($this->teamIds);
-        }
-
         DataTool::$team_sets_array = $this->teamSets;
-
-        // Calculate TeamSet with maximum teams inside
-        $maxTeamSet = 0;
-        foreach ($this->teamSets as $teamSetId => $teams) {
-            if (count($teams) > $maxTeamSet) {
-                $maxTeamSet = count($teams);
-                DataTool::$max_team_set_id = $teamSetId;
-            }
-        }
     }
 
     /**
