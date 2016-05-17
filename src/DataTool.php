@@ -186,11 +186,11 @@ class DataTool
             if (!empty($this->installData[$teamIdField])) {
                 $this->installData['team_set_id'] = "'" . $this->getTeamSetForTeamId($teamIdField) . "'";
             }
-        }
 
-        // Handle TBA configuration
-        if (!empty($GLOBALS['tba']) && !empty($this->fields['team_set_id'])) {
-            $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
+            // Handle TBA configuration
+            if (!empty($GLOBALS['tba'])) {
+                $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
+            }
         }
     }
 

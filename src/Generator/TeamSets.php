@@ -151,7 +151,6 @@ class TeamSets extends \TeamSet
         $result = $db->query("SELECT team_set_id, team_id FROM team_sets_teams ORDER BY team_set_id");
         while ($row = $db->fetchByAssoc($result)) {
             DataTool::$team_sets_array[$row['team_set_id']][] = $row['team_id'];
-            DataTool::$max_team_set_id = $row['team_set_id'];
         }
     }
 
