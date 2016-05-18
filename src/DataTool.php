@@ -56,7 +56,6 @@ class DataTool
     public $count = 0;
 
     // TeamSet with all teams inside
-    static public $max_team_set_id = null;
     static public $team_sets_array = array();
 
     // Cache for generateSeed function
@@ -180,15 +179,15 @@ class DataTool
         if (!empty($this->fields['modified_user_id'])) {
             $this->installData['modified_user_id'] = 1;
         }
-        if (!empty($this->fields['team_id'])) {
-            $teams = self::$team_sets_array[$this->installData['team_set_id']];
-            $index = count($teams) == 1 ? 0 : rand(0, count($teams) - 1);
-            if (empty($this->fields['team_id']['source'])) {
-                $this->installData['team_id'] = "'" . $teams[$index] . "'";
-            }
-            $this->installData['team_set_id'] = "'" . $this->installData['team_set_id'] . "'";
 
-            //check if TbACLs is enabled
+        if (!empty($this->fields['team_set_id'])) {
+            $teamIdField = ($this->module == 'Users') ? 'default_team' : 'team_id';
+
+            if (!empty($this->installData[$teamIdField])) {
+                $this->installData['team_set_id'] = "'" . $this->getTeamSetForTeamId($teamIdField) . "'";
+            }
+
+            // Handle TBA configuration
             if (!empty($GLOBALS['tba'])) {
                 $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
             }
@@ -297,17 +296,6 @@ class DataTool
 
         if (!empty($typeData['skip'])) {
             return '';
-        }
-
-        // Set TeamSet with all existings teams
-        if (!empty($typeData['teamset_max'])) {
-            return $this->installData['team_set_id'] = self::$max_team_set_id;
-        }
-
-        if (!empty($typeData['teamset'])) {
-            $index = rand(0, count(self::$team_sets_array) - 1);
-            $keys = array_keys(self::$team_sets_array);
-            return $this->installData['team_set_id'] = $keys[$index];
         }
 
         if (!empty($typeData['value']) || (isset($typeData['value']) && $typeData['value'] == "0")) {
@@ -592,6 +580,57 @@ class DataTool
     }
 
     /**
+     * Looks for specific team set that will contain selected Team
+     *
+     * @param string $fieldName
+     * @return string
+     */
+    protected function getTeamSetForTeamId($fieldName)
+    {
+        static $teamIdTeamSetMapping;
+
+        // Create mapping for all teams with associated team sets
+        if (!$teamIdTeamSetMapping) {
+            foreach (self::$team_sets_array as $teamSetId => $teamsArray) {
+                foreach ($teamsArray as $teamId) {
+                    if (!isset($teamIdTeamSetMapping[$teamId])) {
+                        $teamIdTeamSetMapping[$teamId] = array(
+                            'team_set_ids' => array(),
+                            'counts'       => array(),
+                        );
+                    }
+
+                    $teamIdTeamSetMapping[$teamId]['team_set_ids'][] = $teamSetId;
+                    $teamIdTeamSetMapping[$teamId]['counts'][] = count($teamsArray);
+                }
+            }
+
+            $result = array();
+
+            // Calculate average number of teams per team set inside team sets that have $teamId
+            // Assign $teamId team_set_id with apr. average number of teams
+            // So we can guarantee that $beans with same team_id will receive have team_sets
+            foreach ($teamIdTeamSetMapping as $teamId => $data) {
+                // average number of teams in team sets that contain $teamId
+                $average = floor(array_sum($data['counts']) / count($data['counts']));
+                sort($data['counts']);
+
+                for ($i = 0; $i < count($data['counts']) - 1; $i++) {
+                    if ($data['counts'][$i] <= $average && $data['counts'][$i + 1] > $average) {
+                        $result[$teamId] = $data['team_set_ids'][$i];
+                        break;
+                    }
+                }
+            }
+
+            $teamIdTeamSetMapping = $result;
+        }
+
+        $beanTeamId = trim($this->installData[$fieldName], "'");
+        return $teamIdTeamSetMapping[$beanTeamId];
+    }
+
+    /**
      * Truncate data value by VarDefs length
      *
      * @param $value - data base value
@@ -706,6 +745,12 @@ class DataTool
     /**
      * Generate a 'related' id for use
      * by handleType:'related' and 'generateRelationships'
+     *
+     * @param string $relModule
+     * @param string $baseModule
+     * @param int $thisToRelatedRatio
+     *
+     * @return integer
      */
     public function getRelatedId($relModule, $baseModule, $thisToRelatedRatio = 0)
     {

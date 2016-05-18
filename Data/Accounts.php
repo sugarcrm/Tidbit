@@ -62,5 +62,3 @@ $GLOBALS['dataTool']['Accounts']['name'] = array(
     'prefixlist' => array('companyPre'),
     'suffixlist' => array('companyExt')
 );
-// Select TeamSet with maximum number of teams for related modules
-$GLOBALS['dataTool']['Accounts']['team_set_id'] = array('teamset_max' => true);
