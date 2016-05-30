@@ -616,9 +616,22 @@ class DataTool
                 sort($data['counts']);
 
                 for ($i = 0; $i < count($data['counts']) - 1; $i++) {
+                    $tempTeamId = 0;
+
+                    // Find first close to average team_set_id that is lower than the average
                     if ($data['counts'][$i] <= $average && $data['counts'][$i + 1] > $average) {
                         $result[$teamId] = $data['team_set_ids'][$i];
                         break;
+                    } elseif ($data['counts'][$i] == $average) {
+                        // save team_set_ids which number of teams is equal to average
+                        // specific case all team_sets have same number of teams,
+                        // so average will be equal
+                        $tempTeamId = $data['team_set_ids'][$i];
+                    }
+
+                    // if $result for $teamId is still empty, set $tempTeamId as $result
+                    if (!isset($result[$teamId]) && $tempTeamId) {
+                        $result[$teamId] = $tempTeamId;
                     }
                 }
             }
