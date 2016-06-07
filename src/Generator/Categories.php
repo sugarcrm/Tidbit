@@ -37,6 +37,8 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
+
 class Categories extends Common
 {
     const MODEL_NAME = 'Categories';
@@ -57,10 +59,10 @@ class Categories extends Common
      * Constructor.
      *
      * @param \DBManager $db
-     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
     {
         global $kbCategoriesNestingLevel;
         if ($kbCategoriesNestingLevel) {
@@ -173,7 +175,7 @@ class Categories extends Common
      */
     private function setCategoryRootInConfig($rootId)
     {
-        $rootId = $this->db->quoted(str_replace("'", "",$rootId));
+        $rootId = $this->db->quoted(str_replace("'", "", $rootId));
         $this->db->query("UPDATE config SET value={$rootId} WHERE category='KBContents' AND name='category_root'");
     }
 }

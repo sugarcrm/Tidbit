@@ -35,74 +35,9 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-ini_set('memory_limit', '8096M');
-set_time_limit(0);
+$usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
+    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
 
-if (!defined('sugarEntry')) define('sugarEntry', true);
-define('SUGAR_DIR', __DIR__ . '/..');
-define('DATA_DIR', __DIR__ . '/Data');
-define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
-
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/install_config.php';
-require_once __DIR__ . '/install_functions.php';
-
-require_once DATA_DIR . '/DefaultData.php';
-require_once DATA_DIR . '/contactSeedData.php';
-
-chdir('..');
-
-require_once SUGAR_DIR . '/include/entryPoint.php';
-require_once SUGAR_DIR . '/config.php';
-require_once SUGAR_DIR . '/include/modules.php';
-require_once SUGAR_DIR . '/include/utils.php';
-require_once SUGAR_DIR . '/include/database/DBManagerFactory.php';
-require_once SUGAR_DIR . '/include/SugarTheme/SugarTheme.php';
-require_once SUGAR_DIR . '/include/utils/db_utils.php';
-require_once SUGAR_DIR . '/modules/Teams/TeamSet.php';
-
-// TODO: This loads additional definitions into beanList and beanFiles for
-// custom modules
-if (file_exists(SUGAR_DIR . '/custom/application/Ext/Include/modules.ext.php')) {
-    require_once(SUGAR_DIR . '/custom/application/Ext/Include/modules.ext.php');
-}
-if (file_exists(SUGAR_DIR . '/include/modules_override.php')) {
-    require_once(SUGAR_DIR . '/include/modules_override.php');
-}
-
-if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
-    require_once dirname(__FILE__) . '/../ini_setup.php';
-    set_include_path(INSTANCE_PATH . PATH_SEPARATOR . TEMPLATE_PATH . PATH_SEPARATOR . get_include_path());
-}
-
-class FakeLogger
-{
-    public function __call($m, $a)
-    {
-    }
-}
-
-$GLOBALS['log'] = new FakeLogger();
-$GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
-$GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
-
-$GLOBALS['processedRecords'] = 0;
-$GLOBALS['allProcessedRecords'] = 0;
-
-$GLOBALS['modules'] = $modules;
-$GLOBALS['startTime'] = microtime();
-$GLOBALS['baseTime'] = time();
-$GLOBALS['totalRecords'] = 0;
-$GLOBALS['time_spend'] = array();
-
-
-$recordsPerPage = 1000;     // Are we going to use this?
-$insertBatchSize = 0;       // zero means use default value provided by storage adapter
-$moduleUsingGenerators = array('KBContents', 'Categories');
-
-
-
-$usageStr = "Usage: " . $_SERVER['PHP_SELF'] . " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
 $helpStr = <<<EOS
 $versionStr
@@ -158,17 +93,19 @@ Options
                         - oracle
                         - csv
 
-    -d              	Turn Debug Mode on.  With Debug Mode, all queries will be
-                    	logged in a file called 'executedQueries.txt' in your
-                    	Tidbit folder.
+    --sugar_path        Path to Sugar installation directory
 
-    -v              	Display version information.
+    -d                  Turn Debug Mode on.  With Debug Mode, all queries will be
+                        logged in a file called 'executedQueries.txt' in your
+                        Tidbit folder.
 
-    -h              	Display this help text.
+    -v                  Display version information.
+
+    -h                  Display this help text.
 
     -x count            How often to commit module records - important on DBs like DB2. Default is no batches.
 
-    -s             	Specify the number of teams per team set and per record.
+    -s                  Specify the number of teams per team set and per record.
 
     --tba               Turn Team-based ACL Mode on.
 
@@ -190,8 +127,10 @@ Options
 
 EOS;
 
+require_once __DIR__ . '/install_functions.php';
+
 if (!function_exists('getopt')) {
-    die('"getopt" function not found. Please make sure you are running PHP 5+ version');
+    exitWithError('"getopt" function not found. Please make sure you are running PHP 5+ version');
 }
 
 $opts = getopt(
@@ -205,6 +144,7 @@ $opts = getopt(
         'as_number:',
         'as_buffer:',
         'storage:',
+        'sugar_path:',
         'as_last_rec:',
         'iterator:',
         'insert_batch_size:',
@@ -212,7 +152,7 @@ $opts = getopt(
 );
 
 if ($opts === false) {
-    die($usageStr);
+    exitWithError($usageStr);
 }
 
 if (isset($opts['v'])) {
@@ -222,9 +162,80 @@ if (isset($opts['h'])) {
     die($helpStr);
 }
 
+ini_set('memory_limit', '8096M');
+set_time_limit(0);
+
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/install_config.php';
+
+set_exception_handler('uncaughtExceptionHandler');
+
+if (isset($opts['sugar_path'])) {
+    $sugarPath = $opts['sugar_path'];
+}
+if (!is_file($sugarPath . '/include/entryPoint.php')) {
+    exitWithError("Where is no Sugar on path " . $sugarPath . " ... exiting");
+}
+
+define('SUGAR_PATH', $sugarPath);
+define('TIDBIT_DIR', __DIR__);
+define('DATA_DIR', __DIR__ . '/Data');
+define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
+
+if (!defined('sugarEntry')) {
+    define('sugarEntry', true);
+}
+
+require_once DATA_DIR . '/DefaultData.php';
+require_once DATA_DIR . '/contactSeedData.php';
+
+chdir(SUGAR_PATH); // needed because we have check in entryPoint.php (if file_exists('config.php'))
+
+require_once SUGAR_PATH . '/include/entryPoint.php';
+require_once SUGAR_PATH . '/config.php';
+require_once SUGAR_PATH . '/include/modules.php';
+require_once SUGAR_PATH . '/include/utils.php';
+require_once SUGAR_PATH . '/include/database/DBManagerFactory.php';
+require_once SUGAR_PATH . '/include/SugarTheme/SugarTheme.php';
+require_once SUGAR_PATH . '/include/utils/db_utils.php';
+require_once SUGAR_PATH . '/modules/Teams/TeamSet.php';
+
+// TODO: This loads additional definitions into beanList and beanFiles for
+// custom modules
+if (file_exists(SUGAR_PATH . '/custom/application/Ext/Include/modules.ext.php')) {
+    require_once(SUGAR_PATH . '/custom/application/Ext/Include/modules.ext.php');
+}
+if (file_exists(SUGAR_PATH . '/include/modules_override.php')) {
+    require_once(SUGAR_PATH . '/include/modules_override.php');
+}
+
+if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
+    require_once dirname(__FILE__) . '/../ini_setup.php';
+    set_include_path(INSTANCE_PATH . PATH_SEPARATOR . TEMPLATE_PATH . PATH_SEPARATOR . get_include_path());
+}
+
+$GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
+$GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
+$GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
+
+$GLOBALS['processedRecords'] = 0;
+$GLOBALS['allProcessedRecords'] = 0;
+
+$GLOBALS['modules'] = $modules;
+$GLOBALS['startTime'] = microtime();
+$GLOBALS['baseTime'] = time();
+$GLOBALS['totalRecords'] = 0;
+$GLOBALS['time_spend'] = array();
+
+
+$recordsPerPage = 1000;     // Are we going to use this?
+$insertBatchSize = 0;       // zero means use default value provided by storage adapter
+$moduleUsingGenerators = array('KBContents', 'Categories');
+
+
 if (isset($opts['l'])) {
     if (!is_numeric($opts['l'])) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $factor = $opts['l'] / $modules['Accounts'];
     foreach ($modules as $m => $n) {
@@ -233,7 +244,7 @@ if (isset($opts['l'])) {
 }
 if (isset($opts['u'])) {
     if (!is_numeric($opts['u'])) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $modules['Teams'] = $opts['u'] * ($modules['Teams'] / $modules['Users']);
     $modules['Users'] = $opts['u'];
@@ -244,7 +255,7 @@ if (isset($opts['u'])) {
 
 if (isset($opts['x'])) {
     if (!is_numeric($opts['x']) || $opts['x'] < 1) {
-        die($usageStr);
+        exitWithError($usageStr);
     }
     $_GLOBALS['txBatchSize'] = $opts['x'];
 } else {
@@ -266,6 +277,7 @@ if (isset($opts['t'])) {
 if (isset($opts['d'])) {
     $GLOBALS['debug'] = true;
 }
+$maxTeamsPerSet = (!empty($opts['s'])) ? $opts['s'] : $defaultMaxTeamsPerSet;
 
 if (isset($opts['tba'])) {
     if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {
@@ -279,11 +291,12 @@ if (isset($opts['tba'])) {
 }
 
 if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
-    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel)) ? strtolower($opts['tba_level']) : $tbaRestrictionLevelDefault;
+    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel))
+        ? strtolower($opts['tba_level'])
+        : $tbaRestrictionLevelDefault;
 }
 
-if(isset($opts['fullteamset']))
-{
+if (isset($opts['fullteamset'])) {
     $GLOBALS['fullteamset'] = true;
 }
 

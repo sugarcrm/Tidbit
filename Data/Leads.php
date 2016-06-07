@@ -36,13 +36,20 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Leads']['first_name'] = array('list' => 'first_name_array');
-$GLOBALS['dataTool']['Leads']['primary_address_street'] = array('range' => array('min' => 1, 'max' => 1500), 'suffixlist' => array('last_name_array', 'streetTypes'), 'isQuoted' => true);
+$GLOBALS['dataTool']['Leads']['primary_address_street'] = array(
+    'range'      => array('min' => 1, 'max' => 1500),
+    'suffixlist' => array('last_name_array', 'streetTypes'),
+    'isQuoted'   => true
+);
 $GLOBALS['dataTool']['Leads']['alt_address_street'] = $GLOBALS['dataTool']['Leads']['primary_address_street'];
 $GLOBALS['dataTool']['Leads']['primary_address_city'] = array('list' => 'city_array');
 $GLOBALS['dataTool']['Leads']['alt_address_city'] = $GLOBALS['dataTool']['Leads']['primary_address_city'];
 $GLOBALS['dataTool']['Leads']['primary_address_state'] = array('list' => 'state_array');
 $GLOBALS['dataTool']['Leads']['alt_address_state'] = $GLOBALS['dataTool']['Leads']['primary_address_state'];
-$GLOBALS['dataTool']['Leads']['primary_address_postalcode'] = array('range' => array('min' => 15000, 'max' => 99999), 'isQuoted' => true);
+$GLOBALS['dataTool']['Leads']['primary_address_postalcode'] = array(
+    'range' => array('min' => 15000, 'max' => 99999),
+    'isQuoted' => true
+);
 $GLOBALS['dataTool']['Leads']['alt_address_postalcode'] = $GLOBALS['dataTool']['Leads']['primary_address_postalcode'];
 $GLOBALS['dataTool']['Leads']['primary_address_country'] = array('value' => "'USA'");
 $GLOBALS['dataTool']['Leads']['alt_address_country'] = array('value' => "'USA'");

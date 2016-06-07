@@ -36,6 +36,7 @@
  ********************************************************************************/
 
 namespace Sugarcrm\Tidbit;
+
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
 
 /**
@@ -94,7 +95,8 @@ class InsertBuffer
     /**
      * Clear data to save
      */
-    public function clear() {
+    public function clear()
+    {
         $this->installData = [];
     }
 

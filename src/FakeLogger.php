@@ -35,30 +35,18 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once dirname(__FILE__) . '/../config.php';
-require_once 'Tidbit/Registry.php';
+namespace Sugarcrm\Tidbit;
 
-class Tidbit_RegistryTest extends UnitTestCase
+/**
+ * Class FakeLogger
+ *
+ * Fake all logging object usage
+ *
+ * @package Sugarcrm\Tidbit
+ */
+class FakeLogger
 {
-    public function testCanBeAccessedAsASingletonViaInstance()
+    public function __call($m, $a)
     {
-        $reg = Tidbit_Registry::instance();
-        $this->assertIsA($reg, 'Tidbit_Registry');
-        $this->assertReference($reg, Tidbit_Registry::instance());
-        $this->assertReference(Tidbit_Registry::instance(), Tidbit_Registry::instance());
-    }
-
-    public function testPropertiesAreAssignedAndRetrievedViaProperties()
-    {
-        $random = rand(100, 200);
-
-        $reg_one = Tidbit_Registry::instance();
-        $reg_two = Tidbit_Registry::instance();
-
-        $reg_one->random = $random;
-        $this->assertEqual($reg_one->random, $reg_two->random);
-        $this->assertEqual($random, $reg_one->random);
-        $this->assertIdentical($reg_one, $reg_two);
-        $this->assertNoErrors();
     }
 }

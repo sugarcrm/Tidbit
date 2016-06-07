@@ -44,7 +44,11 @@ $GLOBALS['dataTool']['Calls']['duration_minutes'] = array('value' => "'30'");
 $GLOBALS['dataTool']['Calls']['duration_hours'] = array('range' => array('min' => 0, 'max' => 8));
 /* We want calls to be in the past 90% of the time. */
 /* Start should be always bigger than end */
-$GLOBALS['dataTool']['Calls']['date_start'] = array('range' => array('min' => -400, 'max' => 36), 'type' => 'datetime', 'basetime' => time());
+$GLOBALS['dataTool']['Calls']['date_start'] = array(
+    'range' => array('min' => -400, 'max' => 36),
+    'type' => 'datetime',
+    'basetime' => time()
+);
 $GLOBALS['dataTool']['Calls']['date_end'] = array(
     'same_datetime' => 'date_start',
     'modify' => array(

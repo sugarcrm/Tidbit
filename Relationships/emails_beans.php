@@ -35,25 +35,4 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Gibberish
-{
-    const BASE_TEXT = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. Integer venenatis nonummy risus. Sed turpis lorem, cursus sit amet, eleifend at, dapibus vitae, lacus. Nunc in leo ac justo volutpat accumsan. In venenatis consectetuer ante. Proin tempus sapien et sapien. Nunc ante turpis, bibendum sed, pharetra a, eleifend porta, augue. Curabitur et nulla. Proin tristique erat. In non turpis. In lorem mauris, iaculis ac, feugiat sed, bibendum eu, enim. Donec pede. Phasellus sem risus, fermentum in, imperdiet vel, mattis nec, justo. Nullam vitae risus. Fusce neque. Mauris malesuada euismod magna. Sed nibh pede, consectetuer quis, condimentum sit amet, pretium ut, eros. Quisque nec arcu. Sed ac neque. Maecenas volutpat erat ac est. Nam mauris. Sed condimentum cursus purus. Integer facilisis. Duis libero ante, cursus nec, congue nec, imperdiet et, ligula. Pellentesque porttitor suscipit nulla. Integer diam magna, luctus rutrum, luctus sit amet, euismod a, diam. Nunc vel eros faucibus velit lobortis faucibus. Phasellus ultrices, nisl id pulvinar fringilla, justo augue elementum enim, eget tincidunt dolor pede et tortor. Vestibulum at justo vitae sem auctor tincidunt. Maecenas facilisis volutpat dui. Pellentesque non justo. Quisque eleifend, tellus quis venenatis volutpat, ipsum purus cursus dolor, in aliquam magna sem.';
-    static private $words = array();
-
-    private $_number = null;
-
-    public function __construct($number)
-    {
-        self::$words = explode(' ', self::BASE_TEXT);
-        while (count(self::$words) < $number) {
-            self::$words = array_merge(self::$words, self::$words);
-        }
-        $this->_number = $number;
-    }
-
-    public function __toString()
-    {
-        shuffle(self::$words);
-        return implode(' ', array_slice(self::$words, 0, $this->_number));
-    }
-}
+$GLOBALS['dataTool']['emails_beans']['bean_module'] = array('getmodule' => true);

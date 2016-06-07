@@ -35,13 +35,15 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-class Tidbit_Registry
+namespace Sugarcrm\Tidbit;
+
+class Registry
 {
-    private $_data = array();
+    private $data = array();
 
-    static private $instance = null;
+    private static $instance = null;
 
-    static public function instance()
+    public static function instance()
     {
         if (is_null(self::$instance)) {
             self::$instance = new self();
@@ -51,11 +53,11 @@ class Tidbit_Registry
 
     public function __get($key)
     {
-        return $this->_data[$key];
+        return $this->data[$key];
     }
 
     public function __set($key, $value)
     {
-        $this->_data[$key] = $value;
+        $this->data[$key] = $value;
     }
 }

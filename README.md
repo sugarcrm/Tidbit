@@ -104,6 +104,19 @@ Example usages:
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)
       $php -f install_cli.php -- -o --insert_batch_size 1000
 
+    * Setting path to SugarCRM installation
+      $php -f install_cli.php -- --sugar_path /some/sugar/path
+
 Contributing:
 ------------
 See [CONTRIBUTING](CONTRIBUTING.md) for how you can contribute changes back into this project.
+
+All Pull Requests should be targeted to "develop" branch and follow PSR2 Code Style Standard
+To run quick code check use
+
+    $ ./composer.phar check-style
+
+or call PHP CS directly
+
+    $ ./vendor/bin/phpcs --standard=./ruleset.xml
+    

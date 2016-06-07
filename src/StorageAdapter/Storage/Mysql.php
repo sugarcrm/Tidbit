@@ -39,8 +39,8 @@ namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 use Sugarcrm\Tidbit\Exception;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-class Mysql extends Common {
-
+class Mysql extends Common
+{
     /**
      * @var string
      */

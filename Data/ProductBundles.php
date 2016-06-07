@@ -42,4 +42,6 @@ $GLOBALS['dataTool']['ProductBundles']['subtotal_usdollar'] = array('same' => 's
 $GLOBALS['dataTool']['ProductBundles']['shipping_usdollar'] = array('same' => 'shipping');
 $GLOBALS['dataTool']['ProductBundles']['tax_usdollar'] = array('same' => 'tax');
 $GLOBALS['dataTool']['ProductBundles']['total'] = array('sum' => array('subtotal', 'shipping', 'tax'));
-$GLOBALS['dataTool']['ProductBundles']['total_usdollar'] = array('sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar'));
+$GLOBALS['dataTool']['ProductBundles']['total_usdollar'] = array(
+    'sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar')
+);

@@ -37,6 +37,9 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
+
 class KBContents extends Common
 {
     /**
@@ -83,10 +86,10 @@ class KBContents extends Common
      * Constructor.
      *
      * @param \DBManager $db
-     * @param \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter
+     * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
      */
-    public function __construct(\DBManager $db, \Sugarcrm\Tidbit\StorageAdapter\Storage\Common $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
     {
         global $kbNumberOfArticlesWithNotes;
         if ($kbNumberOfArticlesWithNotes) {
@@ -188,7 +191,9 @@ class KBContents extends Common
 
         if ($this->kbNumberOfArticlesWithRevision) {
             $contentTool->installData['id'] = str_replace(
-                '-KBContents', '-KBContentsRev', $contentTool->installData['id']
+                '-KBContents',
+                '-KBContentsRev',
+                $contentTool->installData['id']
             );
             $contentTool->installData['active_date'] = "NULL";
             $contentTool->installData['active_rev'] = "0";
@@ -212,17 +217,6 @@ class KBContents extends Common
                 $dstTool->installData[$field] = $srcTool->installData[$field];
             }
         }
-    }
-
-    /**
-     * Create/update insert object.
-     *
-     * @param DataTool $dataTool
-     */
-    private function addInsertData($dataTool)
-    {
-        $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
-        $this->insertCounter++;
     }
 
     /**

@@ -53,3 +53,4 @@ $GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "'en_us'");
+$GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));

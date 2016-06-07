@@ -35,33 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-require_once dirname(__FILE__) . '/../config.php';
-require_once 'Tidbit/Gibberish.php';
-
-class Tidbit_GibberishTest extends UnitTestCase
-{
-    public function testCanGenerateGibberishWithProvidedWordCount()
-    {
-        $random = rand(100, 200);
-        $gib = new Tidbit_Gibberish($random);
-        $word_count = count(explode(' ', (string)$gib));
-        $this->assertEqual($random, $word_count);
-    }
-
-    public function testCanHandleAtLeastUpToTwentyFiveThousandWords()
-    {
-        $gib = new Tidbit_Gibberish(25000);
-        $word_count = count(explode(' ', (string)$gib));
-        $this->assertEqual(25000, $word_count);
-    }
-
-    public function testGeneratesNewGibberishOnEachPass()
-    {
-        $gib = new Tidbit_Gibberish(100);
-        $first = (string)$gib;
-        $second = (string)$gib;
-        $this->assertEqual(100, count(explode(' ', $first)), 'sanity check');
-        $this->assertEqual(100, count(explode(' ', $second)), 'sanity check');
-        $this->assertNotEqual($first, $second);
-    }
-}
+$GLOBALS['dataTool']['EmailText']['email_id'] = array('related' => array('module' => 'Emails'));
+$GLOBALS['dataTool']['EmailText']['from_addr'] = array('list' => 'last_name_array', 'suffix' => "@example.com");
+$GLOBALS['dataTool']['EmailText']['reply_to_addr'] = array('value' => null);
+$GLOBALS['dataTool']['EmailText']['to_addrs'] = array('list' => 'last_name_array', 'suffix' => "@example.com");
+$GLOBALS['dataTool']['EmailText']['cc_addrs'] = array('value' => null);
+$GLOBALS['dataTool']['EmailText']['bcc_addrs'] = array('value' => null);
+$GLOBALS['dataTool']['EmailText']['description'] = array('gibberish' => -1);
+$GLOBALS['dataTool']['EmailText']['description_html'] = array('value' => null);
+$GLOBALS['dataTool']['EmailText']['raw_source'] = array('value' => null);

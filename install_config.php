@@ -37,7 +37,12 @@
 
 $storageType = 'mysql';
 $logQueriesPath = '';
-$dirToSaveCsv = 'Tidbit/csv';
+$tidbitCsvDir = 'csv';
+
+$defaultMaxTeamsPerSet = 10;
+
+// Default Sugar location path, could be overrided by "--sugar_path" argument
+$sugarPath = __DIR__ . '/..';
 
 $modules = array(
     'Tags' => 100,
@@ -51,6 +56,7 @@ $modules = array(
     'Products' => 4000,
     'Calls' => 24000,
     'Emails' => 16000,
+//    'EmailText' => 16000,
     'Contacts' => 4000,
     'Leads' => 4000,
     'Opportunities' => 2000,
@@ -108,6 +114,11 @@ $tidbit_relationships['Users'] = array(
         'you' => 'meeting_id',
         'table' => 'meetings_users'
     ),
+    /*'EmailAddresses' => array(
+        'self'  => 'bean_id',
+        'you'   => 'email_address_id',
+        'table' => 'email_addr_bean_rel',
+    ),*/
 );
 $tidbit_relationships['Accounts'] = array(
     'EmailAddresses' => array(
@@ -148,6 +159,12 @@ $tidbit_relationships['Accounts'] = array(
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),
+    /*'Emails' => array(
+        'self' => 'bean_id',
+        'you' => 'email_id',
+        'table' => 'emails_beans',
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
+    ),*/
 );
 $tidbit_relationships['Contacts'] = array(
     'EmailAddresses' => array(
@@ -193,6 +210,12 @@ $tidbit_relationships['Contacts'] = array(
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),
+    /*'Emails' => array(
+        'self' => 'bean_id',
+        'you' => 'email_id',
+        'table' => 'emails_beans',
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
+    ),*/
 
 );
 $tidbit_relationships['Opportunities'] = array(
@@ -299,18 +322,11 @@ $tidbit_relationships['Leads'] = array(
         'ratio' => 1,
     )
 );
-//$tidbit_relationships['EmailAddresses'] = array(
-//	'Contacts' => array(
-//		'self' => 'email_address_id',
-//		'you' => 'bean_id',
-//		'table' => 'email_addr_bean_rel',
-//
-//	),
-//	
-//);
 
-$tbaModuleAccess = 72; // This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
-$tbaFieldAccess = 68; // This value related to ACL_SELECTED_TEAMS_READ_OWNER_WRITE((Owner & Selected Teams) Read/Owner Write) constant
+// This value related to ACL_ALLOW_SELECTED_TEAMS(Owner & Selected Teams) constant
+$tbaModuleAccess = 72;
+// This value related to ACL_SELECTED_TEAMS_READ_OWNER_WRITE((Owner & Selected Teams) Read/Owner Write) constant
+$tbaFieldAccess = 68;
 $tbaRestrictionLevelDefault = 'medium';
 $tbaRestrictionLevel = array(
     'minimum' => array(

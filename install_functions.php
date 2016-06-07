@@ -90,9 +90,34 @@ function generate_full_teamset($set, $teams)
 function clearCsvDir($dir)
 {
     $fileToDelete = glob($dir . '/*csv');
-    foreach($fileToDelete as $file){
-        if(is_file($file)) {
+    foreach ($fileToDelete as $file) {
+        if (is_file($file)) {
             unlink($file);
         }
     }
+}
+
+/**
+ * @param string $message
+ */
+function exitWithError($message)
+{
+    fwrite(STDERR, $message . PHP_EOL);
+    die(1);
+}
+
+/**
+ * Common exception handler.
+ *
+ * @param Exception $e
+ */
+function uncaughtExceptionHandler(\Exception $e)
+{
+    $message = sprintf(
+        "Uncaught exception \n - message: %s \n - file: %s \n - line: %s",
+        $e->getMessage(),
+        $e->getFile(),
+        $e->getLine()
+    );
+    exitWithError($message);
 }

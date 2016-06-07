@@ -47,7 +47,11 @@ $GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "'30'");
 $GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min' => 0, 'max' => 12));
 /* We want meetings to be in the past 90% of the time. */
 /* Start should be always bigger than end */
-$GLOBALS['dataTool']['Meetings']['date_start'] = array('range' => array('min' => -400, 'max' => 36), 'type' => 'datetime', 'basetime' => time());
+$GLOBALS['dataTool']['Meetings']['date_start'] = array(
+    'range'    => array('min' => -400, 'max' => 36),
+    'type'     => 'datetime',
+    'basetime' => time()
+);
 $GLOBALS['dataTool']['Meetings']['date_end'] = array(
     'same_datetime' => 'date_start',
     'modify' => array(
