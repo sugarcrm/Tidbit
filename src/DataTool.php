@@ -473,21 +473,19 @@ class DataTool
             //everything but numbers must have a type so we are just a range
             if (!empty($typeData['type'])) {
                 $isQuote = true;
-                $basetime = (!empty($typeData['basetime'])) ? $typeData['basetime'] : time();
+
+                $dateTime = new \DateTime();
+                $baseTime = (!empty($typeData['basetime'])) ? $typeData['basetime'] : time();
+
+                $dateTime->setTimestamp($baseTime);
+
                 if (!empty($baseValue)) {
-                    $basetime += $baseValue * 3600 * 24;
+                    // +/- $baseValue days to current datetime
+                    $dateTime->modify($baseValue . " days");
                 }
-                switch ($typeData['type']) {
-                    case 'date':
-                        $baseValue = date('Y-m-d', $basetime);
-                        break;
-                    case 'datetime':
-                        $baseValue = date('Y-m-d H:i:s', $basetime);
-                        break;
-                    case 'time':
-                        $baseValue = date('H:i:s', $basetime);
-                        break;
-                }
+
+                // Use Sugar class to convert dateTime to $type format for saving TZ settings
+                $baseValue = $GLOBALS['timedate']->asDbType($dateTime, $typeData['type']);
             } else {
                 $isQuote = false;
             }
@@ -988,7 +986,7 @@ class DataTool
         self::$datetimeCacheIndex++;
 
         if ((self::$datetimeCacheIndex > self::$datetimeIndexMax) || empty($datetime)) {
-            $datetime = "'" .date('Y-m-d H:i:s') . "'";
+            $datetime = "'" . $GLOBALS['timedate']->nowDb() . "'";
             if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
                 $datetime = $GLOBALS['db']->convert($datetime, 'datetime');
             }

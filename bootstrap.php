@@ -217,6 +217,8 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
 $GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
+// Do not cache DateTime values, DataTool will do this
+$GLOBALS['timedate']->allow_cache = false;
 
 $GLOBALS['processedRecords'] = 0;
 $GLOBALS['allProcessedRecords'] = 0;
