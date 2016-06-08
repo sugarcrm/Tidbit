@@ -202,7 +202,7 @@ class DataTool
      */
     public function generateId()
     {
-        if (!array_key_exists('id', $this->fields)) {
+        if (!isset($this->fields['id'])) {
             return '';
         }
         $currentModule = $this->getAlias($this->module);
@@ -609,6 +609,11 @@ class DataTool
             // Assign $teamId team_set_id with apr. average number of teams
             // So we can guarantee that $beans with same team_id will receive have team_sets
             foreach ($teamIdTeamSetMapping as $teamId => $data) {
+                // if team is in one team_set only just map it and go for next
+                if (count($data['team_set_ids']) == 1) {
+                    $result[$teamId] = $data['team_set_ids'][0];
+                    continue;
+                }
                 // average number of teams in team sets that contain $teamId
                 $average = floor(array_sum($data['counts']) / count($data['counts']));
                 sort($data['counts']);
@@ -854,7 +859,7 @@ class DataTool
     {
         global $relQueryCount;
 
-        if (!array_key_exists('id', $this->installData)) {
+        if (!isset($this->installData['id'])) {
             return; // no id -- no relations
         }
 
@@ -947,7 +952,7 @@ class DataTool
     private function getRelationshipInstallData(array $relationship, $baseId, $relId)
     {
         $relationTable = $relationship['table'];
-        self::$relationshipCounters[$relationTable] = array_key_exists($relationTable, self::$relationshipCounters) ?
+        self::$relationshipCounters[$relationTable] = isset(self::$relationshipCounters[$relationTable]) ?
             self::$relationshipCounters[$relationTable] + 1 :
             1
         ;

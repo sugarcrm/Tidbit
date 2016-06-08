@@ -61,37 +61,37 @@ class Categories extends Common
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
+     * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber)
     {
         global $kbCategoriesNestingLevel;
         if ($kbCategoriesNestingLevel) {
             $this->nestingLevel = $kbCategoriesNestingLevel;
         }
-        parent::__construct($db, $storageAdapter, $insertBatchSize);
+        parent::__construct($db, $storageAdapter, $insertBatchSize, $recordsNumber);
     }
 
     /**
      * Data generator.
      *
-     * @param int $number
      */
-    public function generate($number)
+    public function generate()
     {
-        if ($number < $this->nestingLevel) {
+        if ($this->recordsNumber < $this->nestingLevel) {
             $this->log(
                 'Warn: generated number of categories is less than required number of levels, so set levels=categories'
             );
-            $this->nestingLevel = $number;
+            $this->nestingLevel = $this->recordsNumber;
         }
 
         $categoriesCounter = 1;
         $root = new \stdClass();
         $root->lvl = 0;
         $categoryByLevels = array(array($root));
-        while ($categoriesCounter < $number) {
+        while ($categoriesCounter < $this->recordsNumber) {
             for ($i = 1; $i < $this->nestingLevel; $i++) {
-                if ($categoriesCounter >= $number) {
+                if ($categoriesCounter >= $this->recordsNumber) {
                     continue;
                 }
                 $categoriesCounter++;

@@ -88,8 +88,9 @@ class KBContents extends Common
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
+     * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber)
     {
         global $kbNumberOfArticlesWithNotes;
         if ($kbNumberOfArticlesWithNotes) {
@@ -101,20 +102,22 @@ class KBContents extends Common
             $this->kbNumberOfArticlesWithRevision = $kbNumberOfArticlesWithRevision;
         }
 
-        parent::__construct($db, $storageAdapter, $insertBatchSize);
+        $this->activityBean = \BeanFactory::getBean('KBContents');
+        
+        parent::__construct($db, $storageAdapter, $insertBatchSize, $recordsNumber);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function generate($number)
+    public function generate()
     {
         // spike for current realization of DataTool, because
         // we will generate data for 3 models at once
-        $GLOBALS['modules']['KBArticles'] = $number;
-        $GLOBALS['modules']['KBDocuments'] = $number;
+        $GLOBALS['modules']['KBArticles'] = $this->recordsNumber;
+        $GLOBALS['modules']['KBDocuments'] = $this->recordsNumber;
 
-        for ($i = 0; $i < $number; $i++) {
+        for ($i = 0; $i < $this->recordsNumber; $i++) {
             $this->createArticleInserts($i);
         }
 
