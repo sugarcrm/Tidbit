@@ -70,12 +70,6 @@ $modules = array(
     'KBContents' => 1000,
 );
 
-$aliases = array(
-    'EmailAddresses' => 'Emadd',
-    'ProductBundles' => 'Prodb',
-    'Opportunities' => 'Oppty'
-);
-
 $activityModulesBlackList = array(
     'Users',
     'Teams',

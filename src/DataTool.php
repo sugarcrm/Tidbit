@@ -1096,16 +1096,16 @@ class DataTool
     }
 
     /**
-     * Returns an alias to be used for id generation.
+     * Returns an alias to be used for id generation. To try for a unique alias, 
+     * use the first and last 8 characters of the passed-in name (even if they
+     * overlap)
+     * 
      * @param $name - The current module
      * @return string
      */
     public function getAlias($name)
     {
-        global $aliases;
-        return (isset($aliases[$name]))
-            ? $aliases[$name]
-            : $name;
+        return substr($name, 0, 8) . substr($name, -8);
     }
 
     /**
