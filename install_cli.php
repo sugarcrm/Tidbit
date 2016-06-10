@@ -38,6 +38,15 @@
 
 require_once 'bootstrap.php';
 
+/*
+ * impose a hard limit of one hundred billion on all modules to ensure unique IDs
+ */
+foreach ($modules as $module => $count) {
+    if ($count > 100000000000) {
+        $modules[$module] = 100000000000;
+    }
+}
+
 //When creating module_keys variable, ensure that Teams and Users are first in the modules list
 $module_keys = array_keys($modules);
 array_unshift($module_keys, 'Users');

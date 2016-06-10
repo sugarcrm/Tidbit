@@ -70,6 +70,13 @@ $modules = array(
     'KBContents' => 1000,
 );
 
+/*
+ * Add a module alias for GUID creation. All records created will have a GUID 
+ * that begins with the string 'seed-', then the module name or this alias, then
+ * a timestamp and an auto incrementing integer. It is recommended that all
+ * module names over 10 characters have a shorter alias to ensure that unique
+ * GUIDs can be created.    
+ */
 $aliases = array(
     'EmailAddresses' => 'Emadd',
     'ProductBundles' => 'Prodb',
