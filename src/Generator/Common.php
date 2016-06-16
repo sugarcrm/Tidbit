@@ -73,6 +73,33 @@ abstract class Common
     protected $insertCounter = 0;
 
     /**
+     * Insert counters by modules
+     *
+     * @var array
+     */
+    private $insertCounterModules = array();
+
+
+    /**
+     * @var Activity
+     */
+    protected $activityStreamGenerator;
+
+    /**
+     * Number of records what generator should create
+     *
+     * @var int
+     */
+    protected $recordsNumber = 0;
+
+    /**
+     * Object of module-class for what we'll create AS
+     *
+     * @var \SugarBean
+     */
+    protected $activityBean = null;
+
+    /**
      * List of InsertBuffer's instances
      *
      * @var array
@@ -85,21 +112,61 @@ abstract class Common
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
+     * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber = 0)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
         $this->storageType = $storageAdapter::STORE_TYPE;
         $this->insertBatchSize = $insertBatchSize;
+        $this->recordsNumber = $recordsNumber;
+    }
+
+    /**
+     * Return object of module-class for what we'll create AS
+     *
+     * @return null|\SugarBean
+     */
+    public function getActivityBean()
+    {
+        return $this->activityBean;
+    }
+
+    /**
+     * @param string $moduleName
+     * @return int
+     */
+    public function getInsertCounterForModule($moduleName)
+    {
+        if (!isset($this->insertCounterModules[$moduleName])) {
+            return 0;
+        }
+
+        return $this->insertCounterModules[$moduleName];
+    }
+
+    /**
+     * @param string $moduleName
+     */
+    public function incrementInsertCounterForModule($moduleName)
+    {
+        $this->insertCounterModules[$moduleName] = $this->getInsertCounterForModule($moduleName) + 1;
+    }
+
+    /**
+     * @param Activity $activityStreamGenerator
+     */
+    public function setActivityStreamGenerator($activityStreamGenerator)
+    {
+        $this->activityStreamGenerator = $activityStreamGenerator;
     }
 
     /**
      * Data generator.
      *
-     * @param int $number
      */
-    abstract public function generate($number);
+    abstract public function generate();
 
     /**
      * Remove generated data from DB.
@@ -156,6 +223,18 @@ abstract class Common
         $dataTool->count = $modelCounter;
         $dataTool->generateId();
         $dataTool->generateData();
+
+        if ($this->activityStreamGenerator) {
+            $tailRecords = $this->recordsNumber - $this->activityStreamGenerator->getLastNRecords();
+            if (empty($this->activityStreamGenerator->getLastNRecords())
+                || $this->recordsNumber < $this->activityStreamGenerator->getLastNRecords()
+                || $this->getInsertCounterForModule($modelName) >= $tailRecords
+            ) {
+                $this->activityStreamGenerator->createActivityForRecord($dataTool, $bean);
+            }
+        }
+
+        $this->incrementInsertCounterForModule($modelName);
 
         return $dataTool;
     }

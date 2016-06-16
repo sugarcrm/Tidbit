@@ -121,3 +121,22 @@ function uncaughtExceptionHandler(\Exception $e)
     );
     exitWithError($message);
 }
+
+/**
+ * Load and return array of ids of existing users
+ * except id of admin.
+ *
+ * @param DBManager $db
+ * @return array
+ */
+function loadUserIds(\DBManager $db)
+{
+    $ids = array();
+    $sql = "SELECT id FROM users WHERE id != 1";
+    $result = $db->query($sql);
+    while ($row = $db->fetchByAssoc($result)) {
+        $ids[] = $row['id'];
+    }
+    
+    return $ids;
+}
