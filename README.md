@@ -69,6 +69,18 @@ Installation of Vagrant Stack (Example):
     ```
     $ ./composer.phar install
     ```
+    
+Configuration
+-------------
+    Tidbit have default config files in tidbit_root/config/ folder.
+    Here:
+        - config.php          -- main config file
+        - data/*.php          -- customization of filling for separate fields if
+                                 bean tables
+        - relationships/*.php -- customization of filling for separate fields if
+                                 bean relation tables
+    Tidbit settings can be fully overrided in tidbit_root/custom/config.php file
+    by php arrays in the same manner as in original configs
 
 Usage
 -----
@@ -98,7 +110,7 @@ Example usages:
     * Obliterate all data when generating new records with 300 users:
       $php -f install_cli.php -- -o -u 400
       
-    * Generate TeamBasedACL action restrictions for chosen level (check level options in install_config.php)
+    * Generate TeamBasedACL action restrictions for chosen level (check level options in config files)
       $php -f install_cli.php -- -o --tba -tba_level full
       
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)

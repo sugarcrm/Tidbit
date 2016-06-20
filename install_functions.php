@@ -140,3 +140,17 @@ function loadUserIds(\DBManager $db)
     
     return $ids;
 }
+
+/**
+ * @param string $path
+ * @param string $files_pattern
+ */
+function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
+{
+    $entries = scandir($path);
+    foreach ($entries as $entry) {
+        if (preg_match($files_pattern, $entry)) {
+            require_once $path . '/' . $entry;
+        }
+    }
+}

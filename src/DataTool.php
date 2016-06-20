@@ -196,7 +196,7 @@ class DataTool
 
     /**
      * Generate a unique ID based on the module name, system time, and count (defined
-     * in install_config.php for each module), and save the ID in the installData array.
+     * in configs for each module), and save the ID in the installData array.
      *
      * @return string
      */
@@ -228,7 +228,7 @@ class DataTool
     /**
      * Dispatch to the handleType function based on what values are present in the
      * global $dataTool array.  This array is populated by the .php files in the
-     * TidBit/Data directory.
+     * config/data directory.
      *
      * Priority: FieldName > FieldDBType > FieldSugarType
      *
@@ -538,7 +538,7 @@ class DataTool
         }
 
         // This is used to associate email addresses with rows in
-        // Contacts or Leads.  See Relationships/email_addr_bean_rel.php
+        // Contacts or Leads.  See config/relationships/email_addr_bean_rel.php
         if (!empty($typeData['getmodule'])) {
             $rtn = "'" . $this->module . "'";
             return $rtn;
@@ -742,9 +742,6 @@ class DataTool
             $rbfd = $GLOBALS['foreignDataTools'][$module];
         } else {
             $bean = \BeanFactory::getBean($module);
-            if (file_exists(DATA_DIR . '/' . $module . '.php')) {
-                require_once(DATA_DIR . '/' . $module . '.php');
-            }
             $rbfd = new DataTool($this->storageType);
             $rbfd->fields = $bean->field_defs;
             $rbfd->table_name = $bean->table_name;
@@ -885,11 +882,6 @@ class DataTool
                     );
                 } else {
                     $thisToRelatedRatio = $GLOBALS['modules'][$relModule] / $GLOBALS['modules'][$this->module];
-                }
-
-                /* Load any custom fields for this relationship */
-                if (file_exists(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php')) {
-                    require_once(RELATIONSHIPS_DIR . '/' . $relationship['table'] . '.php');
                 }
 
                 /* According to $relationship['ratio'],
