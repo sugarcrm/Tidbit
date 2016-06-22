@@ -41,7 +41,7 @@ $tidbitCsvDir = 'csv';
 
 $defaultMaxTeamsPerSet = 10;
 
-// Default Sugar location path, could be overrided by "--sugar_path" argument
+// Default Sugar location path, could be overridden by "--sugar_path" argument
 $sugarPath = __DIR__ . '/..';
 
 $modules = array(
@@ -69,6 +69,12 @@ $modules = array(
     'Categories' => 600,
     'KBContents' => 1000,
 );
+
+/*
+ * When using --allmodules this is the number of records to create per-module
+ * when the module is not defined in the $modules array.  
+ */
+$all_modules_default_count = 5000;
 
 /*
  * Add a module alias for GUID creation. All records created will have a GUID 
