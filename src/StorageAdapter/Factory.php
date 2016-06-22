@@ -50,11 +50,11 @@ class Factory
      *
      * @var array
      */
-    private static $availableTypes = [
+    private static $availableTypes = array(
         self::OUTPUT_TYPE_CSV,
         self::OUTPUT_TYPE_MYSQL,
         self::OUTPUT_TYPE_ORACLE,
-    ];
+    );
 
     /**
      * Storage Adapter Creator

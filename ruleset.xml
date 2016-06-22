@@ -6,6 +6,9 @@
     <file>./install_cli.php</file>
     <file>./install_functions.php</file>
     <file>./config/</file>
+    <file>./tests/</file>
+
+    <exclude-pattern>./tests/bootstrap.php</exclude-pattern>
 
     <arg name="tab-width" value="4"/>
     <rule ref="PSR2"/>

@@ -40,7 +40,7 @@ namespace Sugarcrm\Tidbit\Generator;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\InsertBuffer;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
-use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as CommonStorage;
 
 class TeamSets extends \TeamSet
 {
@@ -96,13 +96,18 @@ class TeamSets extends \TeamSet
      * Constructor.
      *
      * @param \DBManager $db
-     * @param Common $storageAdapter
+     * @param CommonStorage $storageAdapter
      * @param int $insertBatchSize
      * @param array $teamIds
      * @param int $maxTeamsPerSet
      */
-    public function __construct(\DBManager $db, Common $storageAdapter, $insertBatchSize, $teamIds, $maxTeamsPerSet)
-    {
+    public function __construct(
+        \DBManager $db,
+        CommonStorage $storageAdapter,
+        $insertBatchSize,
+        $teamIds,
+        $maxTeamsPerSet
+    ) {
         $this->db = $db;
         $this->insertBufferTeamSets = new InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
         $this->insertBufferTeamSetsTeams = new InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);

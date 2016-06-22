@@ -1,5 +1,11 @@
 Tidbit v2.0
 ===========
+
+| [Master][Master] | [Develop][Develop] |
+|:----------------:|:----------:|
+| [![Build status][Master image]][Master] | [![Build status][Develop image]][Develop] |
+| [![Coverage Status][Master coverage image]][Master coverage] | [![Coverage Status][Develop coverage image]][Develop coverage] |
+
 Tidbit is random data generator for Sugar versions 6.5 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
@@ -107,7 +113,7 @@ Example usages:
     * Generate data into csv (mysql is default):
       $ php -f install_cli.php -- --storage csv
 
-    * Obliterate all data when generating new records with 300 users:
+    * Obliterate all data when generating new records with 400 users:
       $php -f install_cli.php -- -o -u 400
       
     * Generate TeamBasedACL action restrictions for chosen level (check level options in config files)
@@ -132,3 +138,22 @@ or call PHP CS directly
 
     $ ./vendor/bin/phpcs --standard=./ruleset.xml
     
+to run PHPUnit tests locally please use
+
+    $ ./composer.phar tests
+    
+or call PHPUnit directly
+
+    $ ./vendor/bin/phpunit -c ./phpunit.xml.dist
+    
+There are automated PR checks enabled on TravisCI (https://travis-ci.org/sugarcrm/Tidbit)
+For each PR code-style and phpunit tests will be executed for verification
+
+  [Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
+  [Master]: https://travis-ci.org/sugarcrm/Tidbit
+  [Master coverage image]: https://img.shields.io/coveralls/sugarcrm/Tidbit/badge.svg?branch=master
+  [Master coverage]: https://coveralls.io/r/sugarcrm/Tidbit?branch=master
+  [Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
+  [Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
+  [Develop coverage image]: https://img.shields.io/coveralls/sugarcrm/Tidbit/badge.svg?branch=develop
+  [Develop coverage]: https://coveralls.io/r/sugarcrm/Tidbit?branch=develop
