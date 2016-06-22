@@ -226,7 +226,7 @@ abstract class Common
 
         if ($this->activityStreamGenerator) {
             $tailRecords = $this->recordsNumber - $this->activityStreamGenerator->getLastNRecords();
-            if (empty($this->activityStreamGenerator->getLastNRecords())
+            if ($this->activityStreamGenerator->getLastNRecords() == 0
                 || $this->recordsNumber < $this->activityStreamGenerator->getLastNRecords()
                 || $this->getInsertCounterForModule($modelName) >= $tailRecords
             ) {
