@@ -84,9 +84,9 @@ Options
 
     --as_number <N>     Works with "--as_populate" key only. Number of
                         ActivityStream records for each module record (default 10)
-
+                        
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
-                        insertion buffer (default 1000)
+                        insertion buffer (by default equals to insert_batch_size)
 
     --storage name       Storage name, you have next options:
                         - mysql
@@ -217,6 +217,8 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
 $GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
+// Do not cache DateTime values, DataTool will do this
+$GLOBALS['timedate']->allow_cache = false;
 
 $GLOBALS['processedRecords'] = 0;
 $GLOBALS['allProcessedRecords'] = 0;
@@ -341,3 +343,9 @@ if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['s
 foreach ($modules as $records) {
     $GLOBALS['totalRecords'] += $records;
 }
+
+$activityStreamOptions = array(
+    'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
+    'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : $insertBatchSize,
+    'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
+);

@@ -41,107 +41,131 @@ use Sugarcrm\Tidbit\DataTool;
 
 class Entity
 {
-    public $moduleId1;
-    public $moduleId2;
-    public $moduleName2;
-    public $moduleBean2;
-    public $activityType;
-    public $activityData;
-    public $changedFields = array();
-
-    protected $fields = array();
-
-    protected static $index;
+    const USERS_MODULE_NAME = 'Users';
 
     /**
+     * Current DataTool object with record info
+     *
      * @var DataTool
      */
-    protected $dataTool;
+    protected $dataToolObject;
+    
+    /** @var  int */
+    protected $userId;
+
+    /** @var  string */
+    protected $beanObjectName;
+    
+    /** @var array  */
+    protected $changedFields = array();
+
+    /** @var array  */
+    protected $activityFields = array();
+
+    /** @var int  */
+    protected static $index = 0;
+
 
     /**
-     * Constructor.
-     * @param array $fields
-     * @param string $storageType
+     * Entity constructor.
+     *
+     * @param $userId
+     * @param $dataToolObject
+     * @param $beanObjectName
+     * @param $activityType
      */
-    public function __construct($fields, $storageType)
+    public function __construct($userId, $dataToolObject, $beanObjectName, $activityType)
     {
-        $this->dataTool = new DataTool($storageType);
+        $this->userId = $userId;
+        $this->dataToolObject = $dataToolObject;
+        $this->beanObjectName = $beanObjectName;
+        $this->activityType = $activityType;
 
-        foreach ($fields as $field => $data) {
-            $this->setField($field, null);
-        }
         self::$index++;
-    }
-
-    public function setField($name, $value)
-    {
-        $this->fields[$name] = $value;
-    }
-
-    public function initialize()
-    {
         $this->initializeFields();
     }
 
+    /**
+     * @return array
+     */
     public function getData()
     {
-        return $this->fields;
+        return $this->activityFields;
     }
 
+    /**
+     * Generate and return relationship data.
+     *
+     * @return array
+     */
     public function getRelationshipsData()
     {
         $rel1 = array(
             'id' => "'actr1-" . self::$index . "'",
-            'activity_id' => $this->fields['id'],
-            'parent_type' => "'" . $this->moduleName1 . "'",
-            'parent_id' => "'" . $this->moduleId1 . "'",
+            'activity_id' => $this->activityFields['id'],
+            'parent_type' => "'" . self::USERS_MODULE_NAME . "'",
+            'parent_id' => "'" . $this->userId . "'",
             'fields' => "'" . json_encode($this->changedFields) . "'",
-            'date_modified' => $this->fields['date_modified'],
+            'date_modified' => $this->activityFields['date_modified'],
             'deleted' => 0,
         );
         $rel2 = array(
             'id' => "'actr2-" . self::$index . "'",
-            'activity_id' => $this->fields['id'],
-            'parent_type' => "'" . $this->moduleName2 . "'",
-            'parent_id' => "'" . $this->moduleId2 . "'",
+            'activity_id' => $this->activityFields['id'],
+            'parent_type' => "'" . $this->dataToolObject->module . "'",
+            'parent_id' => $this->dataToolObject->installData['id'],
             'fields' => "''",
-            'date_modified' => $this->fields['date_modified'],
+            'date_modified' => $this->activityFields['date_modified'],
             'deleted' => 0,
         );
         return array($rel1, $rel2);
     }
 
+    /**
+     * Initialize activity fields.
+     */
     protected function initializeFields()
     {
-        $this->setField('id', "'" . $this->generateId() . "'");
-        $dateTime = $this->dataTool->getConvertDatetime();
-        $this->setField('date_entered', $dateTime);
-        $this->setField('date_modified', $dateTime);
-        $this->setField('modified_user_id', "'1'");
-        $this->setField('created_by', "'" . $this->moduleId1 . "'");
-        $this->setField('deleted', 0);
-        $this->setField('parent_id', "'" . $this->moduleId2 . "'");
-        $this->setField('parent_type', "'" . $this->moduleName2 . "'");
-        $this->setField('activity_type', "'" . $this->activityType . "'");
-        $this->setField('data', "'" . $this->generateActivityData() . "'");
-        $this->setField('comment_count', 0);
-        $this->setField('last_comment', "''");
+        $activityBean = \BeanFactory::getBean('Activities');
+        foreach ($activityBean->field_defs as $field => $data) {
+            if (empty($data['source'])) {
+                $this->activityFields[$field] = null;
+            }
+        }
+
+        $this->activityFields['id'] = "'" . $this->generateId() . "'";
+        $dateTime = $this->dataToolObject->getConvertDatetime();
+        $this->activityFields['date_entered'] = $dateTime;
+        $this->activityFields['date_modified'] = $dateTime;
+        $this->activityFields['modified_user_id'] = 1;
+        $this->activityFields['created_by'] = "'" . $this->userId . "'";
+        $this->activityFields['deleted'] = 0;
+        $this->activityFields['parent_id'] = $this->dataToolObject->installData['id'];
+        $this->activityFields['parent_type'] = "'" . $this->dataToolObject->module . "'";
+        $this->activityFields['activity_type'] = "'" . $this->activityType . "'";
+        $this->activityFields['data'] = "'" . $this->generateActivityData() . "'";
+        $this->activityFields['comment_count'] = 0;
+        $this->activityFields['last_comment'] = "''";
     }
 
+    /**
+     * @return string
+     */
     protected function generateActivityData()
     {
+        $objectId = substr($this->dataToolObject->installData['id'], 1, -1);
         $activityData = array(
             'object' => array(
-                'type' => $this->moduleBean2->object_name,
-                'module' => $this->moduleName2,
-                'id' => $this->activityData['id'],
+                'type' => $this->beanObjectName,
+                'module' => $this->dataToolObject->module,
+                'id' => $objectId,
             ),
         );
 
-        if (isset($this->activityData['name'])) {
-            $activityData['object']['name'] = $this->activityData['name'];
+        if (isset($this->dataToolObject->installData['name'])) {
+            $activityData['object']['name'] = substr($this->dataToolObject->installData['name'], 1, -1);
         } else {
-            $activityData['object']['name'] = $this->activityData['id'];
+            $activityData['object']['name'] = $objectId;
         }
 
         if ($this->activityType == 'update') {
@@ -155,13 +179,14 @@ class Entity
                     )
                 );
                 $this->changedFields[] = 'name';
-            } elseif (isset($this->activityData['last_name'])) {
+            } elseif (isset($this->dataToolObject->installData['last_name'])) {
+                $lastName = substr($this->dataToolObject->installData['last_name'], 1, -1);
                 $activityData['changes'] = array(
                     'last_name' => array(
                         'field_name' => 'last_name',
                         'data_type' => 'string',
-                        'before' => $this->activityData['last_name'] . '_old_ver',
-                        'after' => $this->activityData['last_name'],
+                        'before' => $lastName . '_old_ver',
+                        'after' => $lastName,
                     )
                 );
                 $this->changedFields[] = 'last_name';
@@ -171,6 +196,11 @@ class Entity
         return json_encode($activityData);
     }
 
+    /**
+     * Activity id generator.
+     *
+     * @return string
+     */
     protected function generateId()
     {
         return "act-" . self::$index;
