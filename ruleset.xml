@@ -3,10 +3,9 @@
     <description>PSR2 PHP coding standard</description>
 
     <file>./src/</file>
-    <file>./Data/</file>
     <file>./install_cli.php</file>
     <file>./install_functions.php</file>
-    <file>./install_config.php</file>
+    <file>./config/</file>
 
     <arg name="tab-width" value="4"/>
     <rule ref="PSR2"/>

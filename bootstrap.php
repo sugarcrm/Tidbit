@@ -47,7 +47,7 @@ $usageStr
 Options
     -l loadFactor   	The number of Accounts to create.  The ratio between
                     	Accounts and the other modules is fixed in
-                    	install_config.php, so the loadFactor determines the number
+                    	configs, so the loadFactor determines the number
                     	of each type of module to create.
                     	If not specified, defaults to 1000.
 
@@ -165,8 +165,15 @@ if (isset($opts['h'])) {
 ini_set('memory_limit', '8096M');
 set_time_limit(0);
 
+define('TIDBIT_DIR', __DIR__);
+define('CONFIG_DIR', __DIR__ . '/config');
+define('DATA_DIR', CONFIG_DIR . '/data');
+define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
+
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/install_config.php';
+
+// load general config
+require_once CONFIG_DIR . '/config.php';
 
 set_exception_handler('uncaughtExceptionHandler');
 
@@ -178,16 +185,10 @@ if (!is_file($sugarPath . '/include/entryPoint.php')) {
 }
 
 define('SUGAR_PATH', $sugarPath);
-define('TIDBIT_DIR', __DIR__);
-define('DATA_DIR', __DIR__ . '/Data');
-define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
 
 if (!defined('sugarEntry')) {
     define('sugarEntry', true);
 }
-
-require_once DATA_DIR . '/DefaultData.php';
-require_once DATA_DIR . '/contactSeedData.php';
 
 chdir(SUGAR_PATH); // needed because we have check in entryPoint.php (if file_exists('config.php'))
 
@@ -213,6 +214,16 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
     require_once dirname(__FILE__) . '/../ini_setup.php';
     set_include_path(INSTANCE_PATH . PATH_SEPARATOR . TEMPLATE_PATH . PATH_SEPARATOR . get_include_path());
 }
+
+// load user's modules data files
+require_once DATA_DIR . '/contactSeedData.php'; // must be loaded here
+includeDataInDir(DATA_DIR);
+
+// Load custom fields for relationships
+includeDataInDir(RELATIONSHIPS_DIR);
+
+// Load user's configs
+require_once __DIR__ . '/custom/config.php';
 
 $GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');

@@ -127,10 +127,6 @@ foreach ($module_keys as $module) {
     echo "\nProcessing Module $module\n";
     $total = $modules[$module];
 
-    if (file_exists(DATA_DIR . '/' . $module . '.php')) {
-        require_once(DATA_DIR . '/' . $module . '.php');
-    }
-
     if (in_array($module, $moduleUsingGenerators)) {
         $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
         /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
@@ -310,7 +306,7 @@ foreach ($module_keys as $module) {
     }
 
     // Apply TBA Rules for some modules
-    // $roleActions are defined in install_config.php
+    // $roleActions are defined in configs
     if ($module == 'ACLRoles') {
         $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
 
