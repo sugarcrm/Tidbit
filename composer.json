@@ -18,10 +18,13 @@
   },
   "autoload" : {
     "psr-4" : {
-      "Sugarcrm\\Tidbit\\": "src/"
+      "Sugarcrm\\Tidbit\\": "src/",
+      "Sugarcrm\\Tidbit\\Tests\\": "tests/"
     }
   },
   "scripts" : {
-    "check-style" : "./vendor/bin/phpcs --standard=./ruleset.xml"
+    "check-style" : "./vendor/bin/phpcs --standard=./ruleset.xml",
+    "tests" : "./vendor/bin/phpunit",
+    "tests-ci" : "./vendor/bin/phpunit --coverage-clover ./build/logs/clover.xml"
   }
 }

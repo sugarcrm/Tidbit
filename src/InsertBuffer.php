@@ -59,7 +59,7 @@ class InsertBuffer
     /**
      * @var array
      */
-    protected $installData = [];
+    protected $installData = array();
 
 
     /**
@@ -97,7 +97,7 @@ class InsertBuffer
      */
     public function clear()
     {
-        $this->installData = [];
+        $this->installData = array();
     }
 
     /**

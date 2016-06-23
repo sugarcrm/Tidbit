@@ -115,10 +115,10 @@ class Oracle extends Common
     {
         foreach ($values as $k => $v) {
             if (substr($v, -12) == '_SEQ.NEXTVAL') {
-                return ['field' => $k, 'name' => substr($v, 0, -8)];
+                return array('field' => $k, 'name' => substr($v, 0, -8));
             }
         }
-        return [];
+        return array();
     }
 
     /**

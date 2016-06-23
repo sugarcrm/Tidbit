@@ -131,7 +131,7 @@ class DataTool
      */
     public function clearRelatedModules()
     {
-        $this->relatedModules = [];
+        $this->relatedModules = array();
     }
 
     /**
@@ -285,9 +285,12 @@ class DataTool
      * @param $field - The name of the current field
      * @param $seed - Number to be used as the seed for mt_srand()
      *
+     * // DEV TESTING ONLY
+     * @param bool $resetStatic
+     *
      * @return string
      */
-    public function handleType($typeData, $type, $field, $seed)
+    public function handleType($typeData, $type, $field, $seed, $resetStatic = false)
     {
         /* We want all data to be predictable.  $seed should be charactaristic of
          * this entity or the remote entity we want to simulate
@@ -303,6 +306,11 @@ class DataTool
         }
         if (!empty($typeData['increment'])) {
             static $inc = -1;
+            
+            if ($resetStatic) {
+                $inc = -1;
+            }
+            
             $inc++;
             if ($typeData['increment']['max']) {
                 return $typeData['increment']['min'] +
@@ -316,6 +324,11 @@ class DataTool
          */
         if (!empty($typeData['incname'])) {
             static $ninc = 0;
+
+            if ($resetStatic) {
+                $ninc = 0;
+            }
+
             $ninc++;
             return "'" . @trim($typeData['incname'] . $ninc) . "'";
         }
@@ -332,6 +345,11 @@ class DataTool
         /* This type alternates between two specified options */
         if (!empty($typeData['binary_enum'])) {
             static $inc = -1;
+
+            if ($resetStatic) {
+                $inc = -1;
+            }
+
             $inc++;
             return $typeData['binary_enum'][$inc % 2];
         }
@@ -504,15 +522,16 @@ class DataTool
             if (!empty($typeData['modify']) && is_array($typeData['modify'])) {
                 $shift = 0;
 
-                foreach ($typeData['modify'] as $type => $value) {
+                foreach ($typeData['modify'] as $modType => $modValue) {
                     // If value is depending on another field - let's get field value, otherwise - use value
-                    if (is_array($value) && !empty($value['field']) && !empty($this->fields[$value['field']])) {
-                        $timeUnit = $this->accessLocalField($value['field']);
+                    if (is_array($modValue) && !empty($modValue['field'])
+                        && !empty($this->fields[$modValue['field']])) {
+                        $timeUnit = $this->accessLocalField($modValue['field']);
                     } else {
-                        $timeUnit = $value;
+                        $timeUnit = $modValue;
                     }
 
-                    $shift += $this->applyDatetimeModifications($type, $timeUnit);
+                    $shift += $this->applyDatetimeModifications($modType, $timeUnit);
                 }
 
                 $baseValue = date('Y-m-d H:i:s', strtotime($baseValue) + $shift);
@@ -800,6 +819,11 @@ class DataTool
     /**
      * Generate a 'parent' id for use
      * by handleType:'parent'
+     *
+     * @param string $relModule
+     * @param integer $thisToRelatedRatio
+     *
+     * @return string
      */
     public function getRelatedUpId($relModule, $thisToRelatedRatio = 0)
     {
@@ -812,6 +836,11 @@ class DataTool
      * Generate a 'parent' id for use
      * by handleType:'parent'
      * ToDo: add mapping for $baseModule.
+     *
+     * @param string $relModule
+     * @param integer $thisToRelatedRatio
+     *
+     * @return string
      */
     public function getRelatedLinkId($relModule, $thisToRelatedRatio = 0)
     {
@@ -1035,11 +1064,17 @@ class DataTool
      * @param string $module
      * @param int $id
      * @param bool $quotes
+     * @param bool $resetStatic
+     *
      * @return string
      */
-    public function assembleId($module, $id, $quotes = true)
+    public function assembleId($module, $id, $quotes = true, $resetStatic = false)
     {
         static $assembleIdCache = array();
+
+        if ($resetStatic) {
+            $assembleIdCache = array();
+        }
 
         if (empty($assembleIdCache[$module])) {
             $assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
