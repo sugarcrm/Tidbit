@@ -154,9 +154,9 @@ For each PR code-style and phpunit tests will be executed for verification
 
   [Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
   [Master]: https://travis-ci.org/sugarcrm/Tidbit
-  [Master coverage image]: https://img.shields.io/coveralls/sugarcrm/Tidbit/badge.svg?branch=master
-  [Master coverage]: https://coveralls.io/r/sugarcrm/Tidbit?branch=master
+  [Master coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=master
+  [Master coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=master
   [Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
   [Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
-  [Develop coverage image]: https://img.shields.io/coveralls/sugarcrm/Tidbit/badge.svg?branch=develop
-  [Develop coverage]: https://coveralls.io/r/sugarcrm/Tidbit?branch=develop
+  [Develop coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=develop
+  [Develop coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=develop
