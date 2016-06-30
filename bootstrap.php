@@ -38,7 +38,7 @@
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
     " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
 
-$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
+$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.\n";
 $helpStr = <<<EOS
 $versionStr
 This script populates your instance of SugarCRM with realistic demo data.
@@ -76,6 +76,23 @@ Options
                     	Users and Teams.  The number of users that would normally
                     	be created is assumed to be the number of existing users.
                     	Useful for appending data onto an existing data set.
+
+    --allmodules        All Modules. Scans the Sugar system for all out-of-box
+                        and custom modules and will insert records to populate
+                        all. If modules are already configured, those 
+                        configurations are not overridden, only appended-to. The
+                        number of records created is specified by config. variable 
+                        \$all_modules_default_count, which is set to 5000 unless
+                        overridden in custom configuration. It is recommended 
+                        that this option still be used with custom configuration 
+                        to handle custom fields, one/many relationships and any 
+                        customization like custom indexes or auto-incrementing
+                        fields. 
+                        
+    --allrelationships  All Relationships. Scans the Sugar system for all out-of-box
+                        and custom relationships. If relationships are already 
+                        configured, those configurations are not overridden but 
+                        only appended-to. 
 
     --as_populate       Populate ActivityStream records for each user and module
 
@@ -140,6 +157,8 @@ $opts = getopt(
         'tba_level:',
         'tba',
         'with-tags',
+        'allmodules',
+        'allrelationships',
         'as_populate',
         'as_number:',
         'as_buffer:',
@@ -233,6 +252,27 @@ $GLOBALS['timedate']->allow_cache = false;
 
 $GLOBALS['processedRecords'] = 0;
 $GLOBALS['allProcessedRecords'] = 0;
+
+/*
+ * if user wants all modules, append system modules to existing config
+ */
+if (isset($opts['allmodules'])) {
+    global $moduleList;
+    foreach ($moduleList as $aModule) {
+        if (!isset($modules[$aModule])) {
+            $modules[$aModule] = $all_modules_default_count;
+        }
+    }
+    ksort($modules);
+}
+
+/*
+ * if user wants all relationships, append to existing config
+ */
+if (isset($opts['allrelationships'])) {
+    global $tidbit_relationships;
+    $tidbit_relationships = generate_m2m_relationship_list($tidbit_relationships);
+}
 
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();

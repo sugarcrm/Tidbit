@@ -78,7 +78,7 @@ Installation of Vagrant Stack (Example):
     
 Configuration
 -------------
-    Tidbit have default config files in tidbit_root/config/ folder.
+    Tidbit has default config files in tidbit_root/config/ folder.
     Here:
         - config.php          -- main config file
         - data/*.php          -- customization of filling for separate fields if
@@ -90,7 +90,7 @@ Configuration
 
 Usage
 -----
-**NOTE** **Usage of Tidbit could affect on your _data_ in DB**
+**NOTE** **Usage of Tidbit could affect your _data_ in DB**
 Please make sure you have a backup, before running data Generation commands
 
 Tidbit uses a command line interface.  To run it from the Tidbit directory:
@@ -112,6 +112,9 @@ Example usages:
       
     * Generate data into csv (mysql is default):
       $ php -f install_cli.php -- --storage csv
+
+    * Generate records for all out-of-box and custom modules, plus find all relationships
+      $ php -f install_cli.php -- --allmodules --allrelationships
 
     * Obliterate all data when generating new records with 400 users:
       $php -f install_cli.php -- -o -u 400
