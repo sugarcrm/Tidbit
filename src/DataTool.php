@@ -189,7 +189,7 @@ class DataTool
 
             // Handle TBA configuration
             if (!empty($GLOBALS['tba'])) {
-                $this->installData['team_set_selected_id'] = $this->installData['team_set_id'];
+                $this->installData['acl_team_set_id'] = $this->installData['team_set_id'];
             }
         }
     }
