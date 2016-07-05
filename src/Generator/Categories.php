@@ -128,7 +128,7 @@ class Categories extends Common
      */
     public function obliterateDB()
     {
-        $this->db->query($this->db->truncateTableSQL('categories'));
+        $this->db->query($this->getTruncateTableSQL('categories'));
     }
 
     /**

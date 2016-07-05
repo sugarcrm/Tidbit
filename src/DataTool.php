@@ -334,7 +334,8 @@ class DataTool
         }
 
         if (!empty($typeData['autoincrement'])) {
-            if ($this->storageType == \Sugarcrm\Tidbit\StorageAdapter\Factory::OUTPUT_TYPE_ORACLE
+            if ($this->storageType == Factory::OUTPUT_TYPE_ORACLE
+                || $this->storageType == Factory::OUTPUT_TYPE_DB2
             ) {
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
             } else {

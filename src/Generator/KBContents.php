@@ -136,7 +136,7 @@ class KBContents extends Common
         foreach ($this->affectedTables as $table) {
             switch ($table) {
                 case 'kbusefulness':
-                    $this->db->query($this->db->truncateTableSQL('kbusefulness'));
+                    $this->db->query($this->getTruncateTableSQL('kbusefulness'));
                     break;
                 case 'notes':
                     $this->db->query("DELETE FROM notes WHERE id LIKE 'seed-%' AND parent_type = 'KBContents'");
@@ -156,7 +156,7 @@ class KBContents extends Common
             if ($table == 'notes') {
                 $this->db->query("DELETE FROM notes WHERE parent_type = 'KBContents'");
             } else {
-                $this->db->query($this->db->truncateTableSQL($table));
+                $this->db->query($this->getTruncateTableSQL($table));
             }
         }
     }

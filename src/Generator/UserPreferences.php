@@ -80,9 +80,7 @@ class UserPreferences
      */
     public function clean()
     {
-        $this->db->query(
-            "DELETE FROM user_preferences WHERE id IN (SELECT md5(id) FROM users WHERE id != '1' AND id LIKE 'seed-%')"
-        );
+        $this->db->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'");
     }
 
     /**
@@ -90,7 +88,20 @@ class UserPreferences
      */
     public function obliterate()
     {
-        $this->db->query($this->db->truncateTableSQL('user_preferences'));
+        $this->db->query($this->getTruncateTableSQL('user_preferences'));
+    }
+
+    /**
+     * Contains truncate db table logic for different DB Managers
+     *
+     * @param $tableName
+     * @return string
+     */
+    protected function getTruncateTableSQL($tableName)
+    {
+        return ($this->db->dbType == 'ibm_db2')
+            ? sprintf('ALTER TABLE %s ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE', $tableName)
+            : $this->db->truncateTableSQL($tableName);
     }
 
     /**

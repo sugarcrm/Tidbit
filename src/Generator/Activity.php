@@ -228,8 +228,21 @@ class Activity
      */
     public function obliterateActivities()
     {
-        return $this->db->query($this->db->truncateTableSQL(self::ACTIVITY_TABLE))
-        && $this->db->query($this->db->truncateTableSQL(self::RELATIONSHIP_TABLE));
+        return $this->db->query($this->getTruncateTableSQL(self::ACTIVITY_TABLE))
+        && $this->db->query($this->getTruncateTableSQL(self::RELATIONSHIP_TABLE));
+    }
+
+    /**
+     * Contains truncate db table logic for different DB Managers
+     *
+     * @param $tableName
+     * @return string
+     */
+    protected function getTruncateTableSQL($tableName)
+    {
+        return ($this->db->dbType == 'ibm_db2')
+            ? sprintf('ALTER TABLE %s ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE', $tableName)
+            : $this->db->truncateTableSQL($tableName);
     }
 
     /**
