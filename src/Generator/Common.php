@@ -179,6 +179,19 @@ abstract class Common
     abstract public function obliterateDB();
 
     /**
+     * Contains truncate db table logic for different DB Managers
+     *
+     * @param $tableName
+     * @return string
+     */
+    protected function getTruncateTableSQL($tableName)
+    {
+        return ($this->db->dbType == 'ibm_db2')
+            ? sprintf('ALTER TABLE %s ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE', $tableName)
+            : $this->db->truncateTableSQL($tableName);
+    }
+
+    /**
      * @return int
      */
     public function getInsertCounter()

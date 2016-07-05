@@ -140,7 +140,7 @@ class TBA extends Common
     public function obliterateDB()
     {
         $this->db->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
-        $this->db->query($this->db->truncateTableSQL('acl_fields'));
+        $this->db->query($this->getTruncateTableSQL('acl_fields'));
     }
 
     /**

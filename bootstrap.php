@@ -108,6 +108,7 @@ Options
     --storage name       Storage name, you have next options:
                         - mysql
                         - oracle
+                        - db2
                         - csv
 
     --sugar_path        Path to Sugar installation directory

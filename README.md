@@ -126,7 +126,10 @@ Example usages:
       $php -f install_cli.php -- -o --insert_batch_size 1000
 
     * Setting path to SugarCRM installation
-      $php -f install_cli.php -- --sugar_path /some/sugar/path
+      $php -f install_cli.php -- -o --sugar_path /some/sugar/path
+
+    * Using DB2 storage example (mysql/oracle/db2 can be used, depending on Sugar installation and DB usage)
+      $php -f install_cli.php -- -o --sugar_path /some/sugar/path --storage db2
 
 Contributing:
 ------------
