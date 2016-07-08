@@ -132,32 +132,14 @@ class Db2 extends Common
     protected function getCurrentSequenceValue($sequenceName)
     {
         $sql = sprintf(
-            "SELECT last_number as current_val FROM user_sequences WHERE sequence_name='%s'",
+            "SELECT lastassignedval AS current_val FROM SYSIBM.SYSSEQUENCES WHERE seqname = '%s'",
             $sequenceName
         );
         
         $result = $this->storageResource->query($sql);
         $row = $this->storageResource->fetchByAssoc($result);
 
-        $currentValue = intval($row['current_val']);
-
-        // sequence was RESET or not initialized, force NEXT VALUE to start sequence
-        if ($currentValue < 0) {
-            $sql = sprintf("SELECT %s.nextval FROM SYSIBM.SYSDUMMY1;", $sequenceName);
-            $this->storageResource->query($sql);
-
-            $sql = sprintf(
-                "SELECT last_number as current_val FROM user_sequences WHERE sequence_name='%s'",
-                $sequenceName
-            );
-
-            $result = $this->storageResource->query($sql);
-            $row = $this->storageResource->fetchByAssoc($result);
-
-            $currentValue = intval($row['current_val']);
-        }
-
-        return $currentValue;
+        return intval($row['current_val']);
     }
 
     /**
