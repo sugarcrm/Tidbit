@@ -224,15 +224,13 @@ foreach ($module_keys as $module) {
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
     $dTool->fields = $bean->field_defs;
 
-    $dTool->table_name = $bean->table_name;
+    $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
 
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
         echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
     }
     echo "\n\tHitting DB... ";
-
-    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
 
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
@@ -249,15 +247,31 @@ foreach ($module_keys as $module) {
             $dTool->count = $i;
             $dTool->generateData();
         }
+        
+        /*
+         * If the module has custom fields, write to the _cstm table
+         */
+        $useCstmTable = $bean->hasCustomFields();
 
-        if ($beanId = $dTool->generateId()) {
+        if ($beanId = $dTool->generateId($useCstmTable)) {
             $generatedIds[] = $beanId;
             $dTool->generateRelationships();
         }
 
         $GLOBALS['allProcessedRecords']++;
         $GLOBALS['processedRecords']++;
+
+        $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
         $beanInsertBuffer->addInstallData($dTool->installData);
+        
+        if ($useCstmTable && !empty($dTool->installDataCstm)) {
+            $beanInsertBufferCstm = new \Sugarcrm\Tidbit\InsertBuffer(
+                $bean->get_custom_table_name(),
+                $storageAdapter,
+                $insertBatchSize
+            );
+            $beanInsertBufferCstm->addInstallData($dTool->installDataCstm);
+        }
 
         if ($dTool->getRelatedModules()) {
             foreach ($dTool->getRelatedModules() as $table => $installDataArray) {

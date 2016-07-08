@@ -50,6 +50,7 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 class DataTool
 {
     public $installData = array();
+    public $installDataCstm = array();
     public $fields = array();
     public $table_name = '';
     public $module = '';
@@ -145,7 +146,7 @@ class DataTool
         /* For each of the fields in this record, we want to generate
          * one element of seed data for it.*/
         foreach ($this->fields as $field => $data) {
-            if (!empty($data['source'])) {
+            if (!empty($data['source']) && $data['source'] != 'custom_fields') {
                 continue;
             }
 
@@ -159,7 +160,11 @@ class DataTool
             $seed = $this->generateSeed($this->module, $field, $this->count);
             $value = $this->getData($field, $type, $data['type'], $seed);
             if (!empty($value) || $value == '0') {
-                $this->installData[$field] = $value;
+                if (empty($data['source'])) {
+                    $this->installData[$field] = $value;
+                } else {
+                    $this->installDataCstm[$field] = $value;
+                }
             }
         }
 
@@ -200,7 +205,7 @@ class DataTool
      *
      * @return string
      */
-    public function generateId()
+    public function generateId($include_cstm = false)
     {
         if (!isset($this->fields['id'])) {
             return '';
@@ -215,12 +220,17 @@ class DataTool
                 substr(md5($this->installData['id']), 0, -($moduleLength + 1)) . "'";
         }
 
+        if ($include_cstm) {
+            $this->installDataCstm['id_c'] = $this->installData['id'];
+        }
+
         return substr($this->installData['id'], 1, -1);
     }
 
     public function clean()
     {
         $this->installData = array();
+        $this->installDataCstm = array();
         $this->count = 0;
     }
 
