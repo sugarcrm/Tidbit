@@ -140,6 +140,10 @@ Options
     --with-tags         Turn on Tags and Tags Relations generation. If you do not specify this option,
                         default will be false.
 
+    --with-favorites    Turn on Sugar Favorites generation. Will generate records in "sugarfavorites" table for modules
+                        describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
+                        "load factor" (-l) argument
+
     "Powered by SugarCRM"
 
 
@@ -158,6 +162,7 @@ $opts = getopt(
         'tba_level:',
         'tba',
         'with-tags',
+        'with-favorites',
         'allmodules',
         'allrelationships',
         'as_populate',
@@ -284,7 +289,7 @@ $GLOBALS['time_spend'] = array();
 
 $recordsPerPage = 1000;     // Are we going to use this?
 $insertBatchSize = 0;       // zero means use default value provided by storage adapter
-$moduleUsingGenerators = array('KBContents', 'Categories');
+$moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites');
 
 
 if (isset($opts['l'])) {
@@ -294,6 +299,13 @@ if (isset($opts['l'])) {
     $factor = $opts['l'] / $modules['Accounts'];
     foreach ($modules as $m => $n) {
         $modules[$m] *= $factor;
+    }
+    
+    // Multiple favorites with $factor too 
+    if (isset($opts['with-favorites'])) {
+        foreach ($sugarFavoritesModules as $m => $n) {
+            $sugarFavoritesModules[$m] *= $factor;
+        }
     }
 }
 if (isset($opts['u'])) {
@@ -331,6 +343,11 @@ if (isset($opts['t'])) {
 if (isset($opts['d'])) {
     $GLOBALS['debug'] = true;
 }
+
+if (!isset($opts['with-favorites'])) {
+    unset($modules['SugarFavorites']);
+}
+
 $maxTeamsPerSet = (!empty($opts['s'])) ? $opts['s'] : $defaultMaxTeamsPerSet;
 
 if (isset($opts['tba'])) {

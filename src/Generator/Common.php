@@ -37,8 +37,11 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Config;
+use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\InsertBuffer;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
 use \Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
 abstract class Common
@@ -216,6 +219,19 @@ abstract class Common
         }
 
         return $this->insertBuffers[$tableName];
+    }
+
+    /**
+     * Update generated records count in $modules array
+     *
+     * @param $module
+     * @param $count
+     */
+    protected function updateModulesCount($module, $count)
+    {
+        /** @var Config $config */
+        $config = CoreFactory::getComponent('Config');
+        $config->setModuleCount($module, $count);
     }
 
     /**

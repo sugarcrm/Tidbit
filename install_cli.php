@@ -58,6 +58,13 @@ foreach ($module_keys as $module) {
     echo "{$modules[$module]} {$module}\n";
 }
 
+if (isset($opts['with-favorites'])) {
+    echo "\nSugar Favorites Generated:\n";
+    foreach ($sugarFavoritesModules as $favModule => $favCount) {
+        echo "\t$favCount {$favModule}\n";
+    }
+}
+
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . "\n";
@@ -273,15 +280,34 @@ foreach ($module_keys as $module) {
             $dTool->count = $i;
             $dTool->generateData();
         }
-        
+
+        // Generate relationships if $bean has an "id" field
         if ($beanId = $dTool->generateId($useCustomTable)) {
             $generatedIds[] = $beanId;
-            $dTool->generateRelationships();
+
+            /** @var \Sugarcrm\Tidbit\Core\Relationships $relationships */
+            $relationships = \Sugarcrm\Tidbit\Core\Factory::getComponent('Relationships');
+            $relationships->generateRelationships($dTool->module, $dTool->count, $dTool->installData);
+
+            if ($relationships->getRelatedModules()) {
+                foreach ($relationships->getRelatedModules() as $table => $installDataArray) {
+                    if (empty($relationStorageBuffers[$table])) {
+                        $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
+                            $table,
+                            $storageAdapter,
+                            $insertBatchSize
+                        );
+                    }
+
+                    foreach ($installDataArray as $data) {
+                        $relationStorageBuffers[$table]->addInstallData($data);
+                    }
+                }
+            }
+
+            $relationships->clearRelatedModules();
         }
 
-        $GLOBALS['allProcessedRecords']++;
-        $GLOBALS['processedRecords']++;
-        
         $beanInsertBuffer->addInstallData($dTool->installData);
 
         // if module has custom table, write custom install data into buffer
@@ -289,21 +315,9 @@ foreach ($module_keys as $module) {
             $beanInsertBufferCustom->addInstallData($dTool->installDataCstm);
         }
 
-        if ($dTool->getRelatedModules()) {
-            foreach ($dTool->getRelatedModules() as $table => $installDataArray) {
-                if (empty($relationStorageBuffers[$table])) {
-                    $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
-                        $table,
-                        $storageAdapter,
-                        $insertBatchSize
-                    );
-                }
-                foreach ($installDataArray as $data) {
-                    $relationStorageBuffers[$table]->addInstallData($data);
-                }
-            }
-        }
-        $dTool->clearRelatedModules();
+        // Increase counters and insert generated data to Buffer
+        $GLOBALS['allProcessedRecords']++;
+        $GLOBALS['processedRecords']++;
 
         if (!empty($GLOBALS['as_populate'])
             && (

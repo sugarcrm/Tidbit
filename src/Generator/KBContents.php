@@ -37,6 +37,7 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Intervals;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
@@ -114,8 +115,8 @@ class KBContents extends Common
     {
         // spike for current realization of DataTool, because
         // we will generate data for 3 models at once
-        $GLOBALS['modules']['KBArticles'] = $this->recordsNumber;
-        $GLOBALS['modules']['KBDocuments'] = $this->recordsNumber;
+        parent::updateModulesCount('KBArticles', $this->recordsNumber);
+        parent::updateModulesCount('KBDocuments', $this->recordsNumber);
 
         for ($i = 0; $i < $this->recordsNumber; $i++) {
             $this->createArticleInserts($i);
