@@ -99,32 +99,6 @@ class Db2Test extends TidbitTestCase
     }
 
     /**
-     * @covers ::getCurrentSequenceValue
-     */
-    public function testGetCurrentSequenceValueReloadSequence()
-    {
-        $mock = $this->getMock('\Sugarcrm\Tidbit\Tests\SugarObject\DBManager', array('query', 'fetchByAssoc'));
-        $expectedValue = 1;
-
-        $mock->expects($this->exactly(3))
-            ->method('query')
-            ->willReturn(true);
-
-        $mock->expects($this->exactly(2))
-            ->method('fetchByAssoc')
-            ->will($this->onConsecutiveCalls(array('current_val' => -1), array('current_val' => $expectedValue)));
-
-        $storage = new Db2($mock);
-        $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Db2',
-            'getCurrentSequenceValue'
-        );
-
-        $actual = $method->invokeArgs($storage, array('some_sequence_name'));
-        $this->assertEquals($expectedValue, $actual);
-    }
-
-    /**
      * @covers ::patchSequenceValues
      */
     public function testPatchSequenceValuesShouldReturnEmptyStringIfSequenceIsNotFound()
