@@ -49,8 +49,12 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
 class DataTool
 {
+    /** @var array stores data to insert into %module% table */
     public $installData = array();
+
+    /** @var array stores data to insert into %module_cstm% table */
     public $installDataCstm = array();
+
     public $fields = array();
     public $table_name = '';
     public $module = '';
@@ -163,6 +167,7 @@ class DataTool
                 if (empty($data['source'])) {
                     $this->installData[$field] = $value;
                 } else {
+                    // "source" == "custom_fields" is an indicator for Custom field in VarDefs
                     $this->installDataCstm[$field] = $value;
                 }
             }
@@ -203,9 +208,10 @@ class DataTool
      * Generate a unique ID based on the module name, system time, and count (defined
      * in configs for each module), and save the ID in the installData array.
      *
+     * @param bool $includeCustomId
      * @return string
      */
-    public function generateId($include_cstm = false)
+    public function generateId($includeCustomId = false)
     {
         if (!isset($this->fields['id'])) {
             return '';
@@ -220,7 +226,7 @@ class DataTool
                 substr(md5($this->installData['id']), 0, -($moduleLength + 1)) . "'";
         }
 
-        if ($include_cstm) {
+        if ($includeCustomId) {
             $this->installDataCstm['id_c'] = $this->installData['id'];
         }
 
