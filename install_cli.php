@@ -171,6 +171,9 @@ foreach ($module_keys as $module) {
 
     $bean = BeanFactory::getBean($module);
 
+    // If the module has custom fields, write to the _cstm table
+    $useCustomTable = $bean->hasCustomFields();
+
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
         /* Make sure not to delete the admin! */
@@ -184,6 +187,11 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
+
+            // if module has custom table obliterate up custom table too
+            if ($useCustomTable) {
+                $GLOBALS['db']->query("DELETE FROM " . $bean->get_custom_table_name() . " WHERE 1 = 1");
+            }
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
@@ -208,6 +216,14 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
+
+            // if module has custom table clean up custom table too
+            if ($useCustomTable) {
+                $GLOBALS['db']->query(
+                    "DELETE FROM " . $bean->get_custom_table_name()
+                    . " WHERE 1=1 AND id_c LIKE 'seed-%'"
+                );
+            }
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
@@ -224,7 +240,7 @@ foreach ($module_keys as $module) {
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
     $dTool->fields = $bean->field_defs;
 
-    $dTool->table_name = $bean->table_name;
+    $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
 
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
@@ -233,7 +249,15 @@ foreach ($module_keys as $module) {
     echo "\n\tHitting DB... ";
 
     $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
-
+    
+    if ($useCustomTable) {
+        $beanInsertBufferCustom = new \Sugarcrm\Tidbit\InsertBuffer(
+            $bean->get_custom_table_name(),
+            $storageAdapter,
+            $insertBatchSize
+        );
+    }
+    
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
      * $module and $bean->table_name. */
@@ -249,15 +273,21 @@ foreach ($module_keys as $module) {
             $dTool->count = $i;
             $dTool->generateData();
         }
-
-        if ($beanId = $dTool->generateId()) {
+        
+        if ($beanId = $dTool->generateId($useCustomTable)) {
             $generatedIds[] = $beanId;
             $dTool->generateRelationships();
         }
 
         $GLOBALS['allProcessedRecords']++;
         $GLOBALS['processedRecords']++;
+        
         $beanInsertBuffer->addInstallData($dTool->installData);
+
+        // if module has custom table, write custom install data into buffer
+        if (isset($beanInsertBufferCustom) && $useCustomTable && !empty($dTool->installDataCstm)) {
+            $beanInsertBufferCustom->addInstallData($dTool->installDataCstm);
+        }
 
         if ($dTool->getRelatedModules()) {
             foreach ($dTool->getRelatedModules() as $table => $installDataArray) {
