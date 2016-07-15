@@ -37,6 +37,7 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Intervals;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
@@ -88,8 +89,9 @@ class KBContents extends Common
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
+     * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber)
     {
         global $kbNumberOfArticlesWithNotes;
         if ($kbNumberOfArticlesWithNotes) {
@@ -101,20 +103,22 @@ class KBContents extends Common
             $this->kbNumberOfArticlesWithRevision = $kbNumberOfArticlesWithRevision;
         }
 
-        parent::__construct($db, $storageAdapter, $insertBatchSize);
+        $this->activityBean = \BeanFactory::getBean('KBContents');
+        
+        parent::__construct($db, $storageAdapter, $insertBatchSize, $recordsNumber);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function generate($number)
+    public function generate()
     {
         // spike for current realization of DataTool, because
         // we will generate data for 3 models at once
-        $GLOBALS['modules']['KBArticles'] = $number;
-        $GLOBALS['modules']['KBDocuments'] = $number;
+        parent::updateModulesCount('KBArticles', $this->recordsNumber);
+        parent::updateModulesCount('KBDocuments', $this->recordsNumber);
 
-        for ($i = 0; $i < $number; $i++) {
+        for ($i = 0; $i < $this->recordsNumber; $i++) {
             $this->createArticleInserts($i);
         }
 
@@ -133,7 +137,7 @@ class KBContents extends Common
         foreach ($this->affectedTables as $table) {
             switch ($table) {
                 case 'kbusefulness':
-                    $this->db->query($this->db->truncateTableSQL('kbusefulness'));
+                    $this->db->query($this->getTruncateTableSQL('kbusefulness'));
                     break;
                 case 'notes':
                     $this->db->query("DELETE FROM notes WHERE id LIKE 'seed-%' AND parent_type = 'KBContents'");
@@ -153,7 +157,7 @@ class KBContents extends Common
             if ($table == 'notes') {
                 $this->db->query("DELETE FROM notes WHERE parent_type = 'KBContents'");
             } else {
-                $this->db->query($this->db->truncateTableSQL($table));
+                $this->db->query($this->getTruncateTableSQL($table));
             }
         }
     }

@@ -37,77 +37,46 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Generator\Activity\Entity;
 use Sugarcrm\Tidbit\InsertBuffer;
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
 class Activity
 {
-    public $userCount;
-    public $activitiesPerModuleRecord;
-    public $activitiesPerUser;
-    public $activityModules;
-    public $activityModuleCount;
-    public $modules;
-    public $insertionBufferSize = 100;
-    public $fetchBuffer = 1000;
-    public $lastNRecords = 0;
-    public $insertedActivities = 0;
-    public $activityBean;
-    public $progress = 0;
-    public $countQuery = 0;
-    public $countFetch = 0;
+    const ACTIVITY_TABLE = 'activities';
+    const RELATIONSHIP_TABLE = 'activities_users';
+
+    /** @var  int */
+    protected $activitiesPerModuleRecord;
+
+    /** @var int  */
+    protected $insertedActivitiesCount = 0;
+
+    /** @var \DBManager  */
     protected $db;
-    protected $beans = array();
-    protected $activityFields = array();
-    protected $totalModulesRecords = 0;
+
+    /** @var array  */
+    protected $userIds = array();
+    
+    /** @var  string */
+    protected $convertedDateTime;
+
+    /** @var  InsertBuffer */
+    protected $insertBufferActivities;
+
+    /** @var  InsertBuffer */
+    protected $insertBufferActivitiesRelationships;
+    
+    /** @var array  */
+    protected $activityModulesBlackList = array();
 
     /**
-     * @var \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
-     */
-    protected $storageAdapter;
-
-    /**
-     * Size of insert buffers
+     * Setting to generate activity just for last N records
      *
      * @var int
      */
-    protected $insertBatchSize;
-
-    /**
-     * List of insert buffers for tables.
-     *
-     * @var array
-     */
-    protected $insertBuffers = array();
-
-    /**
-     * Dynamic variable using to pass values to another iteration of createDataSet -> flushDataSet
-     * @var array
-     */
-    protected $currentOffsets = array();
-    protected $currentModuleName;
-
-    /**
-     * Patterns to get modules data
-     *
-     * @var array
-     */
-    protected $fetchQueryPatterns = array(
-        'default' => "SELECT id%s FROM %s ORDER BY date_modified DESC LIMIT %d, %d",
-        'oci8' => "SELECT id%s FROM %s ORDER BY date_modified DESC OFFSET %d ROWS FETCH NEXT %d ROWS ONLY",
-    );
-    /** @var string */
-    protected $fetchQueryPattern;
-    protected $fetchedData = array();
-    protected $fullyLoadedModules = array();
-    protected $currentUser;
-    protected $currentModuleRecord;
-    protected $nextActivityModule = 0;
-    protected $dataSet = array();
-    protected $dataSetRelationships = array();
-    protected $dataSetLength = 0;
-    protected $relationshipsTable = 'activities_users';
+    protected $lastNRecords = 0;
 
     /**
      * @var array Generating activity types and percentage of their share in total count. Array sum must be 100!
@@ -117,17 +86,10 @@ class Activity
         'delete' => 30,
         'attach' => 0,
         'update' => 30,
-        'link' => 0,
+        'link'   => 0,
         'unlink' => 0,
-        'post' => 0,
+        'post'   => 0,
     );
-
-    /**
-     * Type of output storage
-     *
-     * @var string
-     */
-    private $storageType;
 
     /**
      * Constructor
@@ -135,277 +97,158 @@ class Activity
      * @param \DBManager $db
      * @param StorageCommon $adapter
      * @param int $insertBatchSize
+     * @param int $activitiesPerModule
+     * @param int $lastNRecords
      */
-    public function __construct(\DBManager $db, StorageCommon $adapter, $insertBatchSize)
-    {
-        $this->storageAdapter = $adapter;
-        $this->storageType = $adapter::STORE_TYPE;
-        $this->insertBatchSize = $insertBatchSize;
+    public function __construct(
+        \DBManager $db,
+        StorageCommon $adapter,
+        $insertBatchSize,
+        $activitiesPerModule,
+        $lastNRecords
+    ) {
         $this->db = $db;
+        $this->activitiesPerModuleRecord = $activitiesPerModule;
+        $this->lastNRecords = $lastNRecords;
+        $this->insertBufferActivities = new InsertBuffer(self::ACTIVITY_TABLE, $adapter, $insertBatchSize);
+        $this->insertBufferActivitiesRelationships = new InsertBuffer(
+            self::RELATIONSHIP_TABLE,
+            $adapter,
+            $insertBatchSize
+        );
+    }
 
-        $this->fetchQueryPattern = array_key_exists($this->db->dbType, $this->fetchQueryPatterns) ?
-            $this->fetchQueryPatterns[$this->db->dbType] :
-            $this->fetchQueryPatterns['default']
+    /**
+     * @param array $activityModulesBlackList
+     */
+    public function setActivityModulesBlackList($activityModulesBlackList)
+    {
+        $this->activityModulesBlackList = $activityModulesBlackList;
+    }
+
+    /**
+     * @param array $userIds
+     */
+    public function setUserIds($userIds)
+    {
+        $this->userIds = $userIds;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInsertedActivitiesCount()
+    {
+        return $this->insertedActivitiesCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastNRecords()
+    {
+        return $this->lastNRecords;
+    }
+
+    /**
+     * Checker of possibility of activity generation
+     *
+     * @param \SugarBean $bean
+     * @return bool
+     */
+    public function willGenerateActivity(\SugarBean $bean)
+    {
+        return !empty($this->userIds)
+            && !empty($GLOBALS['beanList']['Activities']) // Check that used sugar instance supports AS
+            && $bean->isActivityEnabled()
+            && !in_array($bean->module_name, $this->activityModulesBlackList)
         ;
     }
 
-    public function init()
+    /**
+     * @param int $totalModuleRecords
+     * @return int
+     */
+    public function calculateActivitiesToCreate($totalModuleRecords)
     {
-        $loadedModules = array();
-        foreach ($this->modules as $module => $moduleRecordCount) {
-            if (!$bean = \BeanFactory::getBean($module)) {
-                continue;
-            }
-            $loadedModules[$module] = $moduleRecordCount;
-            $this->beans[$module] = $bean;
-            $this->currentOffsets[$module] = array(
-                'offset' => 0,
-                'next' => 0,
-                'total' => $moduleRecordCount,
-            );
-        }
-        $this->modules = $loadedModules;
+        $affectedModuleRecords = empty($this->lastNRecords) || ($totalModuleRecords < $this->lastNRecords) ?
+            $totalModuleRecords :
+            $this->lastNRecords
+        ;
 
-        $this->activityModules = array_values(array_diff(array_keys($this->modules), $this->getModulesBlackList()));
-        foreach ($this->activityModules as $module) {
-            // apply lastNRecords option
-            $this->currentOffsets[$module]['total'] =
-                $this->lastNRecords > 0 && $this->modules[$module] > $this->lastNRecords
-                ? $this->lastNRecords
-                : $this->modules[$module];
-            $this->totalModulesRecords += $this->currentOffsets[$module]['total'];
-        }
-        $this->activitiesPerUser = $this->totalModulesRecords * $this->activitiesPerModuleRecord;
-        $this->activityModuleCount = count($this->activityModules);
-        $this->activityBean = \BeanFactory::getBean('Activities');
-        foreach ($this->activityBean->field_defs as $field => $data) {
-            if (empty($data['source'])) {
-                $this->activityFields[$field] = $data;
-            }
-        }
-        $this->initNextModuleName();
+        return $affectedModuleRecords * $this->activitiesPerModuleRecord * count($this->userIds);
     }
 
+    /**
+     * @param DataTool $dTool
+     * @param \SugarBean $bean
+     */
+    public function createActivityForRecord(DataTool $dTool, \SugarBean $bean)
+    {
+        if (!$this->willGenerateActivity($bean)) {
+            return;
+        }
+
+        foreach ($this->userIds as $uid) {
+            for ($index = 0; $index < $this->activitiesPerModuleRecord; $index++) {
+                $this->createActivity($index, $uid, $dTool, $bean->object_name);
+            }
+        }
+    }
+
+    /**
+     * Write to storage activities for record in DataTool.
+     *
+     * @param int $index
+     * @param string $uid
+     * @param DataTool $dTool
+     * @param string $beanObjectName
+     */
+    protected function createActivity($index, $uid, DataTool $dTool, $beanObjectName)
+    {
+        $fillPercentage = round(($index / $this->activitiesPerModuleRecord) * 100);
+        $activityType = $this->getNextActivityType($fillPercentage);
+
+        $activityEntity = new Entity($uid, $dTool, $beanObjectName, $activityType);
+        $activityData = $activityEntity->getData();
+        $relationshipsData = $activityEntity->getRelationshipsData();
+
+        $this->insertBufferActivities->addInstallData($activityData);
+        foreach ($relationshipsData as $rel) {
+            $this->insertBufferActivitiesRelationships->addInstallData($rel);
+        }
+
+        $this->insertedActivitiesCount++;
+    }
+
+    /**
+     * Clear activities db.
+     *
+     * @return bool
+     */
     public function obliterateActivities()
     {
-        return $this->query("DELETE FROM {$this->activityBean->table_name}")
-        && $this->query("DELETE FROM {$this->relationshipsTable}");
-    }
-
-    public function createDataSet()
-    {
-        $this->currentUser = $this->currentUser ? $this->currentUser : $this->nextUser();
-
-        while ($this->currentModuleRecord = $this->nextModuleRecord($this->currentModuleName)) {
-            $this->createActivitiesForRecord();
-            if ($this->dataSetLength >= $this->insertionBufferSize) {
-                // flush current buffers
-                return true;
-            }
-        }
-
-        // iterate again with next module
-        $nextModuleNameExists = $this->initNextModuleName();
-        if ($nextModuleNameExists) {
-            $this->currentOffsets[$this->currentModuleName]['next'] = 0;
-            return true;
-        }
-
-        // iterate again with next user
-        $this->currentUser = $this->nextUser();
-        if ($this->currentUser) {
-            $this->cleanOffsets();
-            $this->nextActivityModule = 0;
-            $this->initNextModuleName();
-            return true;
-        }
-
-        // we have no next module nor next user, so process finished
-        return false;
-    }
-
-    protected function createActivitiesForRecord()
-    {
-        for ($index = 0; $index < $this->activitiesPerModuleRecord; $index++) {
-            $this->createActivity($index);
-        }
-    }
-
-    protected function cleanOffsets()
-    {
-        foreach ($this->currentOffsets as $module => $offsetData) {
-            if ($module !== 'Users') {
-                $this->currentOffsets[$module]['next'] = 0;
-            }
-        }
-    }
-
-    protected function createActivity($index)
-    {
-        $activityEntity = new Entity($this->activityFields, $this->storageType);
-        $activityEntity->moduleId1 = $this->currentUser['id'];
-        $activityEntity->moduleId2 = $this->currentModuleRecord['id'];
-        $activityEntity->moduleName1 = 'Users';
-        $activityEntity->moduleName2 = $this->currentModuleName;
-        $activityEntity->moduleBean2 = $this->beans[$this->currentModuleName];
-        $fillPercentage = round(($index / $this->activitiesPerModuleRecord) * 100);
-        $activityEntity->activityType = $this->getNextActivityType($fillPercentage);
-        $activityEntity->activityData = $this->currentModuleRecord;
-        $activityEntity->initialize();
-        $this->dataSet[] = $activityEntity->getData();
-        $this->dataSetLength++;
-        $relationships = $activityEntity->getRelationshipsData();
-        foreach ($relationships as $rel) {
-            $this->dataSetRelationships[] = $rel;
-        }
-
-    }
-
-    public function flushDataSet($final = false)
-    {
-        if (empty($this->dataSet) || (($this->dataSetLength < $this->insertionBufferSize) && !$final)) {
-            return;
-        }
-
-        $this->insertDataSet($this->dataSet, $this->activityBean->table_name);
-
-        // relationships
-        $this->insertDataSet($this->dataSetRelationships, $this->relationshipsTable);
-
-        $this->insertedActivities += $this->dataSetLength;
-        $this->progress = round(
-            ($this->currentOffsets['Users']['next'] / ($this->currentOffsets['Users']['total'] + 1)) * 100
-        );
-
-        $this->dataSet = $this->dataSetRelationships = array();
-        $this->dataSetLength = 0;
+        return $this->db->query($this->getTruncateTableSQL(self::ACTIVITY_TABLE))
+        && $this->db->query($this->getTruncateTableSQL(self::RELATIONSHIP_TABLE));
     }
 
     /**
-     * Generate and execute insert query
+     * Contains truncate db table logic for different DB Managers
      *
-     * @param array $dataSet
-     * @param string $tableName
+     * @param $tableName
+     * @return string
      */
-    protected function insertDataSet(array $dataSet, $tableName)
+    protected function getTruncateTableSQL($tableName)
     {
-        if (empty($dataSet)) {
-            return;
-        }
-        foreach ($dataSet as $set) {
-            $this->getInsertBufferForTable($tableName)->addInstallData($set);
-        }
+        return ($this->db->dbType == 'ibm_db2')
+            ? sprintf('ALTER TABLE %s ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE', $tableName)
+            : $this->db->truncateTableSQL($tableName);
     }
 
     /**
-     * Lazy creator of insert buffers
-     *
-     * @param string $tableName
-     * @return InsertBuffer
+     * @param $fillPercentage
+     * @return int|string
      */
-    protected function getInsertBufferForTable($tableName)
-    {
-        if (empty($this->insertBuffers[$tableName])) {
-            $this->insertBuffers[$tableName] = new InsertBuffer(
-                $tableName,
-                $this->storageAdapter,
-                $this->insertBatchSize
-            );
-        }
-        return $this->insertBuffers[$tableName];
-    }
-
-    protected function initNextModuleName()
-    {
-        $moduleName = isset($this->activityModules[$this->nextActivityModule]) ?
-            $this->activityModules[$this->nextActivityModule++] : null;
-        if ($moduleName) {
-            $this->currentModuleName = $moduleName;
-            return true;
-        }
-        return false;
-    }
-
-    protected function nextModuleRecord($moduleName)
-    {
-        if (empty($this->fetchedData[$moduleName][$this->currentOffsets[$moduleName]['next']])) {
-            if (empty($this->fullyLoadedModules[$moduleName])) {
-                $this->fetchedData[$moduleName] = isset($this->fetchedData[$moduleName]) ?
-                    $this->fetchedData[$moduleName]
-                    : array();
-                if ($data = $this->fetchNextModuleRecords($moduleName)) {
-                    foreach ($data as $k => $v) {
-                        $this->fetchedData[$moduleName][$k] = $v;
-                    }
-                }
-            }
-        }
-        if (!empty($this->fetchedData[$moduleName][$this->currentOffsets[$moduleName]['next']])) {
-            return $this->fetchedData[$moduleName][$this->currentOffsets[$moduleName]['next']++];
-        }
-        return null;
-    }
-
-    protected function nextUser()
-    {
-        $user = $this->nextModuleRecord('Users');
-        if (!empty($user['id']) && $user['id'] == 1) { // skip admin
-            $user = $this->nextModuleRecord('Users');
-        }
-        return $user;
-    }
-
-    protected function fetchNextModuleRecords($moduleName)
-    {
-        $extraFields = array();
-        $hasName = !empty($this->beans[$moduleName]->field_defs['name'])
-            && empty($this->beans[$moduleName]->field_defs['name']['source']);
-        if ($hasName) {
-            $extraFields[] = 'name';
-        }
-        $hasLastName = !empty($this->beans[$moduleName]->field_defs['last_name'])
-            && empty($this->beans[$moduleName]->field_defs['last_name']['source']);
-        if ($hasLastName) {
-            $extraFields[] = 'last_name';
-        }
-
-        $data = null;
-
-        $limit = $this->fetchBuffer;
-        if ($this->currentOffsets[$moduleName]['offset'] + $limit > $this->currentOffsets[$moduleName]['total']) {
-            $limit = $this->currentOffsets[$moduleName]['total'] - $this->currentOffsets[$moduleName]['offset'];
-            $this->fullyLoadedModules[$moduleName] = true;
-        }
-
-        if ($limit > 0) {
-            $sql = sprintf(
-                $this->fetchQueryPattern,
-                empty($extraFields) ? '' : ', ' . implode(', ', $extraFields),
-                $this->beans[$moduleName]->table_name,
-                $this->currentOffsets[$moduleName]['offset'],
-                $limit
-            );
-            $data = $this->fetch($sql, $this->currentOffsets[$moduleName]['offset']);
-        }
-        if ($data) {
-            $this->currentOffsets[$moduleName]['offset'] += $limit;
-        } else {
-            $this->fullyLoadedModules[$moduleName] = true;
-        }
-        return $data;
-    }
-
-    protected function fetch($sql, $startIndex = 0)
-    {
-        $out = array();
-        $res = $this->query($sql);
-        while ($row = $this->db->fetchByAssoc($res)) {
-            $this->countFetch++;
-            $out[$startIndex++] = $row;
-        }
-        return $out;
-    }
-
     protected function getNextActivityType($fillPercentage)
     {
         $percentage = 0;
@@ -415,21 +258,5 @@ class Activity
                 return $at;
             }
         }
-    }
-
-    protected function query($sql)
-    {
-        $this->countQuery++;
-        return $this->db->query($sql);
-    }
-
-    /**
-     * Activities won't be created for these modules
-     * @return array
-     */
-    protected function getModulesBlackList()
-    {
-        global $activityModulesBlackList;
-        return $activityModulesBlackList;
     }
 }

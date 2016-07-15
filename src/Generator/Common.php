@@ -37,8 +37,11 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Config;
+use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\InsertBuffer;
+use Sugarcrm\Tidbit\StorageAdapter\Factory;
 use \Sugarcrm\Tidbit\StorageAdapter\Storage\Common as StorageCommon;
 
 abstract class Common
@@ -73,6 +76,33 @@ abstract class Common
     protected $insertCounter = 0;
 
     /**
+     * Insert counters by modules
+     *
+     * @var array
+     */
+    private $insertCounterModules = array();
+
+
+    /**
+     * @var Activity
+     */
+    protected $activityStreamGenerator;
+
+    /**
+     * Number of records what generator should create
+     *
+     * @var int
+     */
+    protected $recordsNumber = 0;
+
+    /**
+     * Object of module-class for what we'll create AS
+     *
+     * @var \SugarBean
+     */
+    protected $activityBean = null;
+
+    /**
      * List of InsertBuffer's instances
      *
      * @var array
@@ -85,21 +115,61 @@ abstract class Common
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
      * @param int $insertBatchSize
+     * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber = 0)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
         $this->storageType = $storageAdapter::STORE_TYPE;
         $this->insertBatchSize = $insertBatchSize;
+        $this->recordsNumber = $recordsNumber;
+    }
+
+    /**
+     * Return object of module-class for what we'll create AS
+     *
+     * @return null|\SugarBean
+     */
+    public function getActivityBean()
+    {
+        return $this->activityBean;
+    }
+
+    /**
+     * @param string $moduleName
+     * @return int
+     */
+    public function getInsertCounterForModule($moduleName)
+    {
+        if (!isset($this->insertCounterModules[$moduleName])) {
+            return 0;
+        }
+
+        return $this->insertCounterModules[$moduleName];
+    }
+
+    /**
+     * @param string $moduleName
+     */
+    public function incrementInsertCounterForModule($moduleName)
+    {
+        $this->insertCounterModules[$moduleName] = $this->getInsertCounterForModule($moduleName) + 1;
+    }
+
+    /**
+     * @param Activity $activityStreamGenerator
+     */
+    public function setActivityStreamGenerator($activityStreamGenerator)
+    {
+        $this->activityStreamGenerator = $activityStreamGenerator;
     }
 
     /**
      * Data generator.
      *
-     * @param int $number
      */
-    abstract public function generate($number);
+    abstract public function generate();
 
     /**
      * Remove generated data from DB.
@@ -110,6 +180,19 @@ abstract class Common
      * Remove all data from the tables of DB affected by generator.
      */
     abstract public function obliterateDB();
+
+    /**
+     * Contains truncate db table logic for different DB Managers
+     *
+     * @param $tableName
+     * @return string
+     */
+    protected function getTruncateTableSQL($tableName)
+    {
+        return ($this->db->dbType == 'ibm_db2')
+            ? sprintf('ALTER TABLE %s ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE', $tableName)
+            : $this->db->truncateTableSQL($tableName);
+    }
 
     /**
      * @return int
@@ -139,6 +222,19 @@ abstract class Common
     }
 
     /**
+     * Update generated records count in $modules array
+     *
+     * @param $module
+     * @param $count
+     */
+    protected function updateModulesCount($module, $count)
+    {
+        /** @var Config $config */
+        $config = CoreFactory::getComponent('Config');
+        $config->setModuleCount($module, $count);
+    }
+
+    /**
      * Generate DataTool object with data for model.
      *
      * @param string $modelName
@@ -156,6 +252,18 @@ abstract class Common
         $dataTool->count = $modelCounter;
         $dataTool->generateId();
         $dataTool->generateData();
+
+        if ($this->activityStreamGenerator) {
+            $tailRecords = $this->recordsNumber - $this->activityStreamGenerator->getLastNRecords();
+            if ($this->activityStreamGenerator->getLastNRecords() == 0
+                || $this->recordsNumber < $this->activityStreamGenerator->getLastNRecords()
+                || $this->getInsertCounterForModule($modelName) >= $tailRecords
+            ) {
+                $this->activityStreamGenerator->createActivityForRecord($dataTool, $bean);
+            }
+        }
+
+        $this->incrementInsertCounterForModule($modelName);
 
         return $dataTool;
     }

@@ -85,6 +85,56 @@ function generate_full_teamset($set, $teams)
 }
 
 /**
+ * Generate $tidbit_relationships array for all custom Many/Many Relationships
+ *
+ * @param array $tidbit_relationships exiting relationship configuration
+ * @return array
+ */
+function generate_m2m_relationship_list($tidbit_relationships = array())
+{
+
+    $skips = array();
+
+    global $dictionary;
+    foreach ($dictionary as $module => $field_and_rel_data) {
+        if (!isset($field_and_rel_data['relationships'])) {
+            continue;
+        }
+        foreach ($field_and_rel_data['relationships'] as $rel_name => $rel_data) {
+            if (!isset($rel_data['join_table'])) {
+                $skips[] = $rel_name;
+                continue;
+            }
+
+            $parent_module = $rel_data['lhs_module'];
+            $second_module = $rel_data['rhs_module'];
+            $self = $rel_data['join_key_lhs'];
+            $you = $rel_data['join_key_rhs'];
+            $table = $rel_data['join_table'];
+
+            if (!isset($tidbit_relationships[$parent_module])) {
+                $tidbit_relationships[$parent_module] = array();
+            }
+
+            /*
+             * don't override existing definitions
+             */
+            if (isset($tidbit_relationships[$parent_module][$second_module])) {
+                continue;
+            }
+
+            $tidbit_relationships[$parent_module][$second_module] = array(
+              'self' => $self,
+              'you' => $you,
+              'table' => $table,
+            );
+        }
+    }
+
+    return $tidbit_relationships;
+}
+
+/**
  * @param string $dir
  */
 function clearCsvDir($dir)
@@ -120,4 +170,37 @@ function uncaughtExceptionHandler(\Exception $e)
         $e->getLine()
     );
     exitWithError($message);
+}
+
+/**
+ * Load and return array of ids of existing users
+ * except id of admin.
+ *
+ * @param DBManager $db
+ * @return array
+ */
+function loadUserIds(\DBManager $db)
+{
+    $ids = array();
+    $sql = "SELECT id FROM users WHERE id != 1";
+    $result = $db->query($sql);
+    while ($row = $db->fetchByAssoc($result)) {
+        $ids[] = $row['id'];
+    }
+    
+    return $ids;
+}
+
+/**
+ * @param string $path
+ * @param string $files_pattern
+ */
+function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
+{
+    $entries = scandir($path);
+    foreach ($entries as $entry) {
+        if (preg_match($files_pattern, $entry)) {
+            require_once $path . '/' . $entry;
+        }
+    }
 }

@@ -38,7 +38,7 @@
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
     " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
 
-$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 through 6.0.\n";
+$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.\n";
 $helpStr = <<<EOS
 $versionStr
 This script populates your instance of SugarCRM with realistic demo data.
@@ -47,7 +47,7 @@ $usageStr
 Options
     -l loadFactor   	The number of Accounts to create.  The ratio between
                     	Accounts and the other modules is fixed in
-                    	install_config.php, so the loadFactor determines the number
+                    	configs, so the loadFactor determines the number
                     	of each type of module to create.
                     	If not specified, defaults to 1000.
 
@@ -77,6 +77,23 @@ Options
                     	be created is assumed to be the number of existing users.
                     	Useful for appending data onto an existing data set.
 
+    --allmodules        All Modules. Scans the Sugar system for all out-of-box
+                        and custom modules and will insert records to populate
+                        all. If modules are already configured, those 
+                        configurations are not overridden, only appended-to. The
+                        number of records created is specified by config. variable 
+                        \$all_modules_default_count, which is set to 5000 unless
+                        overridden in custom configuration. It is recommended 
+                        that this option still be used with custom configuration 
+                        to handle custom fields, one/many relationships and any 
+                        customization like custom indexes or auto-incrementing
+                        fields. 
+                        
+    --allrelationships  All Relationships. Scans the Sugar system for all out-of-box
+                        and custom relationships. If relationships are already 
+                        configured, those configurations are not overridden but 
+                        only appended-to. 
+
     --as_populate       Populate ActivityStream records for each user and module
 
     --as_last_rec <N>   Works with "--as_populate" key only. Populate last N
@@ -84,13 +101,14 @@ Options
 
     --as_number <N>     Works with "--as_populate" key only. Number of
                         ActivityStream records for each module record (default 10)
-
+                        
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
-                        insertion buffer (default 1000)
+                        insertion buffer (by default equals to insert_batch_size)
 
     --storage name       Storage name, you have next options:
                         - mysql
                         - oracle
+                        - db2
                         - csv
 
     --sugar_path        Path to Sugar installation directory
@@ -122,6 +140,10 @@ Options
     --with-tags         Turn on Tags and Tags Relations generation. If you do not specify this option,
                         default will be false.
 
+    --with-favorites    Turn on Sugar Favorites generation. Will generate records in "sugarfavorites" table for modules
+                        describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
+                        "load factor" (-l) argument
+
     "Powered by SugarCRM"
 
 
@@ -140,6 +162,9 @@ $opts = getopt(
         'tba_level:',
         'tba',
         'with-tags',
+        'with-favorites',
+        'allmodules',
+        'allrelationships',
         'as_populate',
         'as_number:',
         'as_buffer:',
@@ -165,8 +190,15 @@ if (isset($opts['h'])) {
 ini_set('memory_limit', '8096M');
 set_time_limit(0);
 
+define('TIDBIT_DIR', __DIR__);
+define('CONFIG_DIR', __DIR__ . '/config');
+define('DATA_DIR', CONFIG_DIR . '/data');
+define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
+
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/install_config.php';
+
+// load general config
+require_once CONFIG_DIR . '/config.php';
 
 set_exception_handler('uncaughtExceptionHandler');
 
@@ -178,16 +210,10 @@ if (!is_file($sugarPath . '/include/entryPoint.php')) {
 }
 
 define('SUGAR_PATH', $sugarPath);
-define('TIDBIT_DIR', __DIR__);
-define('DATA_DIR', __DIR__ . '/Data');
-define('RELATIONSHIPS_DIR', __DIR__ . '/Relationships');
 
 if (!defined('sugarEntry')) {
     define('sugarEntry', true);
 }
-
-require_once DATA_DIR . '/DefaultData.php';
-require_once DATA_DIR . '/contactSeedData.php';
 
 chdir(SUGAR_PATH); // needed because we have check in entryPoint.php (if file_exists('config.php'))
 
@@ -214,12 +240,45 @@ if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
     set_include_path(INSTANCE_PATH . PATH_SEPARATOR . TEMPLATE_PATH . PATH_SEPARATOR . get_include_path());
 }
 
+// load user's modules data files
+require_once DATA_DIR . '/contactSeedData.php'; // must be loaded here
+includeDataInDir(DATA_DIR);
+
+// Load custom fields for relationships
+includeDataInDir(RELATIONSHIPS_DIR);
+
+// Load user's configs
+require_once __DIR__ . '/custom/config.php';
+
 $GLOBALS['log'] = new Sugarcrm\Tidbit\FakeLogger();
 $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
 $GLOBALS['db'] = DBManagerFactory::getInstance(); // get default sugar db
+// Do not cache DateTime values, DataTool will do this
+$GLOBALS['timedate']->allow_cache = false;
 
 $GLOBALS['processedRecords'] = 0;
 $GLOBALS['allProcessedRecords'] = 0;
+
+/*
+ * if user wants all modules, append system modules to existing config
+ */
+if (isset($opts['allmodules'])) {
+    global $moduleList;
+    foreach ($moduleList as $aModule) {
+        if (!isset($modules[$aModule])) {
+            $modules[$aModule] = $all_modules_default_count;
+        }
+    }
+    ksort($modules);
+}
+
+/*
+ * if user wants all relationships, append to existing config
+ */
+if (isset($opts['allrelationships'])) {
+    global $tidbit_relationships;
+    $tidbit_relationships = generate_m2m_relationship_list($tidbit_relationships);
+}
 
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
@@ -230,7 +289,7 @@ $GLOBALS['time_spend'] = array();
 
 $recordsPerPage = 1000;     // Are we going to use this?
 $insertBatchSize = 0;       // zero means use default value provided by storage adapter
-$moduleUsingGenerators = array('KBContents', 'Categories');
+$moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites');
 
 
 if (isset($opts['l'])) {
@@ -240,6 +299,13 @@ if (isset($opts['l'])) {
     $factor = $opts['l'] / $modules['Accounts'];
     foreach ($modules as $m => $n) {
         $modules[$m] *= $factor;
+    }
+    
+    // Multiple favorites with $factor too 
+    if (isset($opts['with-favorites'])) {
+        foreach ($sugarFavoritesModules as $m => $n) {
+            $sugarFavoritesModules[$m] *= $factor;
+        }
     }
 }
 if (isset($opts['u'])) {
@@ -277,6 +343,11 @@ if (isset($opts['t'])) {
 if (isset($opts['d'])) {
     $GLOBALS['debug'] = true;
 }
+
+if (!isset($opts['with-favorites'])) {
+    unset($modules['SugarFavorites']);
+}
+
 $maxTeamsPerSet = (!empty($opts['s'])) ? $opts['s'] : $defaultMaxTeamsPerSet;
 
 if (isset($opts['tba'])) {
@@ -341,3 +412,9 @@ if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['s
 foreach ($modules as $records) {
     $GLOBALS['totalRecords'] += $records;
 }
+
+$activityStreamOptions = array(
+    'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
+    'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : $insertBatchSize,
+    'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
+);

@@ -41,7 +41,7 @@ $tidbitCsvDir = 'csv';
 
 $defaultMaxTeamsPerSet = 10;
 
-// Default Sugar location path, could be overrided by "--sugar_path" argument
+// Default Sugar location path, could be overridden by "--sugar_path" argument
 $sugarPath = __DIR__ . '/..';
 
 $modules = array(
@@ -56,7 +56,7 @@ $modules = array(
     'Products' => 4000,
     'Calls' => 24000,
     'Emails' => 16000,
-//    'EmailText' => 16000,
+    'EmailText' => 16000,
     'Contacts' => 4000,
     'Leads' => 4000,
     'Opportunities' => 2000,
@@ -68,8 +68,23 @@ $modules = array(
     'Documents' => 1000,
     'Categories' => 600,
     'KBContents' => 1000,
+    // Will be set by SugarFavorites Generator class
+    'SugarFavorites' => 1000,
 );
 
+/*
+ * When using --allmodules this is the number of records to create per-module
+ * when the module is not defined in the $modules array.  
+ */
+$all_modules_default_count = 5000;
+
+/*
+ * Add a module alias for GUID creation. All records created will have a GUID 
+ * that begins with the string 'seed-', then the module name or this alias, then
+ * a timestamp and an auto incrementing integer. It is recommended that all
+ * module names over 10 characters have a shorter alias to ensure that unique
+ * GUIDs can be created.    
+ */
 $aliases = array(
     'EmailAddresses' => 'Emadd',
     'ProductBundles' => 'Prodb',
@@ -114,11 +129,12 @@ $tidbit_relationships['Users'] = array(
         'you' => 'meeting_id',
         'table' => 'meetings_users'
     ),
-    /*'EmailAddresses' => array(
+    'EmailAddresses' => array(
         'self'  => 'bean_id',
         'you'   => 'email_address_id',
         'table' => 'email_addr_bean_rel',
-    ),*/
+        'ratio' => 1,
+    ),
 );
 $tidbit_relationships['Accounts'] = array(
     'EmailAddresses' => array(
@@ -159,12 +175,12 @@ $tidbit_relationships['Accounts'] = array(
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),
-    /*'Emails' => array(
+    'Emails' => array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
         'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
-    ),*/
+    ),
 );
 $tidbit_relationships['Contacts'] = array(
     'EmailAddresses' => array(
@@ -210,14 +226,14 @@ $tidbit_relationships['Contacts'] = array(
         'random_ratio' => array('min' => 0, 'max' => 3),
         'random_id' => true,
     ),
-    /*'Emails' => array(
+    'Emails' => array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
         'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
-    ),*/
-
+    ),
 );
+
 $tidbit_relationships['Opportunities'] = array(
     'Quotes' => array(
         'self' => 'opportunity_id',
@@ -390,4 +406,17 @@ $kbLanguage = array(
         'ru' => 'Russian',
     ),
     'primary' => 'en',
+);
+
+$sugarFavoritesModules = array(
+    'Accounts'      => 100, // 10% of base accounts
+    'Contacts'      => 400,
+    'Leads'         => 400,
+    'Opportunities' => 200,
+    'Calls'         => 1200, // 5% of base calls
+    'Meetings'      => 400, // 5% of base meetings
+    'Cases'         => 200,
+    'Bugs'          => 150,
+    'Tasks'         => 200,
+    'Notes'         => 200,
 );

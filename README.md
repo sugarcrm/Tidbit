@@ -1,5 +1,11 @@
 Tidbit v2.0
 ===========
+
+| [Master][Master] | [Develop][Develop] |
+|:----------------:|:----------:|
+| [![Build status][Master image]][Master] | [![Build status][Develop image]][Develop] |
+| [![Coverage Status][Master coverage image]][Master coverage] | [![Coverage Status][Develop coverage image]][Develop coverage] |
+
 Tidbit is random data generator for Sugar versions 6.5 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
@@ -69,10 +75,22 @@ Installation of Vagrant Stack (Example):
     ```
     $ ./composer.phar install
     ```
+    
+Configuration
+-------------
+    Tidbit has default config files in tidbit_root/config/ folder.
+    Here:
+        - config.php          -- main config file
+        - data/*.php          -- customization of filling for separate fields if
+                                 bean tables
+        - relationships/*.php -- customization of filling for separate fields if
+                                 bean relation tables
+    Tidbit settings can be fully overrided in tidbit_root/custom/config.php file
+    by php arrays in the same manner as in original configs
 
 Usage
 -----
-**NOTE** **Usage of Tidbit could affect on your _data_ in DB**
+**NOTE** **Usage of Tidbit could affect your _data_ in DB**
 Please make sure you have a backup, before running data Generation commands
 
 Tidbit uses a command line interface.  To run it from the Tidbit directory:
@@ -95,17 +113,23 @@ Example usages:
     * Generate data into csv (mysql is default):
       $ php -f install_cli.php -- --storage csv
 
-    * Obliterate all data when generating new records with 300 users:
+    * Generate records for all out-of-box and custom modules, plus find all relationships
+      $ php -f install_cli.php -- --allmodules --allrelationships
+
+    * Obliterate all data when generating new records with 400 users:
       $php -f install_cli.php -- -o -u 400
       
-    * Generate TeamBasedACL action restrictions for chosen level (check level options in install_config.php)
+    * Generate TeamBasedACL action restrictions for chosen level (check level options in config files)
       $php -f install_cli.php -- -o --tba -tba_level full
       
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)
       $php -f install_cli.php -- -o --insert_batch_size 1000
 
     * Setting path to SugarCRM installation
-      $php -f install_cli.php -- --sugar_path /some/sugar/path
+      $php -f install_cli.php -- -o --sugar_path /some/sugar/path
+
+    * Using DB2 storage example (mysql/oracle/db2 can be used, depending on Sugar installation and DB usage)
+      $php -f install_cli.php -- -o --sugar_path /some/sugar/path --storage db2
 
 Contributing:
 ------------
@@ -120,3 +144,22 @@ or call PHP CS directly
 
     $ ./vendor/bin/phpcs --standard=./ruleset.xml
     
+to run PHPUnit tests locally please use
+
+    $ ./composer.phar tests
+    
+or call PHPUnit directly
+
+    $ ./vendor/bin/phpunit -c ./phpunit.xml.dist
+    
+There are automated PR checks enabled on TravisCI (https://travis-ci.org/sugarcrm/Tidbit)
+For each PR code-style and phpunit tests will be executed for verification
+
+  [Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
+  [Master]: https://travis-ci.org/sugarcrm/Tidbit
+  [Master coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=master
+  [Master coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=master
+  [Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
+  [Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
+  [Develop coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=develop
+  [Develop coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=develop

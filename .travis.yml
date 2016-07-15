@@ -1,0 +1,35 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+
+before_script:
+  - if [[ $TRAVIS_PHP_VERSION = '5.3' || $TRAVIS_PHP_VERSION = '5.4' ]]; then PHP_COVERALLS_VERSION="~1.0"; else PHP_COVERALLS_VERSION=""; fi
+  - composer self-update
+  - composer require satooshi/php-coveralls $PHP_COVERALLS_VERSION
+  - composer install --prefer-source
+
+script:
+  - composer check-style
+  - composer tests-ci
+
+after_script:
+ - php vendor/bin/coveralls -v
+
+matrix:
+  fast_finish: true
+
+sudo: false
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+cache:
+  directories:
+    - $HOME/.composer/cache

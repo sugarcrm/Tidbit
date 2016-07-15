@@ -39,12 +39,12 @@ namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 use Sugarcrm\Tidbit\Exception;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-class Oracle extends Common
+class Db2 extends Common
 {
     /**
      * @var string
      */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
+    const STORE_TYPE = Factory::OUTPUT_TYPE_DB2;
 
     /**
      * {@inheritdoc}
@@ -69,20 +69,21 @@ class Oracle extends Common
     protected function prepareQuery($tableName, array $installData)
     {
         if (!$tableName || !$installData) {
-            throw new Exception("Oracle adapter error: wrong data to insert");
+            throw new Exception("DB2 adapter error: wrong data to insert");
         }
 
-        $sql = 'INSERT /*+APPEND*/ ALL';
         $columns = " (" . implode(", ", array_keys($installData[0])) . ")";
+        $sql = 'INSERT INTO ' . $tableName . $columns;
 
         $this->patchSequenceValues($installData);
+        $insertRecords = count($installData);
 
-        foreach ($installData as $data) {
-            $sql .= ' INTO ' . $tableName . $columns . ' VALUES '
-                . "(" . implode(", ", $data) . ")";
+        for ($i = 0; $i < $insertRecords; $i++) {
+            $sql .= ' VALUES ' . "(" . implode(", ", $installData[$i]) . ")";
+            $sql .= ($i + 1 < $insertRecords) ? ' UNION ALL' : '';
         }
 
-        return $sql . ' SELECT * FROM dual';
+        return $sql;
     }
 
     /**
@@ -96,8 +97,9 @@ class Oracle extends Common
             return;
         }
 
-        $currentValue = $this->getCurrentSequenceValue($sequence['name']);
         $installDataCount = count($installData);
+        $currentValue = $this->getCurrentSequenceValue($sequence['name']);
+
         for ($i=0; $i <$installDataCount; $i++) {
             $installData[$i][$sequence['field']] = ++$currentValue;
         }
@@ -130,11 +132,13 @@ class Oracle extends Common
     protected function getCurrentSequenceValue($sequenceName)
     {
         $sql = sprintf(
-            "SELECT last_number as current_val FROM user_sequences WHERE sequence_name='%s'",
+            "SELECT lastassignedval AS current_val FROM SYSIBM.SYSSEQUENCES WHERE seqname = '%s'",
             $sequenceName
         );
+        
         $result = $this->storageResource->query($sql);
         $row = $this->storageResource->fetchByAssoc($result);
+
         return intval($row['current_val']);
     }
 
@@ -151,7 +155,7 @@ class Oracle extends Common
         $this->storageResource->query($sql);
 
         // do increment
-        $sql = sprintf("SELECT %s.NEXTVAL FROM dual", $sequenceName);
+        $sql = sprintf("SELECT %s.nextval FROM SYSIBM.SYSDUMMY1;", $sequenceName);
         $this->storageResource->query($sql);
 
         // return increment value to 1

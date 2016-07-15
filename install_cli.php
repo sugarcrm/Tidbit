@@ -38,14 +38,31 @@
 
 require_once 'bootstrap.php';
 
-//When creating module_keys variable, ensure that Teams and Tags are first in the modules list
+/*
+ * impose a hard limit of one hundred billion on all modules to ensure unique IDs
+ */
+foreach ($modules as $module => $count) {
+    if ($count > 100000000000) {
+        $modules[$module] = 100000000000;
+    }
+}
+
+//When creating module_keys variable, ensure that Teams and Users are first in the modules list
 $module_keys = array_keys($modules);
+array_unshift($module_keys, 'Users');
 array_unshift($module_keys, 'Teams');
 $module_keys = array_unique($module_keys);
 
 echo "Constructing\n";
 foreach ($module_keys as $module) {
     echo "{$modules[$module]} {$module}\n";
+}
+
+if (isset($opts['with-favorites'])) {
+    echo "\nSugar Favorites Generated:\n";
+    foreach ($sugarFavoritesModules as $favModule => $favCount) {
+        echo "\t$favCount {$favModule}\n";
+    }
 }
 
 echo "\n";
@@ -72,8 +89,21 @@ if ($storageType == 'csv') {
 
 $obliterated = array();
 $relationStorageBuffers = array();
+
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
 $prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
+$activityGenerator = new \Sugarcrm\Tidbit\Generator\Activity(
+    $GLOBALS['db'],
+    $storageAdapter,
+    $activityStreamOptions['insertion_buffer_size'],
+    $activityStreamOptions['activities_per_module_record'],
+    $activityStreamOptions['last_n_records']
+);
+$activityGenerator->setActivityModulesBlackList($activityModulesBlackList);
+if (isset($GLOBALS['obliterate'])) {
+    echo "Obliterating activities ... \n";
+    $activityGenerator->obliterateActivities();
+}
 
 foreach ($module_keys as $module) {
     $GLOBALS['time_spend'][$module] = microtime();
@@ -93,6 +123,10 @@ foreach ($module_keys as $module) {
         if ($module == 'Teams') {
             \Sugarcrm\Tidbit\Generator\TeamSets::loadExistingTeamSetsIntoDataTool($GLOBALS['db']);
         }
+        if ($module == 'Users') {
+            $existingUserIds = loadUserIds($GLOBALS['db']);
+            $activityGenerator->setUserIds($existingUserIds);
+        }
         echo "Skipping $module\n";
         continue;
     }
@@ -100,14 +134,11 @@ foreach ($module_keys as $module) {
     echo "\nProcessing Module $module\n";
     $total = $modules[$module];
 
-    if (file_exists(DATA_DIR . '/' . $module . '.php')) {
-        require_once(DATA_DIR . '/' . $module . '.php');
-    }
-
     if (in_array($module, $moduleUsingGenerators)) {
         $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
         /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
-        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize, $modules[$module]);
+
         if (isset($GLOBALS['obliterate'])) {
             echo "\tObliterating all existing data ... ";
             $generator->obliterateDB();
@@ -118,8 +149,17 @@ foreach ($module_keys as $module) {
             echo "DONE";
         }
 
+        if (!empty($GLOBALS['as_populate'])) {
+            $generator->setActivityStreamGenerator($activityGenerator);
+            $activityBean = $generator->getActivityBean();
+            if ($activityBean && $activityGenerator->willGenerateActivity($activityBean)) {
+                echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($modules[$module])
+                    . " activity records";
+            }
+        }
+
         echo "\n\tHitting DB... ";
-        $generator->generate($modules[$module]);
+        $generator->generate();
         $total = $generator->getInsertCounter();
         echo " DONE";
 
@@ -138,6 +178,9 @@ foreach ($module_keys as $module) {
 
     $bean = BeanFactory::getBean($module);
 
+    // If the module has custom fields, write to the _cstm table
+    $useCustomTable = $bean->hasCustomFields();
+
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
         /* Make sure not to delete the admin! */
@@ -151,6 +194,11 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
+
+            // if module has custom table obliterate up custom table too
+            if ($useCustomTable) {
+                $GLOBALS['db']->query("DELETE FROM " . $bean->get_custom_table_name() . " WHERE 1 = 1");
+            }
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
@@ -175,6 +223,14 @@ foreach ($module_keys as $module) {
             $GLOBALS['db']->query("DELETE FROM team_sets_modules");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
+
+            // if module has custom table clean up custom table too
+            if ($useCustomTable) {
+                $GLOBALS['db']->query(
+                    "DELETE FROM " . $bean->get_custom_table_name()
+                    . " WHERE 1=1 AND id_c LIKE 'seed-%'"
+                );
+            }
         }
         if (!empty($tidbit_relationships[$module])) {
             foreach ($tidbit_relationships[$module] as $rel) {
@@ -191,12 +247,24 @@ foreach ($module_keys as $module) {
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
     $dTool->fields = $bean->field_defs;
 
-    $dTool->table_name = $bean->table_name;
+    $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
 
+    if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
+        echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
+    }
     echo "\n\tHitting DB... ";
-    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
 
+    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
+    
+    if ($useCustomTable) {
+        $beanInsertBufferCustom = new \Sugarcrm\Tidbit\InsertBuffer(
+            $bean->get_custom_table_name(),
+            $storageAdapter,
+            $insertBatchSize
+        );
+    }
+    
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
      * $module and $bean->table_name. */
@@ -213,30 +281,53 @@ foreach ($module_keys as $module) {
             $dTool->generateData();
         }
 
-        if ($beanId = $dTool->generateId()) {
+        // Generate relationships if $bean has an "id" field
+        if ($beanId = $dTool->generateId($useCustomTable)) {
             $generatedIds[] = $beanId;
-            $dTool->generateRelationships();
-        }
 
-        $GLOBALS['allProcessedRecords']++;
-        $GLOBALS['processedRecords']++;
-        $beanInsertBuffer->addInstallData($dTool->installData);
+            /** @var \Sugarcrm\Tidbit\Core\Relationships $relationships */
+            $relationships = \Sugarcrm\Tidbit\Core\Factory::getComponent('Relationships');
+            $relationships->generateRelationships($dTool->module, $dTool->count, $dTool->installData);
 
-        if ($dTool->getRelatedModules()) {
-            foreach ($dTool->getRelatedModules() as $table => $installDataArray) {
-                if (empty($relationStorageBuffers[$table])) {
-                    $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
-                        $table,
-                        $storageAdapter,
-                        $insertBatchSize
-                    );
-                }
-                foreach ($installDataArray as $data) {
-                    $relationStorageBuffers[$table]->addInstallData($data);
+            if ($relationships->getRelatedModules()) {
+                foreach ($relationships->getRelatedModules() as $table => $installDataArray) {
+                    if (empty($relationStorageBuffers[$table])) {
+                        $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
+                            $table,
+                            $storageAdapter,
+                            $insertBatchSize
+                        );
+                    }
+
+                    foreach ($installDataArray as $data) {
+                        $relationStorageBuffers[$table]->addInstallData($data);
+                    }
                 }
             }
+
+            $relationships->clearRelatedModules();
         }
-        $dTool->clearRelatedModules();
+
+        $beanInsertBuffer->addInstallData($dTool->installData);
+
+        // if module has custom table, write custom install data into buffer
+        if (isset($beanInsertBufferCustom) && $useCustomTable && !empty($dTool->installDataCstm)) {
+            $beanInsertBufferCustom->addInstallData($dTool->installDataCstm);
+        }
+
+        // Increase counters and insert generated data to Buffer
+        $GLOBALS['allProcessedRecords']++;
+        $GLOBALS['processedRecords']++;
+
+        if (!empty($GLOBALS['as_populate'])
+            && (
+                empty($activityStreamOptions['last_n_records'])
+                || $total < $activityStreamOptions['last_n_records']
+                || $i >= $total - $activityStreamOptions['last_n_records']
+            )
+        ) {
+            $activityGenerator->createActivityForRecord($dTool, $bean);
+        }
 
         if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
             $storageAdapter->commitQuery();
@@ -259,7 +350,7 @@ foreach ($module_keys as $module) {
     }
 
     // Apply TBA Rules for some modules
-    // $roleActions are defined in install_config.php
+    // $roleActions are defined in configs
     if ($module == 'ACLRoles') {
         $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
 
@@ -280,6 +371,9 @@ foreach ($module_keys as $module) {
 
     if ($module == 'Users') {
         $prefsGenerator->generate($generatedIds);
+        if (!empty($GLOBALS['as_populate'])) {
+            $activityGenerator->setUserIds($generatedIds);
+        }
     }
 
     echo " DONE";
@@ -293,6 +387,8 @@ foreach ($module_keys as $module) {
 
 // force immediately destructors work
 unset($relationStorageBuffers);
+$totalInsertedActivities = $activityGenerator->getInsertedActivitiesCount();
+unset($activityGenerator);
 
 if (!empty($GLOBALS['queryFP'])) {
     fclose($GLOBALS['queryFP']);
@@ -303,83 +399,14 @@ echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
 echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
 
-// BEGIN Activity Stream populating
 if (!empty($GLOBALS['as_populate'])) {
-    $activityStreamOptions = array(
-        'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
-        'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : 1000,
-        'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
-    );
-
-    if (!empty($GLOBALS['beanList']['Activities'])) {
-        echo "\nPopulating Activity Stream\n";
-        $timer = microtime(1);
-
-        $tga = new \Sugarcrm\Tidbit\Generator\Activity($GLOBALS['db'], $storageAdapter, $insertBatchSize);
-        $asModules = array();
-        foreach ($GLOBALS['modules'] as $moduleName => $recordsCount) {
-            /** @var SugarBean $bean */
-            $bean = BeanFactory::getBean($moduleName);
-            if ($bean && ($bean->isActivityEnabled() || $moduleName == 'Users')) {
-                $asModules[$moduleName] = $recordsCount;
-            }
-        }
-        $tga->userCount = $GLOBALS['modules']['Users'];
-        $tga->activitiesPerModuleRecord = $activityStreamOptions['activities_per_module_record'];
-        $tga->modules = $asModules;
-        $tga->insertionBufferSize = $activityStreamOptions['insertion_buffer_size'];
-        $tga->lastNRecords = $activityStreamOptions['last_n_records'];
-        if (isset($GLOBALS['iterator'])) {
-            $tga->iterator = $GLOBALS['iterator'];
-            if ($tga->lastNRecords >= $GLOBALS['iterator']) {
-                $tga->lastNRecords = $GLOBALS['iterator'];
-            }
-        }
-
-        $tga->init();
-
-        echo " - user activities per module record: {$tga->activitiesPerModuleRecord}\n";
-        echo " - max number of records for each module: " . ($tga->lastNRecords ? $tga->lastNRecords : 'all') . "\n";
-        echo " - users: {$tga->userCount}\n";
-        echo " - modules: ({$tga->activityModuleCount}) " . implode(',', $tga->activityModules) . "\n";
-        echo " - total activities to insert: " . ($tga->activitiesPerUser * $tga->userCount) . "\n";
-        echo " - activities per user: {$tga->activitiesPerUser}\n";
-        echo " - insertion buffer size: {$tga->insertionBufferSize} records\n";
-        if (isset($GLOBALS['obliterate'])) {
-            echo "\tObliterating existing Activity Stream data ... ";
-            echo ($tga->obliterateActivities() ? "OK" : "FAIL") . "\n";
-        }
-        echo "\tPopulating .";
-
-        $progressStep = 10;
-        $percentage = $progressStep;
-        $insertedActivities = 0;
-
-        do {
-            if ($result = $tga->createDataset()) {
-                $tga->flushDataset();
-                if ($tga->insertedActivities > $insertedActivities) {
-                    echo ".";
-                    $insertedActivities = $tga->insertedActivities;
-                    if ($tga->progress > $percentage) {
-                        $percentage += ceil(($tga->progress - $percentage) / $progressStep) * $progressStep;
-                        echo "{$tga->progress}%";
-                    }
-                }
-            }
-        } while ($result);
-
-        $tga->flushDataset(true);
-
-        echo "\nInserted activities: {$tga->insertedActivities}\n";
-        $timer = round(microtime(1) - $timer, 2);
-        echo "SQL queries: {$tga->countQuery}, fetch requests: {$tga->countFetch}, time spent: {$timer} seconds\n\n";
-        echo "END Activity Stream populating\n\n";
-    } else {
-        echo "Activity Stream doesn't support by SugarCRM instance\n\n";
-    }
+    echo "Activities: \n";
+    echo " - user activities per module record: " . $activityStreamOptions['activities_per_module_record'] . "\n";
+    echo " - users: " . $modules['Users'] . "\n";
+    echo " - max number of records for each module: " .
+        ($activityStreamOptions['last_n_records'] ? $activityStreamOptions['last_n_records'] : 'all') . "\n";
+    echo " - total records inserted: " . $totalInsertedActivities . "\n";
 }
-// END Activity Stream populating
 
 if ($storageType == 'csv') {
     // Save table-dictionaries

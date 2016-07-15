@@ -44,17 +44,19 @@ class Factory
     const OUTPUT_TYPE_MYSQL     = 'mysql';
     const OUTPUT_TYPE_ORACLE    = 'oracle';
     const OUTPUT_TYPE_CSV       = 'csv';
+    const OUTPUT_TYPE_DB2       = 'db2';
 
     /**
      * List of storage types
      *
      * @var array
      */
-    private static $availableTypes = [
+    private static $availableTypes = array(
         self::OUTPUT_TYPE_CSV,
         self::OUTPUT_TYPE_MYSQL,
         self::OUTPUT_TYPE_ORACLE,
-    ];
+        self::OUTPUT_TYPE_DB2,
+    );
 
     /**
      * Storage Adapter Creator

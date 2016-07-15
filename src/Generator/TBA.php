@@ -96,12 +96,9 @@ class TBA extends Common
     /**
      * Generate TBA Rules
      *
-     * @param int $number (this param is here for compatibility only)
-     * @TODO remove number param from generator call
-     *
      * @throws Exception
      */
-    public function generate($number = 0)
+    public function generate()
     {
         if (!$this->aclRoleIds
             || !$this->roleActions
@@ -143,7 +140,7 @@ class TBA extends Common
     public function obliterateDB()
     {
         $this->db->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
-        $this->db->query($this->db->truncateTableSQL('acl_fields'));
+        $this->db->query($this->getTruncateTableSQL('acl_fields'));
     }
 
     /**
