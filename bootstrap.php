@@ -143,6 +143,11 @@ Options
     --with-favorites    Turn on Sugar Favorites generation. Will generate records in "sugarfavorites" table for modules
                         describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
                         "load factor" (-l) argument
+    --profile           Name of file in folder config/profiles or path to php-config-file with profile data.
+                        File can contain php-arrays 
+                            - modules -- counts of beans to create
+                            - profile_opts -- redefines of settings listed here 
+                        In case of setting profile (this setting) setting -l (load factor) will be ignored.
 
     "Powered by SugarCRM"
 
@@ -173,6 +178,7 @@ $opts = getopt(
         'as_last_rec:',
         'iterator:',
         'insert_batch_size:',
+        'profile:',
     )
 );
 
@@ -192,6 +198,7 @@ set_time_limit(0);
 
 define('TIDBIT_DIR', __DIR__);
 define('CONFIG_DIR', __DIR__ . '/config');
+define('PROFILES_DIR', CONFIG_DIR . '/profiles');
 define('DATA_DIR', CONFIG_DIR . '/data');
 define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
 
@@ -201,6 +208,20 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once CONFIG_DIR . '/config.php';
 
 set_exception_handler('uncaughtExceptionHandler');
+
+if (isset($opts['profile'])) {
+    if (is_file($opts['profile'])) {
+        require_once $opts['profile'];
+    } elseif (is_file(PROFILES_DIR . '/' . $opts['profile'])) {
+        require_once PROFILES_DIR . '/' . $opts['profile'];
+    } else {
+        exitWithError('Given profile ' . $opts['profile'] . ' does not exist');
+    }
+
+    if (isset($profile_opts)) {
+        $opts = array_merge($opts, $profile_opts);
+    }
+}
 
 if (isset($opts['sugar_path'])) {
     $sugarPath = $opts['sugar_path'];
@@ -292,7 +313,7 @@ $insertBatchSize = 0;       // zero means use default value provided by storage 
 $moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites');
 
 
-if (isset($opts['l'])) {
+if (isset($opts['l']) && !isset($opts['profile'])) {
     if (!is_numeric($opts['l'])) {
         exitWithError($usageStr);
     }
