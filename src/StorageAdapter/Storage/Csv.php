@@ -52,7 +52,6 @@ class Csv extends Common
      */
     public function save($tableName, array $installData)
     {
-
         if (!$tableName || !$installData) {
             throw new Exception("Csv adapter error: wrong data to save");
         }
@@ -61,15 +60,16 @@ class Csv extends Common
         $needHeader = !file_exists($fileName);
         $storeFile = fopen($fileName, 'a');
 
+        $dataToWrite = '';
         if ($needHeader) {
-            $head = $this->prepareCsvString(array_keys($installData[0]), "'");
-            fwrite($storeFile, $head);
+            $dataToWrite = $this->prepareCsvString(array_keys($installData[0]), "'");
         }
 
         foreach ($installData as $data) {
-            fwrite($storeFile, $this->prepareCsvString($data));
+            $dataToWrite .= $this->prepareCsvString($data);
         }
 
+        fwrite($storeFile, $dataToWrite);
         fclose($storeFile);
     }
 
@@ -83,7 +83,7 @@ class Csv extends Common
     protected function prepareCsvString(array $values, $quote = '')
     {
         foreach ($values as $k => $v) {
-            if (strtolower($v) == 'null') {
+            if ($v === 'null' || $v === 'NULL') {
                 $values[$k] = '';
             } else {
                 $values[$k] = $quote . trim($v) . $quote;
