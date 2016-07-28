@@ -62,3 +62,6 @@ $GLOBALS['dataTool']['Accounts']['name'] = array(
     'prefixlist' => array('companyPre'),
     'suffixlist' => array('companyExt')
 );
+$GLOBALS['dataTool']['Accounts']['phone_alternate'] = array('phone' => true);
+$GLOBALS['dataTool']['Accounts']['phone_fax'] = array('phone' => true);
+$GLOBALS['dataTool']['Accounts']['phone_office'] = array('phone' => true);

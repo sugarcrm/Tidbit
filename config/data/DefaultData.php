@@ -64,11 +64,7 @@ $GLOBALS['dataTool']['default']['time'] = array(
 );
 $GLOBALS['dataTool']['default']['bool'] = array('range' => array('min' => 0, 'max' => 1));
 $GLOBALS['dataTool']['default']['email'] = array('list' => 'last_name_array', 'suffix' => '@example.com');
-$GLOBALS['dataTool']['default']['phone'] = array(
-    'range' => array('min' => 1000, 'max' => 9999),
-    'prefix' => '(555)555-',
-    'isQuoted' => true
-);
+$GLOBALS['dataTool']['default']['phone'] = array('phone' => true);
 $GLOBALS['dataTool']['default']['meeting_probability'] = array('set' => false);
 $GLOBALS['dataTool']['default']['team_id'] = array('related' => array('module' => 'Teams'));
 $GLOBALS['dataTool']['default']['created_by'] = array('related' => array('module' => 'Users'));

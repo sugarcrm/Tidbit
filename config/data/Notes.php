@@ -40,3 +40,4 @@ $GLOBALS['dataTool']['Notes']['parent_id'] = array('related' => array('module' =
 $GLOBALS['dataTool']['Notes']['parent_type'] = array('value' => "'Accounts'");
 $GLOBALS['dataTool']['Notes']['filename'] = array('skip' => true);
 $GLOBALS['dataTool']['Notes']['file_mime_type'] = array('skip' => true);
+$GLOBALS['dataTool']['Notes']['contact_phone'] = array('phone' => true);
