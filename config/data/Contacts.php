@@ -58,3 +58,8 @@ $GLOBALS['dataTool']['Contacts']['account_id'] = array('related' => array('modul
 $GLOBALS['dataTool']['Contacts']['portal_name'] = array('incname' => 'contact');
 $GLOBALS['dataTool']['Contacts']['portal_password'] = array('same_hash' => 'portal_name');
 $GLOBALS['dataTool']['Contacts']['portal_active'] = array('value' => "'1'");
+$GLOBALS['dataTool']['Contacts']['phone_fax'] = array('phone' => true);
+$GLOBALS['dataTool']['Contacts']['phone_work'] = array('phone' => true);
+$GLOBALS['dataTool']['Contacts']['phone_other'] = array('phone' => true);
+$GLOBALS['dataTool']['Contacts']['phone_mobile'] = array('phone' => true);
+$GLOBALS['dataTool']['Contacts']['phone_home'] = array('phone' => true);
