@@ -46,6 +46,7 @@
 namespace Sugarcrm\Tidbit;
 
 use Sugarcrm\Tidbit\Core\Intervals;
+use Sugarcrm\Tidbit\FieldData\Phone;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 
@@ -463,6 +464,10 @@ class DataTool
                 }
             }
             return "'" . @trim($keys[$selected]) . "'";
+        }
+
+        if (isset($typeData['phone'])) {
+            return "'" . Phone::getNumber() . "'";
         }
 
         $isQuote = true;
