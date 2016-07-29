@@ -54,3 +54,8 @@ $GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "'en_us'");
 $GLOBALS['dataTool']['Users']['default_team'] = array('related' => array('module' => 'Teams'));
+$GLOBALS['dataTool']['Users']['phone_fax'] = array('phone' => true);
+$GLOBALS['dataTool']['Users']['phone_work'] = array('phone' => true);
+$GLOBALS['dataTool']['Users']['phone_other'] = array('phone' => true);
+$GLOBALS['dataTool']['Users']['phone_mobile'] = array('phone' => true);
+$GLOBALS['dataTool']['Users']['phone_home'] = array('phone' => true);
