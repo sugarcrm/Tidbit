@@ -325,6 +325,8 @@ class DataTool
                 || $this->storageType == Factory::OUTPUT_TYPE_DB2
             ) {
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
+            } elseif ($this->storageType == Factory::OUTPUT_TYPE_CSV) {
+                return $this->count + 1;
             } else {
                 return '';
             }
