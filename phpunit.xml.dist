@@ -17,9 +17,11 @@
         </blacklist>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
-            <!-- TeamSets generator extends from Sugar class directly, so code coverage fails for this class -->
+            <!-- exclude classes that need to be extended from Sugar classes directly -->
             <exclude>
+                <!-- TeamSets generator extends from Sugar class directly, so code coverage fails for this class -->
                 <file>src/Generator/TeamSets.php</file>
+                <file>src/FakeLogger.php</file>
             </exclude>
         </whitelist>
     </filter>
