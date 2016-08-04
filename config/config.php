@@ -42,7 +42,7 @@ $tidbitCsvDir = 'csv';
 $defaultMaxTeamsPerSet = 10;
 
 // Default Sugar location path, could be overridden by "--sugar_path" argument
-$sugarPath = __DIR__ . '/..';
+$sugarPath = __DIR__ . '/../..';
 
 $modules = array(
     'Tags' => 100,
