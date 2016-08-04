@@ -41,11 +41,26 @@ namespace Sugarcrm\Tidbit;
  * Class FakeLogger
  *
  * Fake all logging object usage
+ * Make it extend LoggerManager so type hinting will work for Sugar code
  *
  * @package Sugarcrm\Tidbit
  */
-class FakeLogger
+class FakeLogger extends \LoggerManager
 {
+    /**
+     * FakeLogger constructor.
+     * Override default private constructor for LoggerManager
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * Fake all log calls
+     *
+     * @param $m
+     * @param $a
+     */
     public function __call($m, $a)
     {
     }
