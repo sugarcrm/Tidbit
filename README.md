@@ -90,8 +90,14 @@ Configuration
 
 Usage
 -----
-**NOTE** **Usage of Tidbit could affect your _data_ in DB**
+**NOTES:** 
+
+* Usage of Tidbit could affect your _data_ in DB
 Please make sure you have a backup, before running data Generation commands
+
+* In case of generation csv (--storage csv)
+We suppose what csv-dump will be used on empty DB, so for speed up, we'll generate
+values (integer starting with 1) for autoincrement-type fields.
 
 Tidbit uses a command line interface.  To run it from the Tidbit directory:
 

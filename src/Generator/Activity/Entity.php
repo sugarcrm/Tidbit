@@ -43,6 +43,9 @@ class Entity
 {
     const USERS_MODULE_NAME = 'Users';
 
+    /** @var  SugarBean */
+    protected static $activityBean;
+
     /**
      * Current DataTool object with record info
      *
@@ -122,11 +125,25 @@ class Entity
     }
 
     /**
+     * Lazy activity bean creator
+     *
+     * @return SugarBean
+     */
+    protected static function getActivityBean()
+    {
+        if (!self::$activityBean) {
+            self::$activityBean = \BeanFactory::getBean('Activities');
+        }
+
+        return self::$activityBean;
+    }
+
+    /**
      * Initialize activity fields.
      */
     protected function initializeFields()
     {
-        $activityBean = \BeanFactory::getBean('Activities');
+        $activityBean = self::getActivityBean();
         foreach ($activityBean->field_defs as $field => $data) {
             if (empty($data['source'])) {
                 $this->activityFields[$field] = null;

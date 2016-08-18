@@ -46,6 +46,7 @@
 namespace Sugarcrm\Tidbit;
 
 use Sugarcrm\Tidbit\Core\Intervals;
+use Sugarcrm\Tidbit\FieldData\Phone;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 
@@ -324,6 +325,8 @@ class DataTool
                 || $this->storageType == Factory::OUTPUT_TYPE_DB2
             ) {
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
+            } elseif ($this->storageType == Factory::OUTPUT_TYPE_CSV) {
+                return $this->count + 1;
             } else {
                 return '';
             }
@@ -463,6 +466,10 @@ class DataTool
                 }
             }
             return "'" . @trim($keys[$selected]) . "'";
+        }
+
+        if (isset($typeData['phone'])) {
+            return "'" . Phone::getNumber() . "'";
         }
 
         $isQuote = true;
