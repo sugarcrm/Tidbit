@@ -17,7 +17,7 @@ Documentation in [the wiki](https://github.com/sugarcrm/Tidbit/wiki)!
 Requirements
 ------------
 PHP 5.3+
-Sugar Already installed (6.5+ versions)
+Sugar Already installed (6.7+ versions)
 
 Installation
 ------------
@@ -101,41 +101,47 @@ values (integer starting with 1) for autoincrement-type fields.
 
 Tidbit uses a command line interface.  To run it from the Tidbit directory:
 
-    $ php -f install_cli.php
+    $ ./bin/tidbit (or ./vendor/bin/tidbit for package dependency installation)
 
 Various options are available to control the number of entries generated.
 To view them:
 
-    $ php -f install_cli.php -- -h
+    $ ./bin/tidbit -h
 
 Example usages:
 
     * Clean out existing seed data when generating new data set:
-      $ php -f install_cli.php -- -c
+      $ ./bin/tidbit -c
 
     * Insert 500 users:
-      $ php -f install_cli.php -- -u 500
+      $ ./bin/tidbit -u 500
       
     * Generate data into csv (mysql is default):
-      $ php -f install_cli.php -- --storage csv
+      $ ./bin/tidbit --storage csv
 
     * Generate records for all out-of-box and custom modules, plus find all relationships
-      $ php -f install_cli.php -- --allmodules --allrelationships
+      $ ./bin/tidbit --allmodules --allrelationships
 
     * Obliterate all data when generating new records with 400 users:
-      $php -f install_cli.php -- -o -u 400
-      
+      $ ./bin/tidbit -o -u 400
+
+    * Use profile (pre-existing one: simple, simple_rev2, average, high) file to generate data
+      $ ./bin/tidbit -o --profile simple --sugar_path /some/sugar/path
+
+    * Use custom profile (located in /path/to/profile/file)
+      $ ./bin/tidbit -o --profile /path/to/profile --sugar_path /some/sugar/path
+
     * Generate TeamBasedACL action restrictions for chosen level (check level options in config files)
-      $php -f install_cli.php -- -o --tba -tba_level full
+      $ ./bin/tidbit -o --tba -tba_level full
       
     * Controlling INSERT_BATCH_SIZE (MySQL Support only for now)
-      $php -f install_cli.php -- -o --insert_batch_size 1000
+      $ ./bin/tidbit -o --insert_batch_size 1000
 
     * Setting path to SugarCRM installation
-      $php -f install_cli.php -- -o --sugar_path /some/sugar/path
+      $ ./bin/tidbit -o --sugar_path /some/sugar/path
 
     * Using DB2 storage example (mysql/oracle/db2 can be used, depending on Sugar installation and DB usage)
-      $php -f install_cli.php -- -o --sugar_path /some/sugar/path --storage db2
+      $ ./bin/tidbit -o --sugar_path /some/sugar/path --storage db2
 
 Contributing:
 ------------

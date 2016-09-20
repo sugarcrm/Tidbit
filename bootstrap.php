@@ -156,8 +156,12 @@ EOS;
 
 require_once __DIR__ . '/install_functions.php';
 
+if (!defined('TIDBIT_CLI_START')) {
+    exitWithError('Tidbit should be run with "./bin/tidbit" or "./vendor/bin/tidbit" instead');
+}
+
 if (!function_exists('getopt')) {
-    exitWithError('"getopt" function not found. Please make sure you are running PHP 5+ version');
+    exitWithError('"getopt" function not found. Please make sure you are running PHP 5.3+ version');
 }
 
 $opts = getopt(
@@ -202,19 +206,6 @@ define('PROFILES_DIR', CONFIG_DIR . '/profiles');
 define('DATA_DIR', CONFIG_DIR . '/data');
 define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
 
-/*
- * if Tidbit is running independently, the dependencies are in the /vendor
- * directory, but if Tidbit is part of a larger composer managed system, the
- * dependencies are a couple directories higher. If neither are found, bail
- */
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-} elseif (file_exists(__DIR__ . '../../autoload.php')) {
-    require_once __DIR__ . '../../autoload.php';
-} else {
-    exitWithError('Unable to locate composer\'s autoload.php file');
-}
-
 // load general config
 require_once CONFIG_DIR . '/config.php';
 
@@ -238,7 +229,14 @@ if (isset($opts['sugar_path'])) {
     $sugarPath = $opts['sugar_path'];
 }
 if (!is_file($sugarPath . '/include/entryPoint.php')) {
-    exitWithError("Where is no Sugar on path " . $sugarPath . " ... exiting");
+    // Check current user directory
+    $currentDirectory = getcwd();
+
+    if (is_file($currentDirectory . '/include/entryPoint.php')) {
+        $sugarPath = $currentDirectory;
+    } else {
+        exitWithError("Where is no Sugar on path " . $sugarPath . " ... exiting");
+    }
 }
 
 define('SUGAR_PATH', $sugarPath);
