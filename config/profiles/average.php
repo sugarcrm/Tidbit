@@ -25,6 +25,7 @@ $modules = array(
     'Categories' => 30000,
     'KBContents' => 50000,
     'SugarFavorites' => 50000,
+    'Reports' => 5000
 );
 
 $sugarFavoritesModules = array(
