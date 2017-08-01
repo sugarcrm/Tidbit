@@ -70,7 +70,16 @@ $modules = array(
     'KBContents' => 1000,
     // Will be set by SugarFavorites Generator class
     'SugarFavorites' => 1000,
+    'ProductCategories' => 1000,
 );
+
+/*
+ * The number of product templates per level. The total number is the number of categories
+ * times the number of products.
+ *
+ * example: 1000 categories * 10 templates per level = 10,000 templates
+ */
+$productTemplatesPerLevel = 3;
 
 /*
  * When using --allmodules this is the number of records to create per-module

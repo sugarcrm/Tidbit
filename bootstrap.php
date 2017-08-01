@@ -319,7 +319,7 @@ $GLOBALS['time_spend'] = array();
 
 $recordsPerPage = 1000;     // Are we going to use this?
 $insertBatchSize = 0;       // zero means use default value provided by storage adapter
-$moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites');
+$moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites', 'ProductCategories');
 
 
 if (isset($opts['l']) && !isset($opts['profile'])) {
