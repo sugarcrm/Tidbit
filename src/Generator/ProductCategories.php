@@ -49,6 +49,13 @@ class ProductCategories extends Common
     public $templateNumber = 3;
 
     /**
+     * counter for all models created by this generator
+     *
+     * @var integer
+     */
+    protected $modelCounter = 0;
+    
+    /**
      * Data generator.
      *
      */
