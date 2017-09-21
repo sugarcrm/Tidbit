@@ -447,7 +447,7 @@ class DataTool
                 $startDate = $this->accessLocalField('date_start');
 
                 $stamp = strtotime(substr($startDate, 1, strlen($startDate) - 2));
-                if ($stamp >= mktime()) {
+                if ($stamp >= time()) {
                     $rn = mt_rand(0, 9);
                     /* 10% chance of being NOT HELD - aka CLOSED */
                     if ($rn > 8) {
