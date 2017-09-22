@@ -1,4 +1,4 @@
-Tidbit v2.0
+Tidbit v3.0 (bleeding edge) -- [Tidbit v2.0 (stable)](https://github.com/sugarcrm/Tidbit/tree/v2.0.0) 
 ===========
 
 | [Master][Master] | [Develop][Develop] |
@@ -6,7 +6,7 @@ Tidbit v2.0
 | [![Build status][Master image]][Master] | [![Build status][Develop image]][Develop] |
 | [![Coverage Status][Master coverage image]][Master coverage] | [![Coverage Status][Develop coverage image]][Develop coverage] |
 
-Tidbit is random data generator for Sugar versions 6.5 and later.  By optimizing
+Tidbit is random data generator for Sugar versions 7.8 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
 
@@ -16,8 +16,8 @@ Documentation in [the wiki](https://github.com/sugarcrm/Tidbit/wiki)!
 
 Requirements
 ------------
-PHP 5.3+
-Sugar Already installed (6.7+ versions)
+PHP 5.6+
+Sugar Already installed (7.8+ versions)
 
 Installation
 ------------
