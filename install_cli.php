@@ -78,7 +78,21 @@ echo "With Team-based Restriction Level " .
 echo "\n";
 
 // creating storage adapter
-$storageType = empty($opts['storage']) ? $storageType : $opts['storage'];
+//if no storage flags are passed, try to autodetect storage from the sugar install
+if (empty($opts['storage'])) {
+    $sugarStorageType = $sugar_config['dbconfig']['db_type'];
+    switch ($sugarStorageType) {
+        case 'oci8':
+            $storageType = 'oracle';
+            break;
+        case 'db2':
+            $storageType = 'db2';
+            break;
+        default:
+            $storageType = 'mysql';
+    }
+}
+
 if ($storageType == 'csv') {
     $storage = TIDBIT_DIR . '/' . $tidbitCsvDir;
     clearCsvDir($storage);
