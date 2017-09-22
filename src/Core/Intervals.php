@@ -151,7 +151,8 @@ class Intervals
          *
          * Such a module must exist.
          */
-        if (!empty($modules[$relModule])) {
+        
+        if (!empty($modules[$relModule]) && array_key_exists($curModule, $modules)) {
             $baseToRelatedRatio = $modules[$relModule] / $modules[$baseModule];
             $baseToThisRatio = $modules[$curModule] / $modules[$baseModule];
 
