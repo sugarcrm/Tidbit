@@ -70,6 +70,7 @@ $modules = array(
     'KBContents' => 1000,
     // Will be set by SugarFavorites Generator class
     'SugarFavorites' => 1000,
+    'Reports' => 1000,
     'ProductCategories' => 1000,
 );
 
