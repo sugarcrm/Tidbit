@@ -105,7 +105,9 @@ Options
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
                         insertion buffer (by default equals to insert_batch_size)
 
-    --storage name       Storage name, you have next options:
+    --storage name      Database Type.  Tidbit will try to auto-detect your database based
+                        on your sugar configuration, otherwise you can specify the storage type
+                        with one of the following options:
                         - mysql
                         - oracle
                         - db2
