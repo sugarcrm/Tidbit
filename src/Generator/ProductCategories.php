@@ -116,6 +116,8 @@ class ProductCategories extends Common
         $dataTool = $this->getDataToolForModel($module, $this->modelCounter++);
         if ($parent != null) {
             $dataTool->installData[$parent_column] = $parent;
+        } else {
+            $dataTool->installData[$parent_column] = 'null';
         }
 
         $this->getInsertBuffer($dataTool->table_name)->addInstallData($dataTool->installData);
