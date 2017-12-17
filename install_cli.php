@@ -230,10 +230,21 @@ foreach ($module_keys as $module) {
             $prefsGenerator->clean();
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%'");
         } elseif ($module == 'Teams') {
+            //TBD: Following 3 queries only tested with Mysql database,
+            //  if you are using database such as Oracle, DB2, MSSQL, you might need to refactor those 3 queries.
+            $GLOBALS['db']->query(
+                "DELETE a FROM team_sets_teams a JOIN teams b ON b.id=a.team_id "
+                ."WHERE b.id != '1' AND b.id LIKE 'seed-%'"
+            );
+            $GLOBALS['db']->query(
+                "DELETE a FROM team_sets a LEFT JOIN (SELECT DISTINCT team_set_id FROM team_sets_teams"
+                . " WHERE deleted=0) b ON a.id=b.team_set_id WHERE b.team_set_id is null"
+            );
+            $GLOBALS['db']->query(
+                "DELETE a FROM team_sets_modules a left JOIN team_sets b ON a.team_set_id=b.id"
+                . " WHERE b.id is null AND a.team_set_id is not null"
+            );
             $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1' AND id LIKE 'seed-%'");
-            $GLOBALS['db']->query("DELETE FROM team_sets");
-            $GLOBALS['db']->query("DELETE FROM team_sets_teams");
-            $GLOBALS['db']->query("DELETE FROM team_sets_modules");
         } else {
             $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
 
