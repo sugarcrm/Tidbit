@@ -150,6 +150,9 @@ Options
                             - modules -- counts of beans to create
                             - profile_opts -- redefines of settings listed here 
                         In case of setting profile (this setting) setting -l (load factor) will be ignored.
+    
+    --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
+                        Defaults to current timestamp. When provided also used as a seed for Random Number Generator.
 
     --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
                         Defaults to current timestamp. When provided also used as a seed for Random Number Generator.
