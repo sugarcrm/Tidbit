@@ -208,6 +208,6 @@ class Intervals
     public function getRandomInterval($module)
     {
         $modules = $this->config->get('modules');
-        return rand(0, $modules[$module] - 1);
+        return mt_rand(0, $modules[$module] - 1);
     }
 }

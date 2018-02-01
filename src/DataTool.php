@@ -282,7 +282,6 @@ class DataTool
         /* We want all data to be predictable.  $seed should be charactaristic of
          * this entity or the remote entity we want to simulate
          */
-        mt_srand($seed);
 
         if (!empty($typeData['skip'])) {
             return '';
