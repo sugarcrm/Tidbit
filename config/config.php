@@ -35,7 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$storageType = 'mysql';
+if (!empty($opts['storage'])) {
+    $storageType = $opts['storage'];
+} else {
+    $storageType = 'mysql';
+}
+
 $logQueriesPath = '';
 $tidbitCsvDir = 'csv';
 
