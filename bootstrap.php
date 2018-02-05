@@ -150,6 +150,9 @@ Options
                             - modules -- counts of beans to create
                             - profile_opts -- redefines of settings listed here 
                         In case of setting profile (this setting) setting -l (load factor) will be ignored.
+    
+    --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
+                        Defaults to current timestamp. When provided also used as a seed for Random Number Generator.
 
     "Powered by SugarCRM"
 
@@ -185,6 +188,7 @@ $opts = getopt(
         'iterator:',
         'insert_batch_size:',
         'profile:',
+        'base_time:'
     )
 );
 
@@ -314,7 +318,18 @@ if (isset($opts['allrelationships'])) {
 
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
-$GLOBALS['baseTime'] = time();
+
+if (isset($opts['base_time'])) {
+    if (is_numeric($opts['base_time'])) {
+        $GLOBALS['baseTime'] = intval($opts['base_time']);
+        mt_srand($GLOBALS['baseTime']);
+    } else {
+        exitWithError('base_time value should be integer');
+    }
+} else {
+    $GLOBALS['baseTime'] = time();
+}
+
 $GLOBALS['totalRecords'] = 0;
 $GLOBALS['time_spend'] = array();
 
