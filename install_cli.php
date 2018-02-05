@@ -91,6 +91,8 @@ if (empty($opts['storage'])) {
         default:
             $storageType = 'mysql';
     }
+} else {
+    $storageType = $opts['storage'];
 }
 
 if ($storageType == 'csv') {
