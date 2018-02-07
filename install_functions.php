@@ -157,22 +157,6 @@ function exitWithError($message)
 }
 
 /**
- * Common exception handler.
- *
- * @param Exception $e
- */
-function uncaughtExceptionHandler(\Exception $e)
-{
-    $message = sprintf(
-        "Uncaught exception \n - message: %s \n - file: %s \n - line: %s",
-        $e->getMessage(),
-        $e->getFile(),
-        $e->getLine()
-    );
-    exitWithError($message);
-}
-
-/**
  * Load and return array of ids of existing users
  * except id of admin.
  *
