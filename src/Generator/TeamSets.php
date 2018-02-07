@@ -203,6 +203,7 @@ class TeamSets extends \TeamSet
     {
         $stats = $this->_getStatistics($teams);
         $team_md5 = $stats['team_md5'];
+        $teams = $stats['team_ids'];
 
         if (!in_array($team_md5, $this->teamMd5Array)) {
             if (count($teams) == 1) {
@@ -249,11 +250,10 @@ class TeamSets extends \TeamSet
      */
     private function getRandomArray($array, $num)
     {
-        $rand = array_rand($array, $num);
         $result = array();
 
         for ($i = 0; $i < $num; $i++) {
-            $result[$i] = $array[$rand[$i]];
+            $result[$i] = $array[mt_rand(0, count($array) - 1)];
         }
         return $result;
     }
