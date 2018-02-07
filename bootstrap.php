@@ -215,8 +215,6 @@ define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
 // load general config
 require_once CONFIG_DIR . '/config.php';
 
-set_exception_handler('uncaughtExceptionHandler');
-
 if (isset($opts['profile'])) {
     if (is_file($opts['profile'])) {
         require_once $opts['profile'];
