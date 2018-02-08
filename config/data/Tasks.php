@@ -47,3 +47,19 @@ $GLOBALS['dataTool']['Tasks']['date'] = array(
     'type'     => 'date',
     'basetime' => time(),
 );
+
+$GLOBALS['dataTool']['Tasks']['date_start'] = array(
+    'range'    => array('min' => -400, 'max' => 36),
+    'type'     => 'datetime',
+    'basetime' => time()
+);
+
+$GLOBALS['dataTool']['Tasks']['date_due'] = array(
+    'same_datetime' => 'date_start',
+    'modify' => array(
+        'days' => array(
+            'field' => 'duration_days'
+        ),
+        'days' => '30'
+    )
+);
