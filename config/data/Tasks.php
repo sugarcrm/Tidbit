@@ -42,8 +42,18 @@ $GLOBALS['dataTool']['Tasks']['status'] = array('meeting_probability' => true);
 $GLOBALS['dataTool']['Tasks']['contact_phone'] = array('phone' => true);
 
 /* We want tasks to be in the past 90% of the time. */
-$GLOBALS['dataTool']['Tasks']['date'] = array(
+$GLOBALS['dataTool']['Tasks']['date_start'] = array(
     'range'    => array('min' => -400, 'max' => 36),
-    'type'     => 'date',
-    'basetime' => time(),
+    'type'     => 'datetime',
+    'basetime' => time()
+);
+
+$GLOBALS['dataTool']['Tasks']['date_due'] = array(
+    'same_datetime' => 'date_start',
+    'modify' => array(
+        'days' => array(
+            'field' => 'duration_days'
+        ),
+        'days' => '30'
+    )
 );
