@@ -58,6 +58,7 @@ class DataTool
     /** @var array stores data to insert into %module_cstm% table */
     public $installDataCstm = array();
 
+    /** @var array stores fields and its values from vardefs.php for every module */
     public $fields = array();
     public $table_name = '';
     public $module = '';
@@ -128,27 +129,13 @@ class DataTool
         /* For each of the fields in this record, we want to generate
          * one element of seed data for it.*/
         foreach ($this->fields as $field => $data) {
-            if (!empty($data['source']) && $data['source'] != 'custom_fields') {
+            if (!empty($this->fields[$field]['source']) && $this->fields[$field]['source'] != 'custom_fields') {
                 continue;
             }
-
-            $type = (!empty($data['dbType'])) ? $data['dbType'] : $data['type'];
-            $GLOBALS['fieldData'] = $data;
-
-            /* There are 3 unique parts to the seed: the Module name,
-             * the count of the record, and the name of the field.
-             * Using these 3 things should keep our seed unique enough.
-             */
-            $seed = $this->generateSeed($this->module, $field, $this->count);
-            $value = $this->getData($field, $type, $data['type'], $seed);
-            if (!empty($value) || $value == '0') {
-                if (empty($data['source'])) {
-                    $this->installData[$field] = $value;
-                } else {
-                    // "source" == "custom_fields" is an indicator for Custom field in VarDefs
-                    $this->installDataCstm[$field] = $value;
-                }
+            if (isset($this->installData[$field])) {
+                continue;
             }
+            $this->generateFieldData($field);
         }
 
         /* These fields are filled in once per record. */
@@ -181,7 +168,35 @@ class DataTool
             }
         }
     }
-    
+
+    /**
+     * Generates data for provided field name based on field definition in vardef.php for proper module
+     *
+     * @param $field string - field name
+     */
+    protected function generateFieldData($field)
+    {
+        $type = (!empty($this->fields[$field]['dbType']))
+            ? $this->fields[$field]['dbType']
+            : $this->fields[$field]['type'];
+        $GLOBALS['fieldData'] = $this->fields[$field];
+
+        /* There are 3 unique parts to the seed: the Module name,
+         * the count of the record, and the name of the field.
+         * Using these 3 things should keep our seed unique enough.
+         */
+        $seed = $this->generateSeed($this->module, $field, $this->count);
+        $value = $this->getData($field, $type, $this->fields[$field]['type'], $seed);
+        if (!empty($value) || $value == '0') {
+            if (empty($this->fields[$field]['source'])) {
+                $this->installData[$field] = $value;
+            } else {
+                // "source" == "custom_fields" is an indicator for Custom field in VarDefs
+                $this->installDataCstm[$field] = $value;
+            }
+        }
+    }
+
     /**
      * Generate a unique ID based on the module name, system time, and count (defined
      * in configs for each module), and save the ID in the installData array.
@@ -200,7 +215,7 @@ class DataTool
         if ($includeCustomId) {
             $this->installDataCstm['id_c'] = $this->installData['id'];
         }
-        
+
         return substr($this->installData['id'], 1, -1);
     }
 
@@ -675,40 +690,25 @@ class DataTool
      * Returns the value of this module's field called $fieldname.
      *
      * If a value has already been generated, it uses that one, otherwise
-     * it calls getData() to generate the value.
+     * it calls generateFieldData() to generate the value.
      * @param $fieldName - Name of the local field you want to retrieve
      *
      * @return string
      */
     public function accessLocalField($fieldName)
     {
-        /* TODO - OPTIMIZATION - if we have to render the data,
-         * then save it to installData so we only do it once.
-         * Make sure that generateData checks for it.
-         * Note that this is safe even when used as a foreign
-         * object, becuase accessRemoteField calls clean each time.
-         */
         /* We will only deal with fields defined in the
          * vardefs.
          */
         if (!empty($this->fields[$fieldName])) {
-            /* If this data has already been generated,
-             * then just use it.
-             */
-            if (!empty($this->installData[$fieldName])) {
-                return $this->installData[$fieldName];
-                /* Otherwise, we have to pre-render it. */
-            } else {
-                $recSeed = $this->generateSeed($this->module, $fieldName, $this->count);
-                $recData = $this->fields[$fieldName];
-                $recType = (!empty($recData['dbType'])) ? $recData['dbType'] : $recData['type'];
-                return $this->getData($fieldName, $recType, $recData['type'], $recSeed);
+            if (!isset($this->installData[$fieldName])) {
+                $this->generateFieldData($fieldName);
             }
+            return $this->installData[$fieldName];
         } else {
             return $fieldName;
         }
     }
-
 
     /**
      * Returns the value of $module's field called $fieldName.
