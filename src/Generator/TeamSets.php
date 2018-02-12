@@ -93,6 +93,20 @@ class TeamSets extends \TeamSet
     private $maxTeamsPerSet;
 
     /**
+     * Generated TeamSets ID counter
+     *
+     * @var int
+     */
+    private $teamSetsCounter = 1;
+
+    /**
+     * Generated TeamSetsTeams ID counter
+     *
+     * @var int
+     */
+    private $teamSetsTeamsCounter = 1;
+
+    /**
      * Constructor.
      *
      * @param \DBManager $db
@@ -208,7 +222,8 @@ class TeamSets extends \TeamSet
             if (count($teams) == 1) {
                 $id = $teams[0];
             } else {
-                $id = create_guid();
+                $id = 'seed-ts' . $this->teamSetsCounter;
+                $this->teamSetsCounter++;
             }
             $date_modified = "'" . $GLOBALS['timedate']->nowDb() . "'";
             if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
@@ -228,11 +243,12 @@ class TeamSets extends \TeamSet
 
             foreach ($teams as $team_id) {
                 $installDataTST = array(
-                    'id' => "'" . create_guid() . "'",
+                    'id' => "'" . 'seed-tst' . $this->teamSetsTeamsCounter . "'",
                     'team_set_id' => "'" . $id . "'",
                     'team_id' => "'" . $team_id . "'",
                     'date_modified' => $date_modified,
                 );
+                $this->teamSetsTeamsCounter++;
 
                 $this->insertBufferTeamSetsTeams->addInstallData($installDataTST);
                 $this->teamSets[$id][] = $team_id;
