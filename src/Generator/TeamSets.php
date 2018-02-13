@@ -267,7 +267,8 @@ class TeamSets extends \TeamSet
     {
         $result = array();
 
-        for ($i = 0; $i < mt_rand(1, $num); $i++) {
+        $n = mt_rand(1, $num);
+        for ($i = 0; $i < $n; $i++) {
             $result[$i] = $array[mt_rand(0, count($array) - 1)];
         }
         return array_unique($result);
