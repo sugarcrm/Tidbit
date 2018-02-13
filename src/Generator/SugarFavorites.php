@@ -80,6 +80,7 @@ class SugarFavorites extends Common
 
                 $this->insertCounter++;
             }
+            $this->flushInsertBuffers();
         }
     }
 

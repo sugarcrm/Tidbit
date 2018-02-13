@@ -113,6 +113,7 @@ class Categories extends Common
             }
         }
         $this->setCategoryRootInConfig($rootId);
+        $this->flushInsertBuffers();
     }
 
     /**

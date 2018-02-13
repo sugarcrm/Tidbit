@@ -222,6 +222,16 @@ abstract class Common
     }
 
     /**
+     * Flush all insertBuffers
+     */
+    public function flushInsertBuffers()
+    {
+        foreach ($this->insertBuffers as $bufferForFlush) {
+            $bufferForFlush->flush();
+        }
+    }
+
+    /**
      * Update generated records count in $modules array
      *
      * @param $module
