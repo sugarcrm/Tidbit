@@ -123,6 +123,7 @@ class TBA extends Common
                 }
             }
         }
+        $this->flushInsertBuffers();
     }
 
     /**
@@ -169,6 +170,7 @@ class TBA extends Common
             $this->getInsertBuffer('acl_roles_actions')->addInstallData($relationshipData);
             $this->insertCounter++;
         }
+        $this->flushInsertBuffers();
     }
 
     /**
@@ -202,6 +204,7 @@ class TBA extends Common
             $this->getInsertBuffer('acl_fields')->addInstallData($insertData);
             $this->insertCounter++;
         }
+        $this->flushInsertBuffers();
     }
 
     /**

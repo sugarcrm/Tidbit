@@ -402,6 +402,20 @@ foreach ($module_keys as $module) {
         }
     }
 
+    // Flushing insertBuffer
+    if (isset($beanInsertBuffer)) {
+        $beanInsertBuffer->flush();
+    }
+    if (isset($beanInsertBufferCustom)) {
+        $beanInsertBufferCustom->flush();
+    }
+    // Flushing insertBuffer from relationships
+    if (isset($relationStorageBuffers)) {
+        foreach ($relationStorageBuffers as $relationStorageBufferForFlush) {
+            $relationStorageBufferForFlush->flush();
+        }
+    }
+
     echo " DONE";
 
     $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
