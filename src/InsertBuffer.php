@@ -82,6 +82,19 @@ class InsertBuffer
     }
 
     /**
+     * Destructor
+     *
+     */
+    public function __destruct()
+    {
+        if (!empty($this->installData)) {
+            echo "\nNOTICE: It would be better to explicitly call flush() method for saving data chunks for table: '"
+                .$this->tableName
+                ."'.";
+        }
+        $this->flush();
+    }
+    /**
      * @param array $installData
      */
     public function addInstallData($installData)
@@ -101,13 +114,11 @@ class InsertBuffer
     }
 
     /**
-     * Destructor
+     * Flush is used for insert final chunks of data from buffer
      *
      */
-    public function __destruct()
+    public function flush()
     {
-        // if we save by chunks we can get remainder of not saved records in
-        // the end of saving
         if ($this->tableName && $this->installData) {
             $this->makeSave();
         }

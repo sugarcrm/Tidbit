@@ -121,6 +121,7 @@ class KBContents extends Common
         for ($i = 0; $i < $this->recordsNumber; $i++) {
             $this->createArticleInserts($i);
         }
+        $this->flushInsertBuffers();
 
         global $kbLanguage;
         if (empty($kbLanguage)) {

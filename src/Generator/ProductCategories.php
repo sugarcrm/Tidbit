@@ -83,6 +83,7 @@ class ProductCategories extends Common
                 }
             }
         }
+        $this->flushInsertBuffers();
     }
 
     /**

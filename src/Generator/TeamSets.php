@@ -160,6 +160,12 @@ class TeamSets extends \TeamSet
         }
 
         DataTool::$team_sets_array = $this->teamSets;
+        if (isset($this->insertBufferTeamSets)) {
+            $this->insertBufferTeamSets->flush();
+        }
+        if (isset($this->insertBufferTeamSetsTeams)) {
+            $this->insertBufferTeamSetsTeams->flush();
+        }
     }
 
     /**
