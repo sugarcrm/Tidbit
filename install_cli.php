@@ -146,7 +146,11 @@ foreach ($module_keys as $module) {
         continue;
     }
 
-    echo "\nProcessing Module $module\n";
+    echo "\nProcessing Module $module"
+        .(isset($tidbit_relationships[$module])
+            ? " with relationships to ".implode(", ", array_keys($tidbit_relationships[$module]))
+            :"")
+        .":\n";
     $total = $modules[$module];
 
     if (in_array($module, $moduleUsingGenerators)) {
