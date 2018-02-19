@@ -230,13 +230,13 @@ class DataTool
     {
         $rules = $GLOBALS['dataTool'];
 
-        //echo "GD: $fieldName, $fieldType, $sugarType, $seed\n";
+        //echo "GD: $fieldName, $fieldDBType, $sugarType, $seed\n";
         // Check if the fieldName is defined
         if (!empty($rules[$this->module][$fieldName])) {
             return $this->handleType($rules[$this->module][$fieldName], $fieldDBType, $fieldName, $seed);
         }
 
-        // Check if fieldType is defined
+        // Check if fieldDBType is defined
         if (!empty($rules[$this->module][$fieldDBType])) {
             return $this->handleType($rules[$this->module][$fieldDBType], $fieldDBType, $fieldName, $seed);
         }
@@ -251,7 +251,7 @@ class DataTool
             return $this->handleType($rules['default'][$fieldName], $fieldDBType, $fieldName, $seed);
         }
 
-        // If the fieldType is undefined for this module, see if a default value is defined
+        // If the fieldDBType is undefined for this module, see if a default value is defined
         if (!empty($rules['default'][$fieldDBType])) {
             return $this->handleType($rules['default'][$fieldDBType], $fieldDBType, $fieldName, $seed);
         }
