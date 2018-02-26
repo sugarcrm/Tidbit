@@ -67,10 +67,6 @@ class DataTool
     // TeamSet with all teams inside
     static public $team_sets_array = array();
 
-    // Cache for generateSeed function
-    static public $seedModules = array();
-    static public $seedFields = array();
-
     // based on xhprof, db_convert for datetime and time generation, consume a lot of time.
     // getConvertDatetime() function re-generate time only when this index reach max number
     // so we will re-generate time only for self::$datetimeIndexMax record
@@ -120,14 +116,10 @@ class DataTool
 
     /**
      * Generate data and store it in the installData array.
-     * This function calls generateSeed and passes the return
-     * value as an argument to getData.  This is done for each
-     * field.
+     * This is done for each field.
      */
     public function generateData()
     {
-        /* For each of the fields in this record, we want to generate
-         * one element of seed data for it.*/
         foreach ($this->fields as $field => $data) {
             if (!empty($this->fields[$field]['source']) && $this->fields[$field]['source'] != 'custom_fields') {
                 continue;
@@ -180,13 +172,7 @@ class DataTool
             ? $this->fields[$field]['dbType']
             : $this->fields[$field]['type'];
         $GLOBALS['fieldData'] = $this->fields[$field];
-
-        /* There are 3 unique parts to the seed: the Module name,
-         * the count of the record, and the name of the field.
-         * Using these 3 things should keep our seed unique enough.
-         */
-        $seed = $this->generateSeed($this->module, $field, $this->count);
-        $value = $this->getData($field, $type, $this->fields[$field]['type'], $seed);
+        $value = $this->getData($field, $type, $this->fields[$field]['type']);
         if (!empty($value) || $value == '0') {
             if (empty($this->fields[$field]['source'])) {
                 $this->installData[$field] = $value;
@@ -237,43 +223,42 @@ class DataTool
      * @param $fieldName - name of the field for which data is being generated
      * @param $fieldDBType - The DB type of the field, if it differs from the Sugar type
      * @param $sugarType - Always the Sugar type of the field
-     * @param $seed - Seed from generateSeed(), used to generate a random reasonable value
      *
      * @return string
      */
-    public function getData($fieldName, $fieldDBType, $sugarType, $seed)
+    public function getData($fieldName, $fieldDBType, $sugarType)
     {
         $rules = $GLOBALS['dataTool'];
 
-        //echo "GD: $fieldName, $fieldDBType, $sugarType, $seed\n";
+        //echo "GD: $fieldName, $fieldDBType, $sugarType\n";
         // Check if the fieldName is defined
         if (!empty($rules[$this->module][$fieldName])) {
-            return $this->handleType($rules[$this->module][$fieldName], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules[$this->module][$fieldName], $fieldDBType, $fieldName);
         }
 
         // Check if fieldDBType is defined
         if (!empty($rules[$this->module][$fieldDBType])) {
-            return $this->handleType($rules[$this->module][$fieldDBType], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules[$this->module][$fieldDBType], $fieldDBType, $fieldName);
         }
 
         // Check if the Sugar type is defined
         if (!empty($rules[$this->module][$sugarType])) {
-            return $this->handleType($rules[$this->module][$sugarType], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules[$this->module][$sugarType], $fieldDBType, $fieldName);
         }
 
         // If the fieldName is undefined for this module, see if a default value is defined
         if (!empty($rules['default'][$fieldName])) {
-            return $this->handleType($rules['default'][$fieldName], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules['default'][$fieldName], $fieldDBType, $fieldName);
         }
 
         // If the fieldDBType is undefined for this module, see if a default value is defined
         if (!empty($rules['default'][$fieldDBType])) {
-            return $this->handleType($rules['default'][$fieldDBType], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules['default'][$fieldDBType], $fieldDBType, $fieldName);
         }
 
         // If the sugarType is undefined for this module, see if a default value is defined
         if (!empty($rules['default'][$sugarType])) {
-            return $this->handleType($rules['default'][$sugarType], $fieldDBType, $fieldName, $seed);
+            return $this->handleType($rules['default'][$sugarType], $fieldDBType, $fieldName);
         }
 
         return '';
@@ -285,19 +270,14 @@ class DataTool
      * @param $typeData - An array from a .php file in the Tidbit/Data directory
      * @param $type - The type of the current field
      * @param $field - The name of the current field
-     * @param $seed - Number to be used as the seed for mt_srand()
      *
      * // DEV TESTING ONLY
      * @param bool $resetStatic
      *
      * @return string
      */
-    public function handleType($typeData, $type, $field, $seed, $resetStatic = false)
+    public function handleType($typeData, $type, $field, $resetStatic = false)
     {
-        /* We want all data to be predictable.  $seed should be charactaristic of
-         * this entity or the remote entity we want to simulate
-         */
-
         if (!empty($typeData['skip'])) {
             return '';
         }
@@ -825,55 +805,6 @@ class DataTool
         return implode(' ', $resWords);
     }
 
-    /*
-     * TODO - OPTIMIZATION - cache sums of $fieldName and $this->module
-     * somewhere, sessions maybe.
-     * DONE: cache in static properties
-     */
-    /**
-     * Returns a seed to be used with the RNG.
-     *
-     * @param string $module - The current module
-     * @param string $field - The current field
-     * @param int $count - The current record number
-     * @return int
-     */
-    public function generateSeed($module, $field, $count)
-    {
-        // Cache module
-        if (!isset(self::$seedModules[$module])) {
-            self::$seedModules[$module] = $this->stringCheckSum($this->module);
-        }
-
-        // Cache fields
-        if (!isset(self::$seedFields[$field])) {
-            self::$seedFields[$field] = $this->stringCheckSum($field);
-        }
-
-        /*
-         * We multiply by two because mt_srand
-         * doesn't work well when you give it
-         * consecutive integers.
-         */
-        return 2 * (self::$seedModules[$module] + self::$seedFields[$field] + $count + $GLOBALS['baseTime']);
-    }
-
-    /**
-     * Calculate string check sum
-     *
-     * @param $str
-     * @return int
-     */
-    public function stringCheckSum($str)
-    {
-        $sum = 0;
-
-        for ($i = strlen($str); $i--;) {
-            $sum += ord($str[$i]);
-        }
-
-        return $sum;
-    }
 
     /**
      * Calculate datetime shift depending on type

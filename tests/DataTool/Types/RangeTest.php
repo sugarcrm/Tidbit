@@ -29,7 +29,7 @@ class RangeTest extends TidbitTestCase
     {
         $type = array('range' => array('min' => 5, 'max' => 10));
 
-        $actual = $this->dataTool->handleType($type, 'decimal', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'decimal', '', true);
 
         $this->assertTrue(is_numeric($actual));
         $this->assertTrue($actual >= 5 && $actual <= 10);
@@ -42,7 +42,7 @@ class RangeTest extends TidbitTestCase
     {
         $type = array('range' => array('min' => 5, 'max' => 5), 'multiply' => '3.7');
 
-        $actual = $this->dataTool->handleType($type, 'decimal', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'decimal', '', true);
 
         $this->assertTrue(is_numeric($actual));
         $this->assertEquals(18.5, $actual);
@@ -59,7 +59,7 @@ class RangeTest extends TidbitTestCase
         $type = array('range' => array('min' => 5, 'max' => 5), 'type' => 'date');
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $expected = new \DateTime();
         $expected->modify('5 days');
@@ -80,7 +80,7 @@ class RangeTest extends TidbitTestCase
         $type = array('range' => array('min' => 5, 'max' => 5), 'type' => 'datetime', 'basetime' => $time);
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $expected = new \DateTime();
         $expected->setTimezone(new \DateTimeZone('UTC'));
@@ -103,7 +103,7 @@ class RangeTest extends TidbitTestCase
         $type = array('range' => array('min' => -10, 'max' => -10), 'type' => 'datetime', 'basetime' => $time);
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $expected = new \DateTime();
         $expected->setTimezone(new \DateTimeZone('UTC'));
@@ -134,7 +134,7 @@ class RangeTest extends TidbitTestCase
         );
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals($expectedDatetime, $actual);
@@ -150,7 +150,7 @@ class RangeTest extends TidbitTestCase
         $type = array('same_datetime' => 'field1');
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("''", $actual);
@@ -186,7 +186,7 @@ class RangeTest extends TidbitTestCase
         );
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
 
@@ -220,7 +220,7 @@ class RangeTest extends TidbitTestCase
         );
 
         // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
 
