@@ -58,7 +58,7 @@ class SameTest extends TidbitTestCase
             'field3' => 33,
         );
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals(63, $actual);
     }
 
@@ -75,7 +75,7 @@ class SameTest extends TidbitTestCase
         $expected = 'some_test_value';
         $this->dataTool->installData['field1'] = $expected;
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals($expected, $actual);
     }
 
@@ -88,7 +88,7 @@ class SameTest extends TidbitTestCase
 
         $expected = 20;
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals($expected, $actual);
     }
 
@@ -105,7 +105,7 @@ class SameTest extends TidbitTestCase
         $expected = '   some_test_value   ';
         $this->dataTool->installData['field1'] = $expected;
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals('some_test_value', $actual);
     }
 
@@ -122,7 +122,7 @@ class SameTest extends TidbitTestCase
         $expected = 'some_test_value';
         $this->dataTool->installData['field1'] = $expected;
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals(strtoupper($expected), $actual);
     }
 
@@ -139,7 +139,7 @@ class SameTest extends TidbitTestCase
         $expected = 'some_TesT_value';
         $this->dataTool->installData['field1'] = $expected;
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals(strtolower($expected), $actual);
     }
 
@@ -157,7 +157,7 @@ class SameTest extends TidbitTestCase
 
         $expected = 'field1 value';
         $this->dataTool->installData['field1'] = "'" . $expected . "'";
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'" . md5($expected) . "'", $actual);
@@ -177,7 +177,7 @@ class SameTest extends TidbitTestCase
 
         $expected = 20;
         $this->dataTool->installData['field1'] = $expected;
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'" . md5($expected) . "'", $actual);
@@ -193,7 +193,7 @@ class SameTest extends TidbitTestCase
         $type = array('same_hash' => 20);
 
         $expected = 20;
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'" . md5($expected) . "'", $actual);
@@ -220,7 +220,7 @@ class SameTest extends TidbitTestCase
         // Expected that value in installData will be quoted
         $this->dataTool->installData['field1'] = "'" . $expected . "'";
 
-        $actual = $this->dataTool->handleType($type, '', '', time(), true);
+        $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals(md5($expected), $this->removeQuotes($actual));

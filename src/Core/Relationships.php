@@ -240,8 +240,7 @@ class Relationships
 
         if (!empty($GLOBALS['dataTool'][$relationTable])) {
             foreach ($GLOBALS['dataTool'][$relationTable] as $field => $typeData) {
-                $seed = $dataTool->generateSeed($module, $field, $count);
-                $installData[$field] = $dataTool->handleType($typeData, '', $field, $seed);
+                $installData[$field] = $dataTool->handleType($typeData, '', $field);
             }
         }
 
