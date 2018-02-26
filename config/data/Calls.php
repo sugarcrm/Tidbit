@@ -47,7 +47,7 @@ $GLOBALS['dataTool']['Calls']['duration_hours'] = array('range' => array('min' =
 $GLOBALS['dataTool']['Calls']['date_start'] = array(
     'range' => array('min' => -400, 'max' => 36),
     'type' => 'datetime',
-    'basetime' => time()
+    'basetime' => $GLOBALS['baseTime']
 );
 $GLOBALS['dataTool']['Calls']['date_end'] = array(
     'same_datetime' => 'date_start',
