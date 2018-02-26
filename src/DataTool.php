@@ -667,7 +667,7 @@ class DataTool
     }
 
     /**
-     * Returns the value of this module's field called $fieldname.
+     * Returns the value of this module's field called $fieldName.
      *
      * If a value has already been generated, it uses that one, otherwise
      * it calls generateFieldData() to generate the value.
