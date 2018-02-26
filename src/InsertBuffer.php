@@ -88,7 +88,8 @@ class InsertBuffer
     public function __destruct()
     {
         if (!empty($this->installData)) {
-            echo "\nNOTICE: It would be better to explicitly call flush() method for saving data chunks for table: '"
+            echo PHP_EOL .
+                "NOTICE: It would be better to explicitly call flush() method for saving data chunks for table: '"
                 .$this->tableName
                 ."'.";
         }

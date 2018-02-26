@@ -296,6 +296,6 @@ abstract class Common
      */
     protected function log($message)
     {
-        echo $message . "\n";
+        echo $message . PHP_EOL;
     }
 }

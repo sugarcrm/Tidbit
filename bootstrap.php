@@ -36,9 +36,9 @@
  ********************************************************************************/
 
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
-    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
+    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]".PHP_EOL;
 
-$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.\n";
+$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.".PHP_EOL;
 $helpStr = <<<EOS
 $versionStr
 This script populates your instance of SugarCRM with realistic demo data.
@@ -399,10 +399,10 @@ if (isset($opts['tba'])) {
     if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {
         $GLOBALS['tba'] = true;
     } else {
-        echo "!!! WARNING !!!\n";
-        echo "Team Based ACL Settings could not be enabled for SugarCRM version less than 7.8 \n";
-        echo "!!! WARNING !!!\n";
-        echo "\n";
+        echo "!!! WARNING !!!".PHP_EOL;
+        echo "Team Based ACL Settings could not be enabled for SugarCRM version less than 7.8 ".PHP_EOL;
+        echo "!!! WARNING !!!".PHP_EOL;
+        echo PHP_EOL;
     }
 }
 
@@ -447,8 +447,8 @@ if (!isset($opts['with-tags'])) {
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
 if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
-    echo "Knowledge Base Tidbit Data population is available only for 7.7.0.0 and newer versions of SugarCRM\n";
-    echo "\n";
+    echo "Knowledge Base Tidbit Data population is available only for 7.7.0.0 and newer versions of SugarCRM". PHP_EOL;
+    echo PHP_EOL;
 
     unset($modules['Categories']);
     unset($modules['KBContents']);
