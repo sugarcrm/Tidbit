@@ -9,3 +9,5 @@ define('PROJECT_ROOT', realpath(__DIR__ . '/..'));
 
 require_once PROJECT_ROOT . '/vendor/autoload.php';
 require_once PROJECT_ROOT . '/tests/TidbitTestCase.php';
+
+$GLOBALS['baseTime'] = time();

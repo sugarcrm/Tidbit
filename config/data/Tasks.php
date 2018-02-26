@@ -45,7 +45,7 @@ $GLOBALS['dataTool']['Tasks']['contact_phone'] = array('phone' => true);
 $GLOBALS['dataTool']['Tasks']['date_start'] = array(
     'range'    => array('min' => -400, 'max' => 36),
     'type'     => 'datetime',
-    'basetime' => time()
+    'basetime' => $GLOBALS['baseTime']
 );
 
 $GLOBALS['dataTool']['Tasks']['date_due'] = array(
