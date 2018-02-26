@@ -34,7 +34,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['first_name'] = array('test_name');
         $type = array('list' => 'first_name');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'test_name'", $actual);
@@ -49,7 +49,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
     {
         $type = array('list' => 'first_name');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("''", $actual);
@@ -68,7 +68,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
                 'OPTION_1' => 'Translation 1',
             ));
 
-        $actual = $this->dataTool->handleType($type, 'enum', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'OPTION_1'", $actual);
@@ -87,7 +87,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
                 'OPTION_1   ' => 'Translation 1',
             ));
 
-        $actual = $this->dataTool->handleType($type, 'enum', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'OPTION_1'", $actual);
@@ -108,7 +108,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
         $GLOBALS['app_list_strings'] = array('LBL_SOME_OPTION' => $options);
 
-        $actual = $this->dataTool->handleType($type, 'enum', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertContains($this->removeQuotes($actual), array_keys($options));
@@ -124,7 +124,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['suf1'] = array('suf1value');
         $GLOBALS['suf2'] = array('suf2value');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals('suf1value suf2value', $this->removeQuotes($actual));
@@ -140,7 +140,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['pref1'] = array('pref1value');
         $GLOBALS['pref2'] = array('pref2value');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals('pref2value pref1value', $this->removeQuotes($actual));
@@ -155,7 +155,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $GLOBALS['last_name_array'] = array('last_name_value');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals('last_name_value@test', $this->removeQuotes($actual));
@@ -170,7 +170,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $GLOBALS['last_name_array'] = array('last_name_value');
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals('test@last_name_value', $this->removeQuotes($actual));
@@ -186,7 +186,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['last_name_array'] = array('last_name_value');
         $GLOBALS['fieldData'] = array('len' => 9);
 
-        $actual = $this->dataTool->handleType($type, 'varchar', '', time(), true);
+        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $this->assertIsQuoted($actual);
         $this->assertEquals('test@last', $this->removeQuotes($actual));
