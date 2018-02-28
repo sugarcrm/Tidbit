@@ -70,6 +70,7 @@ $GLOBALS['dataTool']['default']['team_id'] = array('related' => array('module' =
 $GLOBALS['dataTool']['default']['created_by'] = array('related' => array('module' => 'Users'));
 $GLOBALS['dataTool']['default']['assigned_user_id'] = array('related' => array('module' => 'Users'));
 $GLOBALS['dataTool']['default']['modified_user_id'] = array('related' => array('module' => 'Users'));
+$GLOBALS['dataTool']['default']['currency'] = array('range' => array('min' => 0, 'max' => 100000), 'multiply' => 0.01);
 
 // Tags generation, cause it fills to many data
 $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
