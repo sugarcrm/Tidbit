@@ -124,15 +124,28 @@ class DataTool
 
     /**
      * It takes fields from vardef.php for a module, filters it and sets filtered array to $fields variable.
+     * It removes fields for which don't need to generate data.
+     * Filtering reduce time for iterating fields.
+     *
+     * $isNonDB - Don't iterate 'non-db' (and similar to it) fields
+     * $isSkipped - Skip fields which are marked for skipping in tidbit's config for module
+     * $isMysqlAutoincrement - There is no need to generate field data for autoincrement fields in MySQL
      *
      * @param $fds array - Value of 'fields' key from vardef.php for a module.
      */
     public function setFields($fds)
     {
-        foreach ($fds as $f => $dt) {
-            if ((!empty($fds[$f]['source']) && $fds[$f]['source'] != 'custom_fields')
-                || isset($GLOBALS['dataTool'][$this->module][$f]['skip'])) {
-                unset($fds[$f]);
+        foreach ($fds as $fieldName => $fieldDefinition) {
+            $isNonDB = !empty($fieldDefinition['source']) && $fieldDefinition['source'] != 'custom_fields';
+            $isSkipped = !empty($GLOBALS['dataTool'][$this->module][$fieldName]['skip']);
+            $isMysqlAutoincrement = $this->storageType == 'mysql' &&
+                (   // autoincrement option is set in vardef.php
+                    !empty($fieldDefinition['auto_increment'])
+                    // autoincrement option is set in Tidbit's config
+                    || !empty($GLOBALS['dataTool'][$this->module][$fieldName]['autoincrement'])
+                );
+            if ($isNonDB || $isSkipped || $isMysqlAutoincrement) {
+                unset($fds[$fieldName]);
             }
         }
         $this->fields = $fds;
@@ -194,13 +207,22 @@ class DataTool
             ? $this->fields[$field]['dbType']
             : $this->fields[$field]['type'];
         $GLOBALS['fieldData'] = $this->fields[$field];
-        $value = $this->getData($field, $type, $this->fields[$field]['type']);
-        if (!empty($value) || $value == '0') {
-            if (empty($this->fields[$field]['source'])) {
-                $this->installData[$field] = $value;
-            } else {
-                // "source" == "custom_fields" is an indicator for Custom field in VarDefs
-                $this->installDataCstm[$field] = $value;
+
+        /* Check whether rules exists in config for the module. In other way look for data type in 'default' config . */
+        foreach ([$this->module, 'default'] as $rules) {
+            /* Look for settings for field.
+                In case it doesn't exist check it for 'dbType' for provided field and at last for 'type'. */
+            foreach ([$field, $type, $this->fields[$field]['type']] as $dataType) {
+                if (!empty($GLOBALS['dataTool'][$rules][$dataType])) {
+                    $value = $this->handleType($GLOBALS['dataTool'][$rules][$dataType], $type, $field);
+                    if (empty($this->fields[$field]['source'])) {
+                        $this->installData[$field] = $value;
+                    } else {
+                        // "source" == "custom_fields" is an indicator for Custom field in VarDefs
+                        $this->installDataCstm[$field] = $value;
+                    }
+                    break 2;
+                }
             }
         }
     }
@@ -234,57 +256,6 @@ class DataTool
         $this->count = 0;
     }
 
-
-    /**
-     * Dispatch to the handleType function based on what values are present in the
-     * global $dataTool array.  This array is populated by the .php files in the
-     * config/data directory.
-     *
-     * Priority: FieldName > FieldDBType > FieldSugarType
-     *
-     * @param $fieldName - name of the field for which data is being generated
-     * @param $fieldDBType - The DB type of the field, if it differs from the Sugar type
-     * @param $sugarType - Always the Sugar type of the field
-     *
-     * @return string
-     */
-    public function getData($fieldName, $fieldDBType, $sugarType)
-    {
-        $rules = $GLOBALS['dataTool'];
-
-        //echo "GD: $fieldName, $fieldDBType, $sugarType\n";
-        // Check if the fieldName is defined
-        if (!empty($rules[$this->module][$fieldName])) {
-            return $this->handleType($rules[$this->module][$fieldName], $fieldDBType, $fieldName);
-        }
-
-        // Check if fieldDBType is defined
-        if (!empty($rules[$this->module][$fieldDBType])) {
-            return $this->handleType($rules[$this->module][$fieldDBType], $fieldDBType, $fieldName);
-        }
-
-        // Check if the Sugar type is defined
-        if (!empty($rules[$this->module][$sugarType])) {
-            return $this->handleType($rules[$this->module][$sugarType], $fieldDBType, $fieldName);
-        }
-
-        // If the fieldName is undefined for this module, see if a default value is defined
-        if (!empty($rules['default'][$fieldName])) {
-            return $this->handleType($rules['default'][$fieldName], $fieldDBType, $fieldName);
-        }
-
-        // If the fieldDBType is undefined for this module, see if a default value is defined
-        if (!empty($rules['default'][$fieldDBType])) {
-            return $this->handleType($rules['default'][$fieldDBType], $fieldDBType, $fieldName);
-        }
-
-        // If the sugarType is undefined for this module, see if a default value is defined
-        if (!empty($rules['default'][$sugarType])) {
-            return $this->handleType($rules['default'][$sugarType], $fieldDBType, $fieldName);
-        }
-
-        return '';
-    }
 
     /**
      * Returns a randomly generated piece of data for the current module and field.
@@ -386,10 +357,8 @@ class DataTool
         }
         if (!empty($typeData['same'])) {
             if (is_string($typeData['same']) && !empty($this->fields[$typeData['same']])) {
-                //return $this->accessLocalField($typeData['same']);
                 $rtn = $this->accessLocalField($typeData['same']);
             } else {
-                //return $typeData['same'];
                 $rtn = $typeData['same'];
             }
             if (!empty($typeData['toUpper'])) {
