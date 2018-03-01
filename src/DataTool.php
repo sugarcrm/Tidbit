@@ -59,7 +59,7 @@ class DataTool
     public $installDataCstm = array();
 
     /** @var array stores fields and its values from vardefs.php for every module */
-    public $fields = array();
+    protected $fields = array();
     public $table_name = '';
     public $module = '';
     public $count = 0;
@@ -112,6 +112,31 @@ class DataTool
         $this->coreIntervals = CoreFactory::getComponent('Intervals');
     }
 
+    /**
+     * Getter for filtered fields data from vardef.php
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
+     * It takes fields from vardef.php for a module, filters it and sets filtered array to $fields variable.
+     *
+     * @param $fds array - Value of 'fields' key from vardef.php for a module.
+     */
+    public function setFields($fds)
+    {
+        foreach ($fds as $f => $dt) {
+            if ((!empty($fds[$f]['source']) && $fds[$f]['source'] != 'custom_fields')
+                || isset($GLOBALS['dataTool'][$this->module][$f]['skip'])) {
+                unset($fds[$f]);
+            }
+        }
+        $this->fields = $fds;
+    }
 
 
     /**
@@ -121,9 +146,6 @@ class DataTool
     public function generateData()
     {
         foreach ($this->fields as $field => $data) {
-            if (!empty($this->fields[$field]['source']) && $this->fields[$field]['source'] != 'custom_fields') {
-                continue;
-            }
             if (isset($this->installData[$field])) {
                 continue;
             }
