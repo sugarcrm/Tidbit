@@ -275,10 +275,10 @@ foreach ($module_keys as $module) {
     }
 
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
-    $dTool->setFields($bean->field_defs);
 
     $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
+    $dTool->setFields($bean->field_defs);
 
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
         echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
