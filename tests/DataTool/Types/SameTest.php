@@ -46,11 +46,11 @@ class SameTest extends TidbitTestCase
             )
         ));
 
-        $this->dataTool->fields = array(
+        $this->dataTool->setFields([
             'field1' => 'field1',
             'field2' => 'field2',
-            'field3' => 'field3',
-        );
+            'field3' => 'field3'
+        ]);
 
         $this->dataTool->installData = array(
             'field1' => 10,
@@ -68,9 +68,9 @@ class SameTest extends TidbitTestCase
     public function testSameType()
     {
         $type = array('same' => 'field1');
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = 'some_test_value';
         $this->dataTool->installData['field1'] = $expected;
@@ -98,9 +98,9 @@ class SameTest extends TidbitTestCase
     public function testSameValueTrimType()
     {
         $type = array('same' => 'field1');
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = '   some_test_value   ';
         $this->dataTool->installData['field1'] = $expected;
@@ -115,9 +115,9 @@ class SameTest extends TidbitTestCase
     public function testSameToUpperType()
     {
         $type = array('same' => 'field1', 'toUpper' => true);
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = 'some_test_value';
         $this->dataTool->installData['field1'] = $expected;
@@ -132,9 +132,9 @@ class SameTest extends TidbitTestCase
     public function testSameToLowerType()
     {
         $type = array('same' => 'field1', 'toLower' => true);
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = 'some_TesT_value';
         $this->dataTool->installData['field1'] = $expected;
@@ -151,9 +151,9 @@ class SameTest extends TidbitTestCase
     public function testSameHashType()
     {
         $type = array('same_hash' => 'field1');
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = 'field1 value';
         $this->dataTool->installData['field1'] = "'" . $expected . "'";
@@ -171,9 +171,9 @@ class SameTest extends TidbitTestCase
     public function testSameHashIntegerType()
     {
         $type = array('same_hash' => 'field1');
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expected = 20;
         $this->dataTool->installData['field1'] = $expected;
@@ -209,9 +209,9 @@ class SameTest extends TidbitTestCase
     public function testSameSugarHashType()
     {
         $type = array('same_sugar_hash' => 'field1');
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $GLOBALS['sugar_config'] = array('sugar_version' => '7.6.2');
 

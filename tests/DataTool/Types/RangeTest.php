@@ -123,9 +123,9 @@ class RangeTest extends TidbitTestCase
     {
         $type = array('same_datetime' => 'field1');
 
-        $this->dataTool->fields = array(
-            'field1' => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1' => 'field1'
+        ]);
 
         $expectedDatetime = "'2016-05-20 10:12:13'";
 
@@ -173,10 +173,10 @@ class RangeTest extends TidbitTestCase
             )
         );
 
-        $this->dataTool->fields = array(
+        $this->dataTool->setFields([
             'field1'         => 'field1',
             'duration_hours' => 'duration_hours'
-        );
+        ]);
 
         $expectedDatetime = "'2016-05-20 10:12:13'";
 
@@ -209,9 +209,9 @@ class RangeTest extends TidbitTestCase
             )
         );
 
-        $this->dataTool->fields = array(
-            'field1'         => 'field1',
-        );
+        $this->dataTool->setFields([
+            'field1'         => 'field1'
+        ]);
 
         $expectedDatetime = "'2016-05-20 10:12:13'";
 

@@ -256,7 +256,7 @@ abstract class Common
         $bean = \BeanFactory::getBean($modelName);
 
         $dataTool = new DataTool($this->storageType);
-        $dataTool->fields = $bean->field_defs;
+        $dataTool->setFields($bean->field_defs);
         $dataTool->table_name = $bean->table_name;
         $dataTool->module = $modelName;
         $dataTool->count = $modelCounter;

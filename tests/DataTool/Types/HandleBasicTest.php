@@ -102,11 +102,11 @@ class HandleBasicTest extends TidbitTestCase
 
         $type = array('sum' => array('subtotal', 'shipping', 'tax'));
 
-        $this->dataTool->fields = array(
+        $this->dataTool->setFields([
             'subtotal' => 'subtotal',
             'shipping' => 'shipping',
-            'tax'      => 'tax',
-        );
+            'tax'      => 'tax'
+        ]);
 
         $this->dataTool->installData = array(
             'subtotal' => 10,
@@ -127,11 +127,11 @@ class HandleBasicTest extends TidbitTestCase
 
         $type = array('sum' => array('subtotal', 'shipping', 'tax'));
 
-        $this->dataTool->fields = array(
+        $this->dataTool->setFields([
             'subtotal' => 'subtotal',
             'shipping' => 'shipping',
-            'tax'      => 'tax',
-        );
+            'tax'      => 'tax'
+        ]);
 
         $this->dataTool->installData = array(
             'subtotal' => 10,
@@ -152,10 +152,10 @@ class HandleBasicTest extends TidbitTestCase
 
         $type = array('sum' => array('subtotal', 20, 'tax'));
 
-        $this->dataTool->fields = array(
+        $this->dataTool->setFields([
             'subtotal' => 'subtotal',
-            'tax'      => 'tax',
-        );
+            'tax'      => 'tax'
+        ]);
 
         $this->dataTool->installData = array(
             'subtotal' => 10,

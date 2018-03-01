@@ -275,7 +275,7 @@ foreach ($module_keys as $module) {
     }
 
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
-    $dTool->fields = $bean->field_defs;
+    $dTool->setFields($bean->field_defs);
 
     $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
