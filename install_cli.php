@@ -52,30 +52,31 @@ array_unshift($module_keys, 'Users');
 array_unshift($module_keys, 'Teams');
 $module_keys = array_unique($module_keys);
 
-echo "Constructing\n";
+echo "Constructing".PHP_EOL;
 foreach ($module_keys as $module) {
-    echo "{$modules[$module]} {$module}\n";
+    echo "{$modules[$module]} {$module}".PHP_EOL;
 }
 
 if (isset($opts['with-favorites'])) {
-    echo "\nSugar Favorites Generated:\n";
+    echo PHP_EOL."Sugar Favorites Generated:".PHP_EOL;
     foreach ($sugarFavoritesModules as $favModule => $favCount) {
-        echo "\t$favCount {$favModule}\n";
+        echo "\t$favCount {$favModule}".PHP_EOL;
     }
 }
 
-echo "\n";
-echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
-echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . "\n";
-echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
-echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
-echo "With Existing Users Mode " . (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
-echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
-echo "With " . $maxTeamsPerSet ." teams in Team Sets \n";
-echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
+echo PHP_EOL;
+echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . PHP_EOL;
+echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . PHP_EOL;
+echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . PHP_EOL;
+echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . PHP_EOL;
+echo "With Existing Users Mode " .
+    (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . PHP_EOL;
+echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . PHP_EOL;
+echo "With " . $maxTeamsPerSet ." teams in Team Sets" . PHP_EOL;
+echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . PHP_EOL;
 echo "With Team-based Restriction Level " .
-    (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
-echo "\n";
+    (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . PHP_EOL;
+echo PHP_EOL;
 
 // creating storage adapter
 //if no storage flags are passed, try to autodetect storage from the sugar install
@@ -116,7 +117,7 @@ $activityGenerator = new \Sugarcrm\Tidbit\Generator\Activity(
 );
 $activityGenerator->setActivityModulesBlackList($activityModulesBlackList);
 if (isset($GLOBALS['obliterate'])) {
-    echo "Obliterating activities ... \n";
+    echo "Obliterating activities ... ".PHP_EOL;
     $activityGenerator->obliterateActivities();
 }
 
@@ -129,8 +130,8 @@ foreach ($module_keys as $module) {
     if ((method_exists('BeanFactory', 'getBeanClass') && !BeanFactory::getBeanClass($module))
         || method_exists('BeanFactory', 'getBeanName') && !BeanFactory::getBeanName($module)) {
         echo "Module $module is not found in 'modules/' folder or \$beanList, \$beanFiles global" .
-            " variables do not contain it\n";
-        echo "Skipping module: " . $module . "\n";
+            " variables do not contain it".PHP_EOL;
+        echo "Skipping module: " . $module . PHP_EOL;
         continue;
     }
 
@@ -142,15 +143,15 @@ foreach ($module_keys as $module) {
             $existingUserIds = loadUserIds($GLOBALS['db']);
             $activityGenerator->setUserIds($existingUserIds);
         }
-        echo "Skipping $module\n";
+        echo "Skipping $module".PHP_EOL;
         continue;
     }
 
-    echo "\nProcessing Module $module"
+    echo PHP_EOL."Processing Module $module"
         .(isset($tidbit_relationships[$module])
             ? " with relationships to ".implode(", ", array_keys($tidbit_relationships[$module]))
             :"")
-        .":\n";
+        .":".PHP_EOL;
     $total = $modules[$module];
 
     if (in_array($module, $moduleUsingGenerators)) {
@@ -172,27 +173,27 @@ foreach ($module_keys as $module) {
             $generator->setActivityStreamGenerator($activityGenerator);
             $activityBean = $generator->getActivityBean();
             if ($activityBean && $activityGenerator->willGenerateActivity($activityBean)) {
-                echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($modules[$module])
+                echo PHP_EOL."\tWill create " . $activityGenerator->calculateActivitiesToCreate($modules[$module])
                     . " activity records";
             }
         }
 
-        echo "\n\tHitting DB... ";
+        echo PHP_EOL."\tHitting DB... ";
         $generator->generate();
         $total = $generator->getInsertCounter();
         echo " DONE";
 
         $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
-        echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
+        echo PHP_EOL."\tTime spend... " . $GLOBALS['time_spend'][$module] . "s".PHP_EOL;
 
         continue;
     }
 
-    echo "Inserting ${total} records.\n";
+    echo "Inserting ${total} records.".PHP_EOL;
     $total_iterator = 0;
     if (isset($GLOBALS['iterator']) && ($total > $GLOBALS['iterator'])) {
         $total_iterator = $total - $GLOBALS['iterator'];
-        echo $total_iterator . " records will be skipped from generation.\n";
+        echo $total_iterator . " records will be skipped from generation.".PHP_EOL;
     }
 
     $bean = BeanFactory::getBean($module);
@@ -281,9 +282,9 @@ foreach ($module_keys as $module) {
     $dTool->module = $module;
 
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
-        echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
+        echo PHP_EOL."\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
     }
-    echo "\n\tHitting DB... ";
+    echo PHP_EOL."\tHitting DB... ";
 
     $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
     
@@ -423,7 +424,7 @@ foreach ($module_keys as $module) {
     echo " DONE";
 
     $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
-    echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
+    echo PHP_EOL."\tTime spend... " . $GLOBALS['time_spend'][$module] . "s".PHP_EOL;
 }
 
 // Update enabled Modules Tabs
@@ -438,18 +439,18 @@ if (!empty($GLOBALS['queryFP'])) {
     fclose($GLOBALS['queryFP']);
 }
 
-echo "\n";
-echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
-echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
-echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
+echo PHP_EOL;
+echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . PHP_EOL;
+echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . PHP_EOL;
+echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . PHP_EOL;
 
 if (!empty($GLOBALS['as_populate'])) {
-    echo "Activities: \n";
-    echo " - user activities per module record: " . $activityStreamOptions['activities_per_module_record'] . "\n";
-    echo " - users: " . $modules['Users'] . "\n";
+    echo "Activities: ".PHP_EOL;
+    echo " - user activities per module record: " . $activityStreamOptions['activities_per_module_record'] . PHP_EOL;
+    echo " - users: " . $modules['Users'] . PHP_EOL;
     echo " - max number of records for each module: " .
-        ($activityStreamOptions['last_n_records'] ? $activityStreamOptions['last_n_records'] : 'all') . "\n";
-    echo " - total records inserted: " . $totalInsertedActivities . "\n";
+        ($activityStreamOptions['last_n_records'] ? $activityStreamOptions['last_n_records'] : 'all') . PHP_EOL;
+    echo " - total records inserted: " . $totalInsertedActivities . PHP_EOL;
 }
 
 if ($storageType == 'csv') {
@@ -466,4 +467,4 @@ if ($storageType == 'csv') {
     }
 }
 
-echo "Done\n\n\n";
+echo "Done".PHP_EOL.PHP_EOL.PHP_EOL;
