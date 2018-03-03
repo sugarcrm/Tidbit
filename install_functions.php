@@ -188,3 +188,27 @@ function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
         }
     }
 }
+
+
+/**
+ * @param int $done
+ * @param int $total
+ * @param int $size
+ */
+function show_status($done, $total, $size = 40)
+{
+    $perc=(double)($done/$total);
+    $bar=floor($perc*$size);
+
+    $status_bar="\r\033[K\tHitting DB... [";
+    $status_bar.=str_repeat("=", $bar);
+    if ($bar<$size) {
+        $status_bar.=">";
+        $status_bar.=str_repeat(" ", $size-$bar);
+    } else {
+        $status_bar.="=";
+    }
+    $disp=number_format($perc*100, 0);
+    $status_bar.="] $disp%  $done/$total";
+    echo "$status_bar";
+}
