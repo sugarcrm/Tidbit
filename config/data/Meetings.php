@@ -42,6 +42,9 @@ $GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability' => true
 $GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
 $GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
 
+// For possibility to perform Meetings update
+$GLOBALS['dataTool']['Meetings']['type'] = array('value' => "'Sugar'");
+
 // Durations in Minutes will be 30 mins, hours from 0 to 12 (selected randomly)
 $GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "'30'");
 $GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min' => 0, 'max' => 12));
