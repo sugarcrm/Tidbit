@@ -180,7 +180,7 @@ foreach ($module_keys as $module) {
         echo "\n\tHitting DB... ";
         $generator->generate();
         $total = $generator->getInsertCounter();
-        echo " DONE";
+        show_status($modules[$module], $modules[$module]);
 
         $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
         echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
@@ -361,10 +361,9 @@ foreach ($module_keys as $module) {
 
         if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
             $storageAdapter->commitQuery();
-            echo "#";
         }
-        if ($i % 1000 == 0) {
-            echo '*';
+        if ($i % (int)($total/100) == 0) {
+            show_status($i, $total);
         }
     } //for
 
@@ -419,9 +418,7 @@ foreach ($module_keys as $module) {
             $relationStorageBufferForFlush->flush();
         }
     }
-
-    echo " DONE";
-
+    show_status($total, $total);
     $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
     echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
 }
