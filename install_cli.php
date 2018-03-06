@@ -304,15 +304,17 @@ foreach ($module_keys as $module) {
             continue;
         }
         $dTool->count = $i;
+        $beanId = $dTool->generateId($useCustomTable);
         /* Don't turbo Users or Teams */
         if (!isset($GLOBALS['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
             $dTool->clean();
             $dTool->count = $i;
+            $beanId = $dTool->generateId($useCustomTable);
             $dTool->generateData();
         }
 
         // Generate relationships if $bean has an "id" field
-        if ($beanId = $dTool->generateId($useCustomTable)) {
+        if ($beanId) {
             $generatedIds[] = $beanId;
 
             /** @var \Sugarcrm\Tidbit\Core\Relationships $relationships */

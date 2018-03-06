@@ -79,7 +79,7 @@ class DataTool
      * @var string
      */
     protected $storageType;
-    
+
     /** @var Intervals  */
     protected $coreIntervals;
 
@@ -280,11 +280,11 @@ class DataTool
         }
         if (!empty($typeData['increment'])) {
             static $inc = -1;
-            
+
             if ($resetStatic) {
                 $inc = -1;
             }
-            
+
             $inc++;
             if ($typeData['increment']['max']) {
                 return $typeData['increment']['min'] +
@@ -736,7 +736,7 @@ class DataTool
 
         return $rbfd->accessLocalField($fieldName);
     }
-    
+
     /**
      * Cache datetime generation and convert to db format
      * Based on xhprof data, this operation in time consuming, so we need to cache that

@@ -79,20 +79,20 @@ Options
 
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
-                        all. If modules are already configured, those 
+                        all. If modules are already configured, those
                         configurations are not overridden, only appended-to. The
-                        number of records created is specified by config. variable 
+                        number of records created is specified by config. variable
                         \$all_modules_default_count, which is set to 5000 unless
-                        overridden in custom configuration. It is recommended 
-                        that this option still be used with custom configuration 
-                        to handle custom fields, one/many relationships and any 
+                        overridden in custom configuration. It is recommended
+                        that this option still be used with custom configuration
+                        to handle custom fields, one/many relationships and any
                         customization like custom indexes or auto-incrementing
-                        fields. 
-                        
+                        fields.
+
     --allrelationships  All Relationships. Scans the Sugar system for all out-of-box
-                        and custom relationships. If relationships are already 
-                        configured, those configurations are not overridden but 
-                        only appended-to. 
+                        and custom relationships. If relationships are already
+                        configured, those configurations are not overridden but
+                        only appended-to.
 
     --as_populate       Populate ActivityStream records for each user and module
 
@@ -101,7 +101,7 @@ Options
 
     --as_number <N>     Works with "--as_populate" key only. Number of
                         ActivityStream records for each module record (default 10)
-                        
+
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
                         insertion buffer (by default equals to insert_batch_size)
 
@@ -146,9 +146,9 @@ Options
                         describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
                         "load factor" (-l) argument
     --profile           Name of file in folder config/profiles (without .php) or path to php-config-file with profile data.
-                        File can contain php-arrays 
+                        File can contain php-arrays
                             - modules -- counts of beans to create
-                            - profile_opts -- redefines of settings listed here 
+                            - profile_opts -- redefines of settings listed here
                         In case of setting profile (this setting) setting -l (load factor) will be ignored.
 
     --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
@@ -203,6 +203,9 @@ if (isset($opts['h'])) {
     die($helpStr);
 }
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ini_set('memory_limit', '8096M');
 set_time_limit(0);
 
@@ -211,6 +214,15 @@ define('CONFIG_DIR', __DIR__ . '/config');
 define('PROFILES_DIR', CONFIG_DIR . '/profiles');
 define('DATA_DIR', CONFIG_DIR . '/data');
 define('RELATIONSHIPS_DIR', CONFIG_DIR . '/relationships');
+
+$GLOBALS['baseTime'] = time();
+if (isset($opts['base_time'])) {
+    if (!is_numeric($opts['base_time'])) {
+        exitWithError('base_time value should be an integer');
+    }
+    $GLOBALS['baseTime'] = intval($opts['base_time']);
+    mt_srand($GLOBALS['baseTime']);
+}
 
 // load general config
 require_once CONFIG_DIR . '/config.php';
@@ -316,18 +328,6 @@ if (isset($opts['allrelationships'])) {
 
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
-
-if (isset($opts['base_time'])) {
-    if (is_numeric($opts['base_time'])) {
-        $GLOBALS['baseTime'] = intval($opts['base_time']);
-        mt_srand($GLOBALS['baseTime']);
-    } else {
-        exitWithError('base_time value should be integer');
-    }
-} else {
-    $GLOBALS['baseTime'] = time();
-}
-
 $GLOBALS['totalRecords'] = 0;
 $GLOBALS['time_spend'] = array();
 
@@ -345,7 +345,7 @@ if (isset($opts['l']) && !isset($opts['profile'])) {
     foreach ($modules as $m => $n) {
         $modules[$m] *= $factor;
     }
-    
+
     // Multiple favorites with $factor too
     if (isset($opts['with-favorites'])) {
         foreach ($sugarFavoritesModules as $m => $n) {
