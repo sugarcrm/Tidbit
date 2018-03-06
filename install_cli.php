@@ -286,7 +286,7 @@ foreach ($module_keys as $module) {
     echo "\n\tHitting DB... ";
 
     $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
-    
+
     if ($useCustomTable) {
         $beanInsertBufferCustom = new \Sugarcrm\Tidbit\InsertBuffer(
             $bean->get_custom_table_name(),
@@ -294,7 +294,7 @@ foreach ($module_keys as $module) {
             $insertBatchSize
         );
     }
-    
+
     /* We need to insert $total records
      * into the DB.  We are using the module and table-name given by
      * $module and $bean->table_name. */
@@ -362,7 +362,7 @@ foreach ($module_keys as $module) {
         if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
             $storageAdapter->commitQuery();
         }
-        if ($i % (int)($total/100) == 0) {
+        if ($i % (int)(max(1, $total/100)) == 0) {
             show_status($i, $total);
         }
     } //for
