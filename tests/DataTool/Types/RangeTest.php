@@ -22,6 +22,12 @@ class RangeTest extends TidbitTestCase
         $this->dataTool = new DataTool('mysql');
     }
 
+    public function tearDown()
+    {
+        parent::tearDown();
+        unset($GLOBALS['dataTool']);
+    }
+
     /**
      * @covers ::handleType
      */
@@ -83,12 +89,12 @@ class RangeTest extends TidbitTestCase
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
         $expected = new \DateTime();
-        $expected->setTimezone(new \DateTimeZone('UTC'));
         $expected->setTimestamp($time);
         $expected->modify('5 days');
+        $expected = $GLOBALS['timedate']->asDbType($expected, 'datetime');
 
         $this->assertIsQuoted($actual);
-        $this->assertEquals($expected->format('Y-m-d H:i:s'), $this->removeQuotes($actual));
+        $this->assertEquals($expected, $this->removeQuotes($actual));
     }
 
     /**
@@ -121,20 +127,29 @@ class RangeTest extends TidbitTestCase
      */
     public function testSameDatetimeType()
     {
-        $type = array('same_datetime' => 'field1');
-
+        $GLOBALS['dataTool']['Module1']['field2'] = ['same_datetime' => 'field1'];
+        $GLOBALS['dataTool']['Module1']['field1'] = [];
+        $this->dataTool->module = 'Module1';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => [
+                'name' => 'field2',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
+            'field1' => [
+                'name' => 'field1',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
         ]);
 
         $expectedDatetime = "'2016-05-20 10:12:13'";
-
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'field1' => $expectedDatetime,
-        );
+        ];
 
-        // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
         $this->assertEquals($expectedDatetime, $actual);
@@ -147,10 +162,18 @@ class RangeTest extends TidbitTestCase
      */
     public function testSameDatetimeFieldDoNotExistsType()
     {
-        $type = array('same_datetime' => 'field1');
+        $GLOBALS['dataTool']['Module1']['field2'] = ['same_datetime' => 'field1'];
+        $this->dataTool->module = 'Module1';
+        $this->dataTool->setFields([
+            'field2' => [
+                'name' => 'field2',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
+        ]);
 
-        // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("''", $actual);
@@ -163,33 +186,43 @@ class RangeTest extends TidbitTestCase
      */
     public function testSameDatetimeModifyByFieldType()
     {
-        $type = array(
+        $GLOBALS['dataTool']['Module1']['field2'] = [
             'same_datetime' => 'field1',
-            'modify' => array(
-                'hours' => array(
-                    'field' => 'duration_hours'
-                ),
-                'minutes' => '30'
-            )
-        );
-
+            'modify' => [
+                'hours' => [
+                    'field' => 'duration_hours',
+                ],
+                'minutes' => '30',
+            ]
+        ];
+        $GLOBALS['dataTool']['Module1']['field1'] = [];
+        $GLOBALS['dataTool']['Module1']['duration_hours'] = [];
+        $this->dataTool->module = 'Module1';
         $this->dataTool->setFields([
-            'field1'         => 'field1',
-            'duration_hours' => 'duration_hours'
+            'field2' => [
+                'name' => 'field2',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
+            'field1' => [
+                'name' => 'field1',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
+            'duration_hours' => [
+                'name' => 'duration_hours',
+                'type' => 'int',
+            ],
         ]);
-
-        $expectedDatetime = "'2016-05-20 10:12:13'";
-
         $this->dataTool->installData = array(
-            'field1'         => $expectedDatetime,
+            'field1'         => "'2016-05-20 10:12:13'",
             'duration_hours' => 2,
         );
 
-        // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
-
         // Expecting value will be modified by 2 hours and 30 minutes
         $this->assertEquals("'2016-05-20 12:42:13'", $actual);
     }
@@ -201,29 +234,35 @@ class RangeTest extends TidbitTestCase
      */
     public function testSameDatetimeModifyByConstantType()
     {
-        $type = array(
+        $GLOBALS['dataTool']['Module1']['field2'] = [
             'same_datetime' => 'field1',
-            'modify' => array(
+            'modify' => [
                 'hours' => 5,
-                'minutes' => '10'
-            )
-        );
-
+                'minutes' => '10',
+            ]
+        ];
+        $GLOBALS['dataTool']['Module1']['field1'] = [];
+        $this->dataTool->module = 'Module1';
         $this->dataTool->setFields([
-            'field1'         => 'field1'
+            'field2' => [
+                'name' => 'field2',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
+            'field1' => [
+                'name' => 'field1',
+                'type' => 'datetime',
+                'dbType' => 'varchar',
+            ],
         ]);
-
-        $expectedDatetime = "'2016-05-20 10:12:13'";
-
         $this->dataTool->installData = array(
-            'field1'         => $expectedDatetime,
+            'field1' => "'2016-05-20 10:12:13'",
         );
 
-        // Set varchar type, so DB->convert won't be called
-        $actual = $this->dataTool->handleType($type, 'varchar', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
-
         // Expecting value will be modified by 5 hours and 10 minutes
         $this->assertEquals("'2016-05-20 15:22:13'", $actual);
     }

@@ -83,3 +83,5 @@ $GLOBALS['dataTool']['Quotes']['shipping_address_postalcode'] = array(
 $GLOBALS['dataTool']['Quotes']['shipping_address_country'] = array(
     'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_country')
 );
+$GLOBALS['dataTool']['Quotes']['quote_type'] = ['skip' => true];
+$GLOBALS['dataTool']['Quotes']['date_closed_timestamp'] = ['skip' => true];

@@ -60,6 +60,10 @@ class DataTool
 
     /** @var array stores fields and its values from vardefs.php for every module */
     protected $fields = array();
+
+    /** @var array stores field rules */
+    protected $fieldRules = [];
+
     public $table_name = '';
     public $module = '';
     public $count = 0;
@@ -131,26 +135,51 @@ class DataTool
      * $isSkipped - Skip fields which are marked for skipping in tidbit's config for module
      * $isMysqlAutoincrement - There is no need to generate field data for autoincrement fields in MySQL
      *
-     * @param $fds array - Value of 'fields' key from vardef.php for a module.
+     * @param $fieldDefs array - Value of 'fields' key from vardef.php for a module.
      */
-    public function setFields($fds)
+    public function setFields($fieldDefs)
     {
-        foreach ($fds as $fieldName => $fieldDefinition) {
-            $isNonDB = !empty($fieldDefinition['source']) && $fieldDefinition['source'] != 'custom_fields';
-            $isSkipped = !empty($GLOBALS['dataTool'][$this->module][$fieldName]['skip']);
-            $isMysqlAutoincrement = $this->storageType == 'mysql' &&
-                (   // autoincrement option is set in vardef.php
-                    !empty($fieldDefinition['auto_increment'])
-                    // autoincrement option is set in Tidbit's config
-                    || !empty($GLOBALS['dataTool'][$this->module][$fieldName]['autoincrement'])
-                );
-            if ($isNonDB || $isSkipped || $isMysqlAutoincrement) {
-                unset($fds[$fieldName]);
-            }
-        }
-        $this->fields = $fds;
-    }
+        $this->fieldRules = [];
+        $this->fields = [];
 
+        foreach ($fieldDefs as $fieldName => $fieldDef) {
+            // skip non-db fields
+            if (isset($fieldDef['source']) && $fieldDef['source'] != 'custom_fields') {
+                continue;
+            }
+
+            $type = !empty($fieldDef['dbType']) ? $fieldDef['dbType'] : $fieldDef['type'];
+            $fieldRules = false;
+            foreach ([$this->module, 'default'] as $module) {
+                foreach ([$fieldName, $type, $fieldDef['type']] as $fieldKind) {
+                    if (isset($GLOBALS['dataTool'][$module][$fieldKind])) {
+                        $fieldRules = $GLOBALS['dataTool'][$module][$fieldKind];
+                        break 2;
+                    }
+                }
+            }
+            if ($fieldRules === false) {
+                trigger_error("No generation rules were found for $fieldName field of $this->module module");
+                continue;
+            }
+
+            // skip skipped fields
+            if (!empty($fieldRules['skip'])) {
+                continue;
+            }
+
+            // skip autoincrement fields when storage is mysql
+            // because mysql generates values automatically in this case
+            if ($this->storageType == 'mysql'
+                && (!empty($fieldDef['auto_increment']) || !empty($fieldRules['autoincrement']))
+            ) {
+                continue;
+            }
+
+            $this->fieldRules[$fieldName] = $fieldRules;
+            $this->fields[$fieldName] = $fieldDef;
+        }
+    }
 
     /**
      * Generate data and store it in the installData array.
@@ -206,24 +235,15 @@ class DataTool
         $type = (!empty($this->fields[$field]['dbType']))
             ? $this->fields[$field]['dbType']
             : $this->fields[$field]['type'];
+
         $GLOBALS['fieldData'] = $this->fields[$field];
 
-        /* Check whether rules exists in config for the module. In other way look for data type in 'default' config . */
-        foreach ([$this->module, 'default'] as $rules) {
-            /* Look for settings for field.
-                In case it doesn't exist check it for 'dbType' for provided field and at last for 'type'. */
-            foreach ([$field, $type, $this->fields[$field]['type']] as $dataType) {
-                if (!empty($GLOBALS['dataTool'][$rules][$dataType])) {
-                    $value = $this->handleType($GLOBALS['dataTool'][$rules][$dataType], $type, $field);
-                    if (empty($this->fields[$field]['source'])) {
-                        $this->installData[$field] = $value;
-                    } else {
-                        // "source" == "custom_fields" is an indicator for Custom field in VarDefs
-                        $this->installDataCstm[$field] = $value;
-                    }
-                    break 2;
-                }
-            }
+        $value = $this->handleType($this->fieldRules[$field], $type, $field);
+
+        if (empty($this->fields[$field]['source'])) {
+            $this->installData[$field] = $value;
+        } else {
+            $this->installDataCstm[$field] = $value;
         }
     }
 
@@ -725,9 +745,9 @@ class DataTool
         } else {
             $bean = \BeanFactory::getBean($module);
             $rbfd = new DataTool($this->storageType);
-            $rbfd->fields = $bean->field_defs;
             $rbfd->table_name = $bean->table_name;
             $rbfd->module = $module;
+            $rbfd->setFields($bean->field_defs);
             /* Cache the dataTool object. */
             $GLOBALS['foreignDataTools'][$module] = $rbfd;
         }

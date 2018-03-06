@@ -35,33 +35,34 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Meetings']['contact_id'] = array('related' => array('module' => 'Contacts'));
-$GLOBALS['dataTool']['Meetings']['parent_id'] = array('related' => array('module' => 'Accounts', 'ratio' => 8));
-$GLOBALS['dataTool']['Meetings']['parent_type'] = array('value' => "'Accounts'");
-$GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability' => true);
-$GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
-$GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
-
-// For possibility to perform Meetings update
-$GLOBALS['dataTool']['Meetings']['type'] = array('value' => "'Sugar'");
-
-// Durations in Minutes will be 30 mins, hours from 0 to 12 (selected randomly)
-$GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "'30'");
-$GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min' => 0, 'max' => 12));
-/* We want meetings to be in the past 90% of the time. */
-/* Start should be always bigger than end */
-$GLOBALS['dataTool']['Meetings']['date_start'] = array(
-    'range'    => array('min' => -400, 'max' => 36),
-    'type'     => 'datetime',
-    'basetime' => $GLOBALS['baseTime']
+$modules = array(
+    'Tags' => 100,
+    'EmailAddresses' => 120,
+    'ACLRoles' => 10,
+    'Users' => 20,
+    'Teams' => 4,
+    'Accounts' => 100,
+    'Quotes' => 100,
+    'ProductBundles' => 200,
+    'Products' => 400,
+    'Calls' => 240,
+    'Emails' => 160,
+    'EmailText' => 160,
+    'Contacts' => 400,
+    'Leads' => 400,
+    'Opportunities' => 200,
+    'Cases' => 400,
+    'Bugs' => 300,
+    'Meetings' => 800,
+    'Tasks' => 400,
+    'Notes' => 400,
+    'Documents' => 100,
+    'Categories' => 60,
+    'KBContents' => 100,
+    'SugarFavorites' => 100,
+    'Reports' => 100
 );
-$GLOBALS['dataTool']['Meetings']['date_end'] = array(
-    'same_datetime' => 'date_start',
-    'modify' => array(
-        'hours' => array(
-            'field' => 'duration_hours'
-        ),
-        'minutes' => '30'
-    )
+
+$profile_opts = array(
+
 );
-$GLOBALS['dataTool']['Meetings']['displayed_url'] = ['skip' => true];

@@ -14,7 +14,7 @@ class HandleBasicTest extends TidbitTestCase
 {
     /** @var DataTool */
     protected $dataTool;
-    
+
     public function setUp()
     {
         parent::setUp();
@@ -24,6 +24,7 @@ class HandleBasicTest extends TidbitTestCase
     public function tearDown()
     {
         parent::tearDown();
+        unset($GLOBALS['dataTool']);
     }
 
     /**
@@ -98,24 +99,27 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testSumType()
     {
+        $GLOBALS['dataTool']['Contacts']['total'] = ['sum' => ['subtotal', 'shipping', 'tax']];
+        $GLOBALS['dataTool']['Contacts']['subtotal'] = [];
+        $GLOBALS['dataTool']['Contacts']['shipping'] = [];
+        $GLOBALS['dataTool']['Contacts']['tax'] = [];
         $this->dataTool->module = 'Contacts';
 
-        $type = array('sum' => array('subtotal', 'shipping', 'tax'));
-
         $this->dataTool->setFields([
-            'subtotal' => 'subtotal',
-            'shipping' => 'shipping',
-            'tax'      => 'tax'
+            'total' => ['name' => 'total', 'type' => 'currency'],
+            'subtotal' => ['name' => 'subtotal', 'type' => 'currency'],
+            'shipping' => ['name' => 'shipping', 'type' => 'currency'],
+            'tax' => ['name' => 'tax', 'type' => 'currency'],
         ]);
 
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'subtotal' => 10,
             'shipping' => 20,
             'tax'      => 33,
-        );
+        ];
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals(63, $actual);
+        $this->dataTool->generateData();
+        $this->assertEquals(63, $this->dataTool->installData['total']);
     }
 
     /**
@@ -123,14 +127,16 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testSumReturnIsNotNumericType()
     {
+        $GLOBALS['dataTool']['Contacts']['total'] = ['sum' => ['subtotal', 'shipping', 'tax']];
+        $GLOBALS['dataTool']['Contacts']['subtotal'] = [];
+        $GLOBALS['dataTool']['Contacts']['shipping'] = [];
+        $GLOBALS['dataTool']['Contacts']['tax'] = [];
         $this->dataTool->module = 'Contacts';
-
-        $type = array('sum' => array('subtotal', 'shipping', 'tax'));
-
         $this->dataTool->setFields([
-            'subtotal' => 'subtotal',
-            'shipping' => 'shipping',
-            'tax'      => 'tax'
+            'total' => ['name' => 'total', 'type' => 'currency'],
+            'subtotal' => ['name' => 'subtotal', 'type' => 'currency'],
+            'shipping' => ['name' => 'shipping', 'type' => 'currency'],
+            'tax' => ['name' => 'tax', 'type' => 'currency'],
         ]);
 
         $this->dataTool->installData = array(
@@ -139,8 +145,8 @@ class HandleBasicTest extends TidbitTestCase
             'tax'      => 33,
         );
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals(43, $actual);
+        $this->dataTool->generateData();
+        $this->assertEquals(43, $this->dataTool->installData['total']);
     }
 
     /**
@@ -148,13 +154,15 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testSumFieldsPlusNumericValuesType()
     {
+        $GLOBALS['dataTool']['Contacts']['total'] = ['sum' => ['subtotal', 20, 'tax']];
+        $GLOBALS['dataTool']['Contacts']['subtotal'] = [];
+        $GLOBALS['dataTool']['Contacts']['tax'] = [];
         $this->dataTool->module = 'Contacts';
 
-        $type = array('sum' => array('subtotal', 20, 'tax'));
-
         $this->dataTool->setFields([
-            'subtotal' => 'subtotal',
-            'tax'      => 'tax'
+            'total' => ['name' => 'total', 'type' => 'currency'],
+            'subtotal' => ['name' => 'subtotal', 'type' => 'currency'],
+            'tax' => ['name' => 'tax', 'type' => 'currency'],
         ]);
 
         $this->dataTool->installData = array(
@@ -162,8 +170,8 @@ class HandleBasicTest extends TidbitTestCase
             'tax'      => 33,
         );
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals(63, $actual);
+        $this->dataTool->generateData();
+        $this->assertEquals(63, $this->dataTool->installData['total']);
     }
 
     /**

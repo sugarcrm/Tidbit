@@ -21,6 +21,12 @@ class SameTest extends TidbitTestCase
         $this->dataTool = new DataTool('mysql');
     }
 
+    public function tearDown()
+    {
+        parent::tearDown();
+        unset($GLOBALS['dataTool']);
+    }
+
     /**
      * Trick: set local ref instead of remove ref by specifying the same module name
      * Sum all remote field values and return result
@@ -29,36 +35,43 @@ class SameTest extends TidbitTestCase
      */
     public function testSumRefType()
     {
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $GLOBALS['dataTool']['Contacts']['field2'] = [];
+        $GLOBALS['dataTool']['Contacts']['field3'] = [];
+        $GLOBALS['dataTool']['Contacts']['field4'] = [
+            'sum_ref' => [
+                [
+                    'module' => 'Contacts',
+                    'field'  => 'field1',
+                ],
+                [
+                    'module' => 'Contacts',
+                    'field'  => 'field2',
+                ],
+                [
+                    'module' => 'Contacts',
+                    'field'  => 'field3',
+                ],
+            ]
+        ];
         $this->dataTool->module = 'Contacts';
 
-        $type = array('sum_ref' => array(
-            array(
-                'module' => 'Contacts',
-                'field'  => 'field1',
-            ),
-            array(
-                'module' => 'Contacts',
-                'field'  => 'field2',
-            ),
-            array(
-                'module' => 'Contacts',
-                'field'  => 'field3',
-            )
-        ));
-
         $this->dataTool->setFields([
-            'field1' => 'field1',
-            'field2' => 'field2',
-            'field3' => 'field3'
+            'field1' => ['type' => 'int'],
+            'field2' => ['type' => 'int'],
+            'field3' => ['type' => 'int'],
+            'field4' => ['type' => 'int'],
         ]);
 
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'field1' => 10,
             'field2' => 20,
             'field3' => 33,
-        );
+        ];
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field4'];
+
         $this->assertEquals(63, $actual);
     }
 
@@ -67,15 +80,19 @@ class SameTest extends TidbitTestCase
      */
     public function testSameType()
     {
-        $type = array('same' => 'field1');
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1'];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
         $expected = 'some_test_value';
         $this->dataTool->installData['field1'] = $expected;
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
         $this->assertEquals($expected, $actual);
     }
 
@@ -97,15 +114,18 @@ class SameTest extends TidbitTestCase
      */
     public function testSameValueTrimType()
     {
-        $type = array('same' => 'field1');
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1'];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
-        $expected = '   some_test_value   ';
-        $this->dataTool->installData['field1'] = $expected;
+        $this->dataTool->installData['field1'] = '   some_test_value   ';
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
         $this->assertEquals('some_test_value', $actual);
     }
 
@@ -114,16 +134,19 @@ class SameTest extends TidbitTestCase
      */
     public function testSameToUpperType()
     {
-        $type = array('same' => 'field1', 'toUpper' => true);
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1', 'toUpper' => true];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
-        $expected = 'some_test_value';
-        $this->dataTool->installData['field1'] = $expected;
+        $this->dataTool->installData['field1'] = 'some_test_value';
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals(strtoupper($expected), $actual);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
+        $this->assertEquals('SOME_TEST_VALUE', $actual);
     }
 
     /**
@@ -131,16 +154,19 @@ class SameTest extends TidbitTestCase
      */
     public function testSameToLowerType()
     {
-        $type = array('same' => 'field1', 'toLower' => true);
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1', 'toLower' => true];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
-        $expected = 'some_TesT_value';
-        $this->dataTool->installData['field1'] = $expected;
+        $this->dataTool->installData['field1'] = 'some_TesT_value';
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals(strtolower($expected), $actual);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
+        $this->assertEquals('some_test_value', $actual);
     }
 
     /**
@@ -150,14 +176,18 @@ class SameTest extends TidbitTestCase
      */
     public function testSameHashType()
     {
-        $type = array('same_hash' => 'field1');
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same_hash' => 'field1'];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
         $expected = 'field1 value';
         $this->dataTool->installData['field1'] = "'" . $expected . "'";
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'" . md5($expected) . "'", $actual);
@@ -170,14 +200,18 @@ class SameTest extends TidbitTestCase
      */
     public function testSameHashIntegerType()
     {
-        $type = array('same_hash' => 'field1');
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same_hash' => 'field1'];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
         $expected = 20;
         $this->dataTool->installData['field1'] = $expected;
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
         $this->assertEquals("'" . md5($expected) . "'", $actual);
@@ -208,9 +242,12 @@ class SameTest extends TidbitTestCase
      */
     public function testSameSugarHashType()
     {
-        $type = array('same_sugar_hash' => 'field1');
+        $GLOBALS['dataTool']['Contacts']['field2'] = ['same_sugar_hash' => 'field1'];
+        $GLOBALS['dataTool']['Contacts']['field1'] = [];
+        $this->dataTool->module = 'Contacts';
         $this->dataTool->setFields([
-            'field1' => 'field1'
+            'field2' => ['type' => 'varchar'],
+            'field1' => ['type' => 'varchar'],
         ]);
 
         $GLOBALS['sugar_config'] = array('sugar_version' => '7.6.2');
@@ -220,7 +257,8 @@ class SameTest extends TidbitTestCase
         // Expected that value in installData will be quoted
         $this->dataTool->installData['field1'] = "'" . $expected . "'";
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $this->dataTool->generateData();
+        $actual = $this->dataTool->installData['field2'];
 
         $this->assertIsQuoted($actual);
         $this->assertEquals(md5($expected), $this->removeQuotes($actual));

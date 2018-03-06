@@ -75,3 +75,4 @@ $GLOBALS['dataTool']['default']['currency'] = array('range' => array('min' => 0,
 // Tags generation, cause it fills to many data
 $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
+$GLOBALS['dataTool']['default']['id'] = [];
