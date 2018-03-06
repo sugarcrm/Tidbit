@@ -63,3 +63,4 @@ $GLOBALS['dataTool']['Contacts']['phone_work'] = array('phone' => true);
 $GLOBALS['dataTool']['Contacts']['phone_other'] = array('phone' => true);
 $GLOBALS['dataTool']['Contacts']['phone_mobile'] = array('phone' => true);
 $GLOBALS['dataTool']['Contacts']['phone_home'] = array('phone' => true);
+$GLOBALS['dataTool']['Contacts']['picture'] = ['skip' => true];

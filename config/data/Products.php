@@ -41,3 +41,4 @@ $GLOBALS['dataTool']['Products']['quote_id'] = array('skip' => true);
 $GLOBALS['dataTool']['Products']['tax_class'] = array('skip' => true);
 $GLOBALS['dataTool']['Products']['support_term'] = array('skip' => true);
 $GLOBALS['dataTool']['Products']['product_url'] = array('value' => "'www.example.com'");
+$GLOBALS['dataTool']['Products']['date_closed_timestamp'] = ['skip' => true];

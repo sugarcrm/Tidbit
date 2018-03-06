@@ -42,3 +42,4 @@ $GLOBALS['dataTool']['Opportunities']['account_id'] = array('related' => array('
 $GLOBALS['dataTool']['Opportunities']['probability'] = array(
     'range' => array('min' => 0, 'max' => 100)
 );
+$GLOBALS['dataTool']['Opportunities']['date_closed_timestamp'] = ['skip' => true];
