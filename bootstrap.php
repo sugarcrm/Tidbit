@@ -65,12 +65,12 @@ Options
                     	and the administrator account will not be deleted.  Has no
                     	effect if Obliterate Mode is enabled.
 
-    -t              	Turn Turbo Mode on.  Records are produced in groups of 1000
+    -t              	DEPRECATED: Turn Turbo Mode on.  Records are produced in groups of 1000
                     	duplicates.  Users and teams are not affected.
                     	Useful for testing duplicate checking or quickly producing
                     	a large volume of test data.
 
-    -e              	Turn Existing Users Mode on.  Regardless of other settings,
+    -e              	DEPRECATED: Turn Existing Users Mode on.  Regardless of other settings,
                     	no Users or Teams will be created or modified.  Any new
                     	data created will be assigned and associated with existing
                     	Users and Teams.  The number of users that would normally
@@ -79,20 +79,20 @@ Options
 
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
-                        all. If modules are already configured, those 
+                        all. If modules are already configured, those
                         configurations are not overridden, only appended-to. The
-                        number of records created is specified by config. variable 
+                        number of records created is specified by config. variable
                         \$all_modules_default_count, which is set to 5000 unless
-                        overridden in custom configuration. It is recommended 
-                        that this option still be used with custom configuration 
-                        to handle custom fields, one/many relationships and any 
+                        overridden in custom configuration. It is recommended
+                        that this option still be used with custom configuration
+                        to handle custom fields, one/many relationships and any
                         customization like custom indexes or auto-incrementing
-                        fields. 
-                        
+                        fields.
+
     --allrelationships  All Relationships. Scans the Sugar system for all out-of-box
-                        and custom relationships. If relationships are already 
-                        configured, those configurations are not overridden but 
-                        only appended-to. 
+                        and custom relationships. If relationships are already
+                        configured, those configurations are not overridden but
+                        only appended-to.
 
     --as_populate       Populate ActivityStream records for each user and module
 
@@ -101,7 +101,7 @@ Options
 
     --as_number <N>     Works with "--as_populate" key only. Number of
                         ActivityStream records for each module record (default 10)
-                        
+
     --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
                         insertion buffer (by default equals to insert_batch_size)
 
@@ -131,10 +131,11 @@ Options
 
     --tba_level         Specify restriction level for Team-based ACL. Could be (minimum/medium/maximum/full).
                         Default level is medium.
-    --fullteamset       Build fully intersected teamset list.
 
-    --iterator count    This will only insert in the DB the last (count) records specified, meanwhile the
-                        iterator will continue running in the loop. Used to check for orphaned records.
+    --fullteamset       DEPRECATED: Build fully intersected teamset list.
+
+    --iterator count    DEPRECATED: This will only insert in the DB the last (count) records specified,
+                        meanwhile the iterator will continue running in the loop. Used to check for orphaned records.
 
     --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
                         Does Not include relations for now
@@ -146,9 +147,9 @@ Options
                         describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
                         "load factor" (-l) argument
     --profile           Name of file in folder config/profiles (without .php) or path to php-config-file with profile data.
-                        File can contain php-arrays 
+                        File can contain php-arrays
                             - modules -- counts of beans to create
-                            - profile_opts -- redefines of settings listed here 
+                            - profile_opts -- redefines of settings listed here
                         In case of setting profile (this setting) setting -l (load factor) will be ignored.
 
     --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
@@ -345,7 +346,7 @@ if (isset($opts['l']) && !isset($opts['profile'])) {
     foreach ($modules as $m => $n) {
         $modules[$m] *= $factor;
     }
-    
+
     // Multiple favorites with $factor too
     if (isset($opts['with-favorites'])) {
         foreach ($sugarFavoritesModules as $m => $n) {
@@ -374,6 +375,7 @@ if (isset($opts['x'])) {
 }
 
 if (isset($opts['e'])) {
+    trigger_error('Existing Users Mode is deprecated and will be removed in future version');
     $GLOBALS['UseExistUsers'] = true;
 }
 if (isset($opts['c'])) {
@@ -383,6 +385,7 @@ if (isset($opts['o'])) {
     $GLOBALS['obliterate'] = true;
 }
 if (isset($opts['t'])) {
+    trigger_error('Turbo mode is deprecated and will be removed in future version');
     $GLOBALS['turbo'] = true;
 }
 if (isset($opts['d'])) {
@@ -413,6 +416,7 @@ if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
 }
 
 if (isset($opts['fullteamset'])) {
+    trigger_error('Full Team Set mode is deprecated and will be removed in future version');
     $GLOBALS['fullteamset'] = true;
 }
 
@@ -429,6 +433,7 @@ if (isset($opts['as_populate'])) {
     }
 }
 if (isset($opts['iterator'])) {
+    trigger_error("--iterator flag is deprecated and will be removed in future version");
     $GLOBALS['iterator'] = $opts['iterator'];
 }
 
