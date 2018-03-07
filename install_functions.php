@@ -75,15 +75,6 @@ function generate_team_set($primary, $teams)
     }
 }
 
-function generate_full_teamset($set, $teams)
-{
-    $team_count = count($teams);
-    for ($i = 0; $i < $team_count; $i++) {
-        $teamset = new TeamSet();
-        $teamset->addTeams(array_unique(array_merge($set, array($teams[$i]))));
-    }
-}
-
 /**
  * Generate $tidbit_relationships array for all custom Many/Many Relationships
  *
