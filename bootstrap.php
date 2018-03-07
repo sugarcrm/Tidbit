@@ -38,7 +38,7 @@
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
     " [-l loadFactor] [-u userCount] [-x txBatchSize] [-c] [-h] [-v]\n";
 
-$versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.\n";
+$versionStr = "Tidbit v3.0 -- Compatible with SugarCRM 7.9 and up.\n";
 $helpStr = <<<EOS
 $versionStr
 This script populates your instance of SugarCRM with realistic demo data.
@@ -56,50 +56,54 @@ Options
                     	loadFactor.  Otherwise, default is 100.
 
     -o              	Turn Obliterate Mode on.  All existing records and
-                    	relationships in the tables populated by this script will
-                    	be emptied.  This includes any custom data in those tables.
-                    	The administrator account will not be deleted.
+                        relationships in the tables populated by this script
+                        will be emptied.  This includes any custom data in
+                        those tables. The administrator account will not be
+                        deleted.
 
     -c              	Turn Clean Mode on.  All existing demo data will be
-                    	removed.  No Data created within the app will be affected,
-                    	and the administrator account will not be deleted.  Has no
-                    	effect if Obliterate Mode is enabled.
+                        removed.  No Data created within the app will be
+                        affected, and the administrator account will not be
+                        deleted.  Has no effect if Obliterate Mode is enabled.
 
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
                         all. If modules are already configured, those
-                        configurations are not overridden, only appended-to. The
-                        number of records created is specified by config. variable
-                        \$all_modules_default_count, which is set to 5000 unless
-                        overridden in custom configuration. It is recommended
-                        that this option still be used with custom configuration
-                        to handle custom fields, one/many relationships and any
-                        customization like custom indexes or auto-incrementing
-                        fields.
+                        configurations are not overridden, only appended-to.
+                        The number of records created is specified by config.
+                        variable \$all_modules_default_count, which is set to
+                        5000 unless overridden in custom configuration. It is
+                        recommended that this option still be used with custom
+                        configuration to handle custom fields, one/many
+                        relationships and any customization like custom indexes
+                        or auto-incrementing fields.
 
-    --allrelationships  All Relationships. Scans the Sugar system for all out-of-box
-                        and custom relationships. If relationships are already
-                        configured, those configurations are not overridden but
-                        only appended-to.
+    --allrelationships  All Relationships. Scans the Sugar system for all
+                        out-of-box and custom relationships. If relationships
+                        are already configured, those configurations are not
+                        overridden but only appended-to.
 
-    --as_populate       Populate ActivityStream records for each user and module
+    --as_populate       Whether to generate ActivityStream records.
 
     --as_last_rec <N>   Works with "--as_populate" key only. Populate last N
-                        records of each module (default: all available)
+                        records of each module (default: all available).
 
     --as_number <N>     Works with "--as_populate" key only. Number of
-                        ActivityStream records for each module record (default 10)
+                        ActivityStream records for each module record
+                        (default 10).
 
-    --as_buffer <N>     Works with "--as_populate" key only. Size of ActivityStream
-                        insertion buffer (by default equals to insert_batch_size)
+    --as_buffer <N>     Works with "--as_populate" key only. Size of
+                        ActivityStream insertion buffer (by default equals to
+                        insert_batch_size).
 
-    --storage name      Database Type.  Tidbit will try to auto-detect your database based
-                        on your sugar configuration, otherwise you can specify the storage type
-                        with one of the following options:
-                        - mysql
-                        - oracle
-                        - db2
-                        - csv
+    --storage name      Database Type.  Tidbit will try to auto-detect your
+                        database based on your sugar configuration, otherwise
+                        you can specify the storage type with one of the
+                        following options:
+                            - mysql
+                            - oracle
+                            - db2
+                            - csv
 
     --sugar_path        Path to Sugar installation directory
 
@@ -107,36 +111,42 @@ Options
 
     -h                  Display this help text.
 
-    -x count            How often to commit module records - important on DBs like DB2. Default is no batches.
+    -x count            How often to commit module records - important on DBs
+                        like DB2. Default is no batches.
 
-    -s                  Specify the number of teams per team set and per record.
+    -s                  The number of teams per team set and per record.
 
     --tba               Turn Team-based ACL Mode on.
 
-    --tba_level         Specify restriction level for Team-based ACL. Could be (minimum/medium/maximum/full).
-                        Default level is medium.
+    --tba_level         Specify restriction level for Team-based ACL. Could be
+                        (minimum/medium/maximum/full). Default level is medium.
 
-    --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
-                        Does Not include relations for now
+    --insert_batch_size Number of VALUES to be added to one INSERT statement
+                        for bean data.
 
-    --with-tags         Turn on Tags and Tags Relations generation. If you do not specify this option,
-                        default will be false.
+    --with-tags         Turn on Tags and Tags Relations generation. If you do
+                        not specify this option, default will be false.
 
-    --with-favorites    Turn on Sugar Favorites generation. Will generate records in "sugarfavorites" table for modules
-                        describes in config as \$sugarFavoritesModules, \$sugarFavoritesModules will be multiplied with
-                        "load factor" (-l) argument
-    --profile           Name of file in folder config/profiles (without .php) or path to php-config-file with profile data.
-                        File can contain php-arrays
+    --with-favorites    Turn on Sugar Favorites generation. Will generate
+                        records in "sugarfavorites" table for modules describes
+                        in config as \$sugarFavoritesModules,
+                        \$sugarFavoritesModules will be multiplied with "load
+                        factor" (-l) argument.
+
+    --profile           Name of file in folder config/profiles (without .php)
+                        or path to php-config-file with profile data. File can
+                        contain php-arrays
                             - modules -- counts of beans to create
                             - profile_opts -- redefines of settings listed here
-                        In case of setting profile (this setting) setting -l (load factor) will be ignored.
+                        In case of setting profile (this setting) setting -l
+                        (load factor) will be ignored.
 
-    --base_time         Unix timestamp that is used as a custom base time value for all data fields that are related to it.
-                        Defaults to current timestamp. When provided also used as a seed for Random Number Generator.
+    --base_time         Unix timestamp that is used as a custom base time value
+                        for all data fields that are related to it. Defaults to
+                        current timestamp. When provided also used as a seed
+                        for Random Number Generator.
 
     "Powered by SugarCRM"
-
-
 EOS;
 
 require_once __DIR__ . '/install_functions.php';
