@@ -120,8 +120,6 @@ Options
     --tba_level         Specify restriction level for Team-based ACL. Could be (minimum/medium/maximum/full).
                         Default level is medium.
 
-    --fullteamset       DEPRECATED: Build fully intersected teamset list.
-
     --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
                         Does Not include relations for now
 
@@ -158,7 +156,6 @@ if (!function_exists('getopt')) {
 $opts = getopt(
     'l:u:s:x:cohvd',
     array(
-        'fullteamset',
         'tba_level:',
         'tba',
         'with-tags',
@@ -387,11 +384,6 @@ if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
     $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel))
         ? strtolower($opts['tba_level'])
         : $tbaRestrictionLevelDefault;
-}
-
-if (isset($opts['fullteamset'])) {
-    trigger_error('Full Team Set mode is deprecated and will be removed in future version');
-    $GLOBALS['fullteamset'] = true;
 }
 
 if (isset($opts['as_populate'])) {

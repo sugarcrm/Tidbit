@@ -139,23 +139,14 @@ class TeamSets extends \TeamSet
     {
         \TeamSetManager::flushBackendCache();
 
-        if (isset($GLOBALS['fullteamset'])) {
-            for ($i = 0, $max = count($this->teamIds); $i < $max; $i++) {
-                for ($j = 1; $j <= $max; $j++) {
-                    $set = array_slice($this->teamIds, $i, $j);
-                    $this->generateFullTeamset($set, $this->teamIds);
-                }
-            }
-        } else {
-            foreach ($this->teamIds as $team_id) {
-                //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
-                if ($this->maxTeamsPerSet == 1) {
-                    $this->generateTeamSet($team_id, array($team_id));
-                } elseif (count($this->teamIds) > $this->maxTeamsPerSet) {
-                    $this->generateTeamSet($team_id, $this->getRandomArray($this->teamIds, $this->maxTeamsPerSet));
-                } else {
-                    $this->generateTeamSet($team_id, $this->teamIds);
-                }
+        foreach ($this->teamIds as $team_id) {
+            //If there are more than 20 teams, a reasonable number of teams for a maximum team set is 10
+            if ($this->maxTeamsPerSet == 1) {
+                $this->generateTeamSet($team_id, array($team_id));
+            } elseif (count($this->teamIds) > $this->maxTeamsPerSet) {
+                $this->generateTeamSet($team_id, $this->getRandomArray($this->teamIds, $this->maxTeamsPerSet));
+            } else {
+                $this->generateTeamSet($team_id, $this->teamIds);
             }
         }
 
@@ -165,20 +156,6 @@ class TeamSets extends \TeamSet
         }
         if (isset($this->insertBufferTeamSetsTeams)) {
             $this->insertBufferTeamSetsTeams->flush();
-        }
-    }
-
-    /**
-     * Helper function to generate full team sets
-     *
-     * @param $set
-     * @param $teams
-     */
-    private function generateFullTeamset($set, $teams)
-    {
-        $team_count = count($teams);
-        for ($i = 0; $i < $team_count; $i++) {
-            $this->addTeamsToCreatedTeamSet(array_unique(array_merge($set, array($teams[$i]))));
         }
     }
 
