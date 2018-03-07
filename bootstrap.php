@@ -103,10 +103,6 @@ Options
 
     --sugar_path        Path to Sugar installation directory
 
-    -d                  Turn Debug Mode on.  With Debug Mode, all queries will be
-                        logged in a file called 'executedQueries.txt' in your
-                        Tidbit folder.
-
     -v                  Display version information.
 
     -h                  Display this help text.
@@ -154,7 +150,7 @@ if (!function_exists('getopt')) {
 }
 
 $opts = getopt(
-    'l:u:s:x:cohvd',
+    'l:u:s:x:cohv',
     array(
         'tba_level:',
         'tba',
@@ -359,9 +355,6 @@ if (isset($opts['c'])) {
 if (isset($opts['o'])) {
     $GLOBALS['obliterate'] = true;
 }
-if (isset($opts['d'])) {
-    $GLOBALS['debug'] = true;
-}
 
 if (!isset($opts['with-favorites'])) {
     unset($modules['SugarFavorites']);
@@ -397,10 +390,6 @@ if (isset($opts['as_populate'])) {
     if (isset($opts['as_last_rec'])) {
         $GLOBALS['as_last_rec'] = $opts['as_last_rec'];
     }
-}
-
-if (isset($GLOBALS['debug'])) {
-    $GLOBALS['queryFP'] = fopen('Tidbit/executedQueries.txt', 'w');
 }
 
 if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {

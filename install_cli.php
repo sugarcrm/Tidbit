@@ -405,10 +405,6 @@ unset($relationStorageBuffers);
 $totalInsertedActivities = $activityGenerator->getInsertedActivitiesCount();
 unset($activityGenerator);
 
-if (!empty($GLOBALS['queryFP'])) {
-    fclose($GLOBALS['queryFP']);
-}
-
 echo "\n";
 echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
