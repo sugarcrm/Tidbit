@@ -36,7 +36,7 @@
  ********************************************************************************/
 
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
-    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-e] [-c] [-t] [-h] [-v]\n";
+    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-c] [-h] [-v]\n";
 
 $versionStr = "Tidbit v2.0 -- Compatible with SugarCRM 5.5 and up.\n";
 $helpStr = <<<EOS
@@ -64,11 +64,6 @@ Options
                     	removed.  No Data created within the app will be affected,
                     	and the administrator account will not be deleted.  Has no
                     	effect if Obliterate Mode is enabled.
-
-    -t              	DEPRECATED: Turn Turbo Mode on.  Records are produced in groups of 1000
-                    	duplicates.  Users and teams are not affected.
-                    	Useful for testing duplicate checking or quickly producing
-                    	a large volume of test data.
 
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
@@ -161,7 +156,7 @@ if (!function_exists('getopt')) {
 }
 
 $opts = getopt(
-    'l:u:s:x:ecothvd',
+    'l:u:s:x:cohvd',
     array(
         'fullteamset',
         'tba_level:',
@@ -321,8 +316,6 @@ $GLOBALS['startTime'] = microtime();
 $GLOBALS['totalRecords'] = 0;
 $GLOBALS['time_spend'] = array();
 
-
-$recordsPerPage = 1000;     // Are we going to use this?
 $insertBatchSize = 0;       // zero means use default value provided by storage adapter
 $moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites', 'ProductCategories');
 
@@ -368,10 +361,6 @@ if (isset($opts['c'])) {
 }
 if (isset($opts['o'])) {
     $GLOBALS['obliterate'] = true;
-}
-if (isset($opts['t'])) {
-    trigger_error('Turbo mode is deprecated and will be removed in future version');
-    $GLOBALS['turbo'] = true;
 }
 if (isset($opts['d'])) {
     $GLOBALS['debug'] = true;

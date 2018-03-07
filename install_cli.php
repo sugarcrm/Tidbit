@@ -66,7 +66,6 @@ if (isset($opts['with-favorites'])) {
 
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
-echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
@@ -257,7 +256,6 @@ foreach ($module_keys as $module) {
     }
 
     $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
-
     $dTool->table_name = $bean->getTableName();
     $dTool->module = $module;
     $dTool->setFields($bean->field_defs);
@@ -282,15 +280,10 @@ foreach ($module_keys as $module) {
      * $module and $bean->table_name. */
     $generatedIds = array();
     for ($i = 0; $i < $total; $i++) {
+        $dTool->clean();
         $dTool->count = $i;
         $beanId = $dTool->generateId($useCustomTable);
-        /* Don't turbo Users or Teams */
-        if (!isset($GLOBALS['turbo']) || !($i % $recordsPerPage) || ($module != 'Users') || ($module != 'Teams')) {
-            $dTool->clean();
-            $dTool->count = $i;
-            $beanId = $dTool->generateId($useCustomTable);
-            $dTool->generateData();
-        }
+        $dTool->generateData();
 
         // Generate relationships if $bean has an "id" field
         if ($beanId) {
