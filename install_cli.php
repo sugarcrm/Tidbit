@@ -189,11 +189,6 @@ foreach ($module_keys as $module) {
     }
 
     echo "Inserting ${total} records.\n";
-    $total_iterator = 0;
-    if (isset($GLOBALS['iterator']) && ($total > $GLOBALS['iterator'])) {
-        $total_iterator = $total - $GLOBALS['iterator'];
-        echo $total_iterator . " records will be skipped from generation.\n";
-    }
 
     $bean = BeanFactory::getBean($module);
 
@@ -300,9 +295,6 @@ foreach ($module_keys as $module) {
      * $module and $bean->table_name. */
     $generatedIds = array();
     for ($i = 0; $i < $total; $i++) {
-        if (isset($GLOBALS['iterator']) && ($i <= $total_iterator)) {
-            continue;
-        }
         $dTool->count = $i;
         $beanId = $dTool->generateId($useCustomTable);
         /* Don't turbo Users or Teams */

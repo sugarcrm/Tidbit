@@ -134,9 +134,6 @@ Options
 
     --fullteamset       DEPRECATED: Build fully intersected teamset list.
 
-    --iterator count    DEPRECATED: This will only insert in the DB the last (count) records specified,
-                        meanwhile the iterator will continue running in the loop. Used to check for orphaned records.
-
     --insert_batch_size Number of VALUES to be added to one INSERT statement for bean data.
                         Does Not include relations for now
 
@@ -186,7 +183,6 @@ $opts = getopt(
         'storage:',
         'sugar_path:',
         'as_last_rec:',
-        'iterator:',
         'insert_batch_size:',
         'profile:',
         'base_time:'
@@ -431,10 +427,6 @@ if (isset($opts['as_populate'])) {
     if (isset($opts['as_last_rec'])) {
         $GLOBALS['as_last_rec'] = $opts['as_last_rec'];
     }
-}
-if (isset($opts['iterator'])) {
-    trigger_error("--iterator flag is deprecated and will be removed in future version");
-    $GLOBALS['iterator'] = $opts['iterator'];
 }
 
 if (isset($GLOBALS['debug'])) {
