@@ -69,7 +69,6 @@ echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Turbo Mode " . (isset($GLOBALS['turbo']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
-echo "With Existing Users Mode " . (isset($GLOBALS['UseExistUsers']) ? "ON - {$modules['Users']} users" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With " . $maxTeamsPerSet ." teams in Team Sets \n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
@@ -131,18 +130,6 @@ foreach ($module_keys as $module) {
         echo "Module $module is not found in 'modules/' folder or \$beanList, \$beanFiles global" .
             " variables do not contain it\n";
         echo "Skipping module: " . $module . "\n";
-        continue;
-    }
-
-    if ((($module == 'Users') || ($module == 'Teams')) && isset($GLOBALS['UseExistUsers'])) {
-        if ($module == 'Teams') {
-            \Sugarcrm\Tidbit\Generator\TeamSets::loadExistingTeamSetsIntoDataTool($GLOBALS['db']);
-        }
-        if ($module == 'Users') {
-            $existingUserIds = loadUserIds($GLOBALS['db']);
-            $activityGenerator->setUserIds($existingUserIds);
-        }
-        echo "Skipping $module\n";
         continue;
     }
 
@@ -448,13 +435,6 @@ if ($storageType == 'csv') {
     $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
     $converter->convert('config');
     $converter->convert('acl_actions');
-    if (isset($GLOBALS['UseExistUsers'])) {
-        $converter->convert('users');
-        $converter->convert('user_preferences');
-        $converter->convert('teams');
-        $converter->convert('team_sets');
-        $converter->convert('team_sets_teams');
-    }
 }
 
 echo "Done\n\n\n";

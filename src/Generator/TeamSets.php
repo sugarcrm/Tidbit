@@ -169,17 +169,6 @@ class TeamSets extends \TeamSet
     }
 
     /**
-     * Load existing team sets into DataTool for data generation in -e (UseExistUsers) mode
-     */
-    public static function loadExistingTeamSetsIntoDataTool(\DBManager $db)
-    {
-        $result = $db->query("SELECT team_set_id, team_id FROM team_sets_teams ORDER BY team_set_id");
-        while ($row = $db->fetchByAssoc($result)) {
-            DataTool::$team_sets_array[$row['team_set_id']][] = $row['team_id'];
-        }
-    }
-
-    /**
      * Helper function to generate full team sets
      *
      * @param $set

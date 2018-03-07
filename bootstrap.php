@@ -70,13 +70,6 @@ Options
                     	Useful for testing duplicate checking or quickly producing
                     	a large volume of test data.
 
-    -e              	DEPRECATED: Turn Existing Users Mode on.  Regardless of other settings,
-                    	no Users or Teams will be created or modified.  Any new
-                    	data created will be assigned and associated with existing
-                    	Users and Teams.  The number of users that would normally
-                    	be created is assumed to be the number of existing users.
-                    	Useful for appending data onto an existing data set.
-
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
                         all. If modules are already configured, those
@@ -370,10 +363,6 @@ if (isset($opts['x'])) {
     $_GLOBALS['txBatchSize'] = 0;
 }
 
-if (isset($opts['e'])) {
-    trigger_error('Existing Users Mode is deprecated and will be removed in future version');
-    $GLOBALS['UseExistUsers'] = true;
-}
 if (isset($opts['c'])) {
     $GLOBALS['clean'] = true;
 }
