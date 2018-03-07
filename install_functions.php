@@ -36,46 +36,6 @@
  ********************************************************************************/
 
 /**
- * Given an array return random array elements from the array
- *
- * @param array $array
- * @param int $num
- * @return array
- */
-function get_random_array($array, $num)
-{
-    $rand = array_rand($array, $num);
-    $result = array();
-
-    for ($i = 0; $i < $num; $i++) {
-        $result[$i] = $array[$rand[$i]];
-    }
-    return $result;
-}
-
-/**
- * generate_team_set
- * Helper function to recursively create team sets
- *
- * @param $primary string The primary team
- * @param $teams string The teams to use
- */
-function generate_team_set($primary, $teams)
-{
-    if (!in_array($primary, $teams)) {
-        array_push($teams, $primary);
-    }
-    $teams = array_reverse($teams);
-    $team_count = count($teams);
-    for ($i = 0; $i < $team_count; $i++) {
-        /** @var TeamSet $teamSet */
-        $teamSet = BeanFactory::getBean('TeamSets');
-        $teamSet->addTeams($teams);
-        array_pop($teams);
-    }
-}
-
-/**
  * Generate $tidbit_relationships array for all custom Many/Many Relationships
  *
  * @param array $tidbit_relationships exiting relationship configuration
