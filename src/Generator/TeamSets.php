@@ -160,7 +160,6 @@ class TeamSets extends \TeamSet
     }
 
     /**
-     * generate_team_set
      * Helper function to recursively create team sets
      *
      * @param $primary string The primary team
