@@ -127,20 +127,28 @@ function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
  * @param int $total
  * @param int $size
  */
-function show_status($done, $total, $size = 40)
+function showProgress($done, $total, $size = 40)
 {
-    $perc=(double)($done/$total);
-    $bar=floor($perc*$size);
-
-    $status_bar="\r\033[K\tHitting DB... [";
-    $status_bar.=str_repeat("=", $bar);
-    if ($bar<$size) {
-        $status_bar.=">";
-        $status_bar.=str_repeat(" ", $size-$bar);
+    $perc = (double)($done/$total);
+    $bar = floor($perc*$size);
+    $progress = str_repeat("=", $bar);
+    $arrow = "";
+    $empty = "";
+    if ($bar < $size) {
+        $arrow = ">";
+        $empty = str_repeat(" ", $size-$bar);
     } else {
-        $status_bar.="=";
+        $arrow = "=";
     }
-    $disp=number_format($perc*100, 0);
-    $status_bar.="] $disp%  $done/$total";
+    $disp = number_format($perc*100, 0);
+    if (posix_isatty(STDOUT)) {
+        $status_bar = "\r\033[K\tHitting DB... [" . $progress . $arrow . $empty . "] $disp%  $done/$total";
+        if ($done == $total) {
+            $status_bar .= "\n";
+        }
+    } else {
+        $status_bar = "\tHitting DB... [" . $progress . $arrow . $empty . "] $disp%  $done/$total\n";
+    }
+
     echo "$status_bar";
 }
