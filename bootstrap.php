@@ -317,7 +317,6 @@ if (isset($opts['allrelationships'])) {
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
 $GLOBALS['totalRecords'] = 0;
-$GLOBALS['time_spend'] = array();
 
 $insertBatchSize = 0;       // zero means use default value provided by storage adapter
 $moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites', 'ProductCategories');
