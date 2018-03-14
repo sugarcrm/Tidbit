@@ -426,4 +426,4 @@ if ($storageType == 'csv') {
     $converter->convert('acl_actions');
 }
 
-echo "Done\n\n\n";
+echo "Done\n";
