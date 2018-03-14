@@ -166,7 +166,7 @@ foreach ($module_keys as $module) {
         echo "\n\tHitting DB... ";
         $generator->generate();
         $total = $generator->getInsertCounter();
-        show_status($modules[$module], $modules[$module]);
+        showProgress($modules[$module], $modules[$module]);
 
         $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
         echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
@@ -263,7 +263,7 @@ foreach ($module_keys as $module) {
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
         echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
     }
-    echo "\n\tHitting DB... ";
+    echo "\n";
 
     $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
 
@@ -336,8 +336,8 @@ foreach ($module_keys as $module) {
         if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
             $storageAdapter->commitQuery();
         }
-        if ($i % (int)(max(1, $total/100)) == 0) {
-            show_status($i, $total);
+        if ($i % (int)(max(1, min($total/100, 1000))) == 0) {
+            showProgress($i, $total);
         }
     } //for
 
@@ -392,9 +392,9 @@ foreach ($module_keys as $module) {
             $relationStorageBufferForFlush->flush();
         }
     }
-    show_status($total, $total);
+    showProgress($total, $total);
     $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
-    echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
+    echo "\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
 }
 
 // Update enabled Modules Tabs
