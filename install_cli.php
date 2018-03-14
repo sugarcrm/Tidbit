@@ -119,7 +119,7 @@ if (isset($GLOBALS['obliterate'])) {
 }
 
 foreach ($module_keys as $module) {
-    $GLOBALS['time_spend'][$module] = microtime();
+    $moduleTimeStart = microtime();
 
     // Check module class exists in bean factory
     // For old versions - getBeanName is used
@@ -167,10 +167,7 @@ foreach ($module_keys as $module) {
         $generator->generate();
         $total = $generator->getInsertCounter();
         showProgress($modules[$module], $modules[$module]);
-
-        $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
-        echo "\n\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
-
+        echo "\n\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
         continue;
     }
 
@@ -393,8 +390,7 @@ foreach ($module_keys as $module) {
         }
     }
     showProgress($total, $total);
-    $GLOBALS['time_spend'][$module] = microtime_diff($GLOBALS['time_spend'][$module], microtime());
-    echo "\tTime spend... " . $GLOBALS['time_spend'][$module] . "s\n";
+    echo "\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
 }
 
 // Update enabled Modules Tabs
