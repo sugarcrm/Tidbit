@@ -111,20 +111,18 @@ class TeamSets extends \TeamSet
      *
      * @param \DBManager $db
      * @param CommonStorage $storageAdapter
-     * @param int $insertBatchSize
      * @param array $teamIds
      * @param int $maxTeamsPerSet
      */
     public function __construct(
         \DBManager $db,
         CommonStorage $storageAdapter,
-        $insertBatchSize,
         $teamIds,
         $maxTeamsPerSet
     ) {
         $this->db = $db;
-        $this->insertBufferTeamSets = new InsertBuffer('team_sets', $storageAdapter, $insertBatchSize);
-        $this->insertBufferTeamSetsTeams = new InsertBuffer('team_sets_teams', $storageAdapter, $insertBatchSize);
+        $this->insertBufferTeamSets = new InsertBuffer('team_sets', $storageAdapter);
+        $this->insertBufferTeamSetsTeams = new InsertBuffer('team_sets_teams', $storageAdapter);
         $this->teamIds = $teamIds;
         $this->storageType = $storageAdapter::STORE_TYPE;
         $this->maxTeamsPerSet = $maxTeamsPerSet;

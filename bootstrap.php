@@ -122,7 +122,7 @@ Options
                         (minimum/medium/maximum/full). Default level is medium.
 
     --insert_batch_size Number of VALUES to be added to one INSERT statement
-                        for bean data.
+                        for bean data. Defaults to 20.
 
     --with-tags         Turn on Tags and Tags Relations generation. If you do
                         not specify this option, default will be false.
@@ -318,7 +318,11 @@ $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
 $GLOBALS['totalRecords'] = 0;
 
-$insertBatchSize = 0;       // zero means use default value provided by storage adapter
+$insertBatchSize = 20;
+if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
+    $insertBatchSize = ((int)$opts['insert_batch_size']);
+}
+
 $moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites', 'ProductCategories');
 
 
@@ -401,10 +405,6 @@ if (isset($opts['as_populate'])) {
     }
 }
 
-if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
-    $insertBatchSize = ((int)$opts['insert_batch_size']);
-}
-
 // Remove Tags module, if it's not turned in CLI options
 if (!isset($opts['with-tags'])) {
     unset($modules['Tags']);
@@ -425,6 +425,6 @@ foreach ($modules as $records) {
 
 $activityStreamOptions = array(
     'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
-    'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : $insertBatchSize,
+    'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : $GLOBALS['insertBatchSize'],
     'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
 );

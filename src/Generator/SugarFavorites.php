@@ -25,10 +25,9 @@ class SugarFavorites extends Common
      *
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
-     * @param int $insertBatchSize
      * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $recordsNumber)
     {
         global $sugarFavoritesModules, $module_keys;
 
@@ -38,7 +37,7 @@ class SugarFavorites extends Common
             $this->generatedModules[$module] = $sugarFavoritesModules[$module];
         }
 
-        parent::__construct($db, $storageAdapter, $insertBatchSize, $recordsNumber);
+        parent::__construct($db, $storageAdapter, $recordsNumber);
     }
 
     /**

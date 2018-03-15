@@ -142,7 +142,7 @@ foreach ($module_keys as $module) {
     if (in_array($module, $moduleUsingGenerators)) {
         $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
         /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
-        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $insertBatchSize, $modules[$module]);
+        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $modules[$module]);
 
         if (isset($GLOBALS['obliterate'])) {
             echo "\tObliterating all existing data ... ";
@@ -262,13 +262,12 @@ foreach ($module_keys as $module) {
     }
     echo "\n";
 
-    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter, $insertBatchSize);
+    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter);
 
     if ($useCustomTable) {
         $beanInsertBufferCustom = new \Sugarcrm\Tidbit\InsertBuffer(
             $bean->get_custom_table_name(),
-            $storageAdapter,
-            $insertBatchSize
+            $storageAdapter
         );
     }
 
@@ -295,8 +294,7 @@ foreach ($module_keys as $module) {
                     if (empty($relationStorageBuffers[$table])) {
                         $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
                             $table,
-                            $storageAdapter,
-                            $insertBatchSize
+                            $storageAdapter
                         );
                     }
 
@@ -342,7 +340,6 @@ foreach ($module_keys as $module) {
         $teamGenerator = new \Sugarcrm\Tidbit\Generator\TeamSets(
             $GLOBALS['db'],
             $storageAdapter,
-            $insertBatchSize,
             $generatedIds,
             $maxTeamsPerSet
         );
@@ -352,7 +349,7 @@ foreach ($module_keys as $module) {
     // Apply TBA Rules for some modules
     // $roleActions are defined in configs
     if ($module == 'ACLRoles') {
-        $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+        $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter);
 
         if (isset($GLOBALS['clean'])) {
             $tbaGenerator->clearDB();
@@ -417,7 +414,7 @@ if (!empty($GLOBALS['as_populate'])) {
 
 if ($storageType == 'csv') {
     // Save table-dictionaries
-    $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter, $insertBatchSize);
+    $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter);
     $converter->convert('config');
     $converter->convert('acl_actions');
 }

@@ -45,13 +45,6 @@ use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
 class InsertBuffer
 {
     /**
-     * Default number of object for saving per transaction
-     *
-     * @var int
-     */
-    const BUFFER_SIZE_DEFAULT = 20;
-
-    /**
      * @var string
      */
     protected $tableName = '';
@@ -72,13 +65,11 @@ class InsertBuffer
      *
      * @param string $tableName
      * @param Common $storage
-     * @param int $bufferSize
      */
-    public function __construct($tableName, $storage, $bufferSize = 0)
+    public function __construct($tableName, Common $storage)
     {
         $this->tableName = $tableName;
         $this->storage = $storage;
-        $this->bufferSize = $bufferSize ? $bufferSize : static::BUFFER_SIZE_DEFAULT;
     }
 
     /**
@@ -100,7 +91,7 @@ class InsertBuffer
     public function addInstallData($installData)
     {
         $this->installData[] = $installData;
-        if (count($this->installData) >= $this->bufferSize) {
+        if (count($this->installData) >= $GLOBALS['insertBatchSize']) {
             $this->makeSave();
         }
     }
