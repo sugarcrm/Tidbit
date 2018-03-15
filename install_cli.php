@@ -104,7 +104,6 @@ $obliterated = array();
 $relationStorageBuffers = array();
 
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
-$prefsGenerator = new \Sugarcrm\Tidbit\Generator\UserPreferences($GLOBALS['db'], $storageAdapter);
 $activityGenerator = new \Sugarcrm\Tidbit\Generator\Activity(
     $GLOBALS['db'],
     $storageAdapter,
@@ -172,221 +171,30 @@ foreach ($module_keys as $module) {
     }
 
     echo "Inserting ${total} records.\n";
-
     $bean = BeanFactory::getBean($module);
 
-    // If the module has custom fields, write to the _cstm table
-    $useCustomTable = $bean->hasCustomFields();
+    $generatorClass = "\Sugarcrm\Tidbit\Generator\\{$module}Generator";
+    if (!class_exists($generatorClass)) {
+        $generatorClass = \Sugarcrm\Tidbit\Generator\ModuleGenerator::class;
+    }
+    $g = new $generatorClass($bean, $activityGenerator);
+    $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean, $activityGenerator);
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
-        /* Make sure not to delete the admin! */
-        if ($module == 'Users') {
-            $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1'");
-            $prefsGenerator->obliterate();
-        } elseif ($module == 'Teams') {
-            $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1'");
-            $GLOBALS['db']->query("DELETE FROM team_sets");
-            $GLOBALS['db']->query("DELETE FROM team_sets_teams");
-            $GLOBALS['db']->query("DELETE FROM team_sets_modules");
-        } else {
-            $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1 = 1");
-
-            // if module has custom table obliterate up custom table too
-            if ($useCustomTable) {
-                $GLOBALS['db']->query("DELETE FROM " . $bean->get_custom_table_name() . " WHERE 1 = 1");
-            }
-        }
-        if (!empty($tidbit_relationships[$module])) {
-            foreach ($tidbit_relationships[$module] as $rel) {
-                if (!empty($obliterated[$rel['table']])) {
-                    continue;
-                }
-                $obliterated[$rel['table']] = true;
-                $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1 = 1");
-            }
-        }
-        echo "DONE";
+        $g->obliterate();
+        echo "DONE\n";
     } elseif (isset($GLOBALS['clean'])) {
         echo "\tCleaning up demo data ... ";
-        /* Make sure not to delete the admin! */
-        if ($module == 'Users') {
-            $prefsGenerator->clean();
-            $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE id != '1' AND id LIKE 'seed-%'");
-        } elseif ($module == 'Teams') {
-            //TBD: Following 3 queries only tested with Mysql database,
-            //  if you are using database such as Oracle, DB2, MSSQL, you might need to refactor those 3 queries.
-            $GLOBALS['db']->query(
-                "DELETE a FROM team_sets_teams a JOIN teams b ON b.id=a.team_id "
-                ."WHERE b.id != '1' AND b.id LIKE 'seed-%'"
-            );
-            $GLOBALS['db']->query(
-                "DELETE a FROM team_sets a LEFT JOIN (SELECT DISTINCT team_set_id FROM team_sets_teams"
-                . " WHERE deleted=0) b ON a.id=b.team_set_id WHERE b.team_set_id is null"
-            );
-            $GLOBALS['db']->query(
-                "DELETE a FROM team_sets_modules a left JOIN team_sets b ON a.team_set_id=b.id"
-                . " WHERE b.id is null AND a.team_set_id is not null"
-            );
-            $GLOBALS['db']->query("DELETE FROM teams WHERE id != '1' AND id LIKE 'seed-%'");
-        } else {
-            $GLOBALS['db']->query("DELETE FROM $bean->table_name WHERE 1=1 AND id LIKE 'seed-%'");
-
-            // if module has custom table clean up custom table too
-            if ($useCustomTable) {
-                $GLOBALS['db']->query(
-                    "DELETE FROM " . $bean->get_custom_table_name()
-                    . " WHERE 1=1 AND id_c LIKE 'seed-%'"
-                );
-            }
-        }
-        if (!empty($tidbit_relationships[$module])) {
-            foreach ($tidbit_relationships[$module] as $rel) {
-                if (!empty($obliterated[$rel['table']])) {
-                    continue;
-                }
-                $obliterated[$rel['table']] = true;
-                $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1=1 AND id LIKE 'seed-%'");
-            }
-        }
-        echo "DONE";
+        $g->clean();
+        echo "DONE\n";
     }
-
-    $dTool = new \Sugarcrm\Tidbit\DataTool($storageType);
-    $dTool->table_name = $bean->getTableName();
-    $dTool->module = $module;
-    $dTool->setFields($bean->field_defs);
 
     if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
-        echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records";
-    }
-    echo "\n";
-
-    $beanInsertBuffer = new \Sugarcrm\Tidbit\InsertBuffer($dTool->table_name, $storageAdapter);
-
-    if ($useCustomTable) {
-        $beanInsertBufferCustom = new \Sugarcrm\Tidbit\InsertBuffer(
-            $bean->get_custom_table_name(),
-            $storageAdapter
-        );
+        echo "\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records\n";
     }
 
-    /* We need to insert $total records
-     * into the DB.  We are using the module and table-name given by
-     * $module and $bean->table_name. */
-    $generatedIds = array();
-    for ($i = 0; $i < $total; $i++) {
-        $dTool->clean();
-        $dTool->count = $i;
-        $beanId = $dTool->generateId($useCustomTable);
-        $dTool->generateData();
-
-        // Generate relationships if $bean has an "id" field
-        if ($beanId) {
-            $generatedIds[] = $beanId;
-
-            /** @var \Sugarcrm\Tidbit\Core\Relationships $relationships */
-            $relationships = \Sugarcrm\Tidbit\Core\Factory::getComponent('Relationships');
-            $relationships->generateRelationships($dTool->module, $dTool->count, $dTool->installData);
-
-            if ($relationships->getRelatedModules()) {
-                foreach ($relationships->getRelatedModules() as $table => $installDataArray) {
-                    if (empty($relationStorageBuffers[$table])) {
-                        $relationStorageBuffers[$table] = new \Sugarcrm\Tidbit\InsertBuffer(
-                            $table,
-                            $storageAdapter
-                        );
-                    }
-
-                    foreach ($installDataArray as $data) {
-                        $relationStorageBuffers[$table]->addInstallData($data);
-                    }
-                }
-            }
-
-            $relationships->clearRelatedModules();
-        }
-
-        $beanInsertBuffer->addInstallData($dTool->installData);
-
-        // if module has custom table, write custom install data into buffer
-        if (isset($beanInsertBufferCustom) && $useCustomTable && !empty($dTool->installDataCstm)) {
-            $beanInsertBufferCustom->addInstallData($dTool->installDataCstm);
-        }
-
-        // Increase counters and insert generated data to Buffer
-        $GLOBALS['allProcessedRecords']++;
-        $GLOBALS['processedRecords']++;
-
-        if (!empty($GLOBALS['as_populate'])
-            && (
-                empty($activityStreamOptions['last_n_records'])
-                || $total < $activityStreamOptions['last_n_records']
-                || $i >= $total - $activityStreamOptions['last_n_records']
-            )
-        ) {
-            $activityGenerator->createActivityForRecord($dTool, $bean);
-        }
-
-        if ($_GLOBALS['txBatchSize'] && $i % $_GLOBALS['txBatchSize'] == 0) {
-            $storageAdapter->commitQuery();
-        }
-        if ($i % (int)(max(1, min($total/100, 1000))) == 0) {
-            showProgress($i, $total);
-        }
-    } //for
-
-    if ($module == 'Teams') {
-        $teamGenerator = new \Sugarcrm\Tidbit\Generator\TeamSets(
-            $GLOBALS['db'],
-            $storageAdapter,
-            $generatedIds,
-            $maxTeamsPerSet
-        );
-        $teamGenerator->generate();
-    }
-
-    // Apply TBA Rules for some modules
-    // $roleActions are defined in configs
-    if ($module == 'ACLRoles') {
-        $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $storageAdapter);
-
-        if (isset($GLOBALS['clean'])) {
-            $tbaGenerator->clearDB();
-        } elseif (isset($GLOBALS['obliterate'])) {
-            $tbaGenerator->obliterateDB();
-        }
-
-        if (!empty($GLOBALS['tba'])) {
-            $tbaGenerator->setAclRoleIds($generatedIds);
-            $tbaGenerator->setRoleActions($roleActions);
-            $tbaGenerator->setTbaFieldAccess($tbaFieldAccess);
-            $tbaGenerator->setTbaRestrictionLevel($tbaRestrictionLevel);
-            $tbaGenerator->generate();
-        }
-    }
-
-    if ($module == 'Users') {
-        $prefsGenerator->generate($generatedIds);
-        if (!empty($GLOBALS['as_populate'])) {
-            $activityGenerator->setUserIds($generatedIds);
-        }
-    }
-
-    // Flushing insertBuffer
-    if (isset($beanInsertBuffer)) {
-        $beanInsertBuffer->flush();
-    }
-    if (isset($beanInsertBufferCustom)) {
-        $beanInsertBufferCustom->flush();
-    }
-    // Flushing insertBuffer from relationships
-    if (isset($relationStorageBuffers)) {
-        foreach ($relationStorageBuffers as $relationStorageBufferForFlush) {
-            $relationStorageBufferForFlush->flush();
-        }
-    }
-    showProgress($total, $total);
+    $c->generate($total);
     echo "\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
 }
 
@@ -394,7 +202,6 @@ foreach ($module_keys as $module) {
 \Sugarcrm\Tidbit\Helper\ModuleTabs::updateEnabledTabs($GLOBALS['db'], $module_keys, $GLOBALS['moduleList']);
 
 // force immediately destructors work
-unset($relationStorageBuffers);
 $totalInsertedActivities = $activityGenerator->getInsertedActivitiesCount();
 unset($activityGenerator);
 
