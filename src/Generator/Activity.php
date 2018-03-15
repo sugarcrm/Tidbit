@@ -58,7 +58,7 @@ class Activity
 
     /** @var array  */
     protected $userIds = array();
-    
+
     /** @var  string */
     protected $convertedDateTime;
 
@@ -67,7 +67,7 @@ class Activity
 
     /** @var  InsertBuffer */
     protected $insertBufferActivitiesRelationships;
-    
+
     /** @var array  */
     protected $activityModulesBlackList = array();
 
@@ -96,25 +96,22 @@ class Activity
      *
      * @param \DBManager $db
      * @param StorageCommon $adapter
-     * @param int $insertBatchSize
      * @param int $activitiesPerModule
      * @param int $lastNRecords
      */
     public function __construct(
         \DBManager $db,
         StorageCommon $adapter,
-        $insertBatchSize,
         $activitiesPerModule,
         $lastNRecords
     ) {
         $this->db = $db;
         $this->activitiesPerModuleRecord = $activitiesPerModule;
         $this->lastNRecords = $lastNRecords;
-        $this->insertBufferActivities = new InsertBuffer(self::ACTIVITY_TABLE, $adapter, $insertBatchSize);
+        $this->insertBufferActivities = new InsertBuffer(self::ACTIVITY_TABLE, $adapter);
         $this->insertBufferActivitiesRelationships = new InsertBuffer(
             self::RELATIONSHIP_TABLE,
-            $adapter,
-            $insertBatchSize
+            $adapter
         );
     }
 

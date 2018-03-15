@@ -55,24 +55,15 @@ class CsvConverter
     protected $csvAdapter;
 
     /**
-     * Size of insert buffer
-     *
-     * @var int
-     */
-    protected $insertBatchSize;
-
-    /**
      * CsvConverter constructor.
      *
      * @param \DBManager $db
      * @param Csv $csvAdapter
-     * @param int $insertBatchSize
      */
-    public function __construct(\DBManager $db, Csv $csvAdapter, $insertBatchSize)
+    public function __construct(\DBManager $db, Csv $csvAdapter)
     {
         $this->db = $db;
         $this->csvAdapter = $csvAdapter;
-        $this->insertBatchSize = $insertBatchSize;
     }
 
     /**
@@ -83,7 +74,7 @@ class CsvConverter
      */
     public function convert($tableName, array $fieldsArr = array())
     {
-        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter, $this->insertBatchSize);
+        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter);
 
         $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
         $sql = "SELECT " . $fields . " FROM " . $tableName;

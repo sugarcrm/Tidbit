@@ -64,11 +64,6 @@ abstract class Common
     protected $storageType;
 
     /**
-     * @var int
-     */
-    protected $insertBatchSize;
-
-    /**
      * Counter of inserting objects.
      *
      * @var int
@@ -114,15 +109,13 @@ abstract class Common
      *
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
-     * @param int $insertBatchSize
      * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber = 0)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $recordsNumber = 0)
     {
         $this->db = $db;
         $this->storageAdapter = $storageAdapter;
         $this->storageType = $storageAdapter::STORE_TYPE;
-        $this->insertBatchSize = $insertBatchSize;
         $this->recordsNumber = $recordsNumber;
     }
 
@@ -213,8 +206,7 @@ abstract class Common
         if (empty($this->insertBuffers[$tableName])) {
             $this->insertBuffers[$tableName] = new InsertBuffer(
                 $tableName,
-                $this->storageAdapter,
-                $this->insertBatchSize
+                $this->storageAdapter
             );
         }
 

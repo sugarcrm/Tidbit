@@ -60,16 +60,15 @@ class Categories extends Common
      *
      * @param \DBManager $db
      * @param StorageCommon $storageAdapter
-     * @param int $insertBatchSize
      * @param int $recordsNumber
      */
-    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $insertBatchSize, $recordsNumber)
+    public function __construct(\DBManager $db, StorageCommon $storageAdapter, $recordsNumber)
     {
         global $kbCategoriesNestingLevel;
         if ($kbCategoriesNestingLevel) {
             $this->nestingLevel = $kbCategoriesNestingLevel;
         }
-        parent::__construct($db, $storageAdapter, $insertBatchSize, $recordsNumber);
+        parent::__construct($db, $storageAdapter, $recordsNumber);
     }
 
     /**
