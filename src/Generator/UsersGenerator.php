@@ -38,6 +38,22 @@ namespace Sugarcrm\Tidbit\Generator;
 
 class UsersGenerator extends ModuleGenerator
 {
+    protected $defaultPrefs;
+    protected $currentDateTime;
+
+    public function __construct(\SugarBean $bean, Activity $activityGenerator)
+    {
+        parent::__construct($bean, $activityGenerator);
+        $contents = [
+            'timezone' => "America/Phoenix",
+            'ut' => 1,
+            'Home_TEAMNOTICE_ORDER_BY' => 'date_start',
+            'userPrivGuid' => 'a4836211-ee89-0714-a4a2-466987c284f4',
+        ];
+        $this->defaultPrefs = "'" . base64_encode(serialize($contents)) . "'";
+        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+    }
+
     protected function getDeleteWhereCondition()
     {
         return "`id` != '1'";
@@ -51,14 +67,32 @@ class UsersGenerator extends ModuleGenerator
     public function obliterate()
     {
         parent::obliterate();
-        $prefGenerator = new UserPreferences($GLOBALS['db'], $GLOBALS['storageAdapter']);
-        $prefGenerator->obliterate();
+        $query = ($GLOBALS['db']->dbType == 'ibm_db2')
+            ? 'ALTER TABLE user_preferences ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE'
+            : $GLOBALS['db']->truncateTableSQL('user_preferences');
+        $GLOBALS['db']->query($query, true);
     }
 
     public function clean()
     {
         parent::clean();
-        $prefGenerator = new UserPreferences($GLOBALS['db'], $GLOBALS['storageAdapter']);
-        $prefGenerator->clean();
+        $GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'", true);
+    }
+
+    public function generateRecord($n)
+    {
+        $data = parent::generateRecord($n);
+
+        $userID = $data['id'];
+        $data['data']['user_preferences'][] = [
+            'id' => "'" . md5($userID) . "'",
+            'category' => "'global'",
+            'date_entered' => $this->currentDateTime,
+            'date_modified' => $this->currentDateTime,
+            'assigned_user_id' => "'" . $userID . "'",
+            'contents' => $this->defaultPrefs,
+        ];
+
+        return $data;
     }
 }
