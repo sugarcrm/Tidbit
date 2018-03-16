@@ -108,8 +108,6 @@ class Controller
         }
 
         if ($this->bean->getModuleName() == 'Users') {
-            $prefGenerator = new UserPreferences($GLOBALS['db'], $GLOBALS['storageAdapter']);
-            $prefGenerator->generate($generatedIds);
             if (!empty($GLOBALS['as_populate'])) {
                 $this->activityGenerator->setUserIds($generatedIds);
             }
