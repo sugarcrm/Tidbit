@@ -76,6 +76,8 @@ class Controller
         for ($i = 0; $i < $total; $i++) {
             $data = $this->g->generateRecord($i);
             $generatedIds[] = $data['id'];
+
+            $GLOBALS['processedRecords']++;
             foreach ($data['data'] as $table => $rows) {
                 if (!isset($buffers[$table])) {
                     $buffers[$table] = new InsertBuffer($table, $GLOBALS['storageAdapter']);
@@ -83,6 +85,7 @@ class Controller
 
                 foreach ($rows as $row) {
                     $buffers[$table]->addInstallData($row);
+                    $GLOBALS['allProcessedRecords']++;
                 }
             }
 

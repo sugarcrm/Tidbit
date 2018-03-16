@@ -154,9 +154,6 @@ class ModuleGenerator implements Generator
             $result['data'][$this->bean->get_custom_table_name()] = [$dTool->installDataCstm];
         }
 
-        // Increase counters and insert generated data to Buffer
-        $GLOBALS['allProcessedRecords']++;
-        $GLOBALS['processedRecords']++;
         if (!$beanId) {
             return $result;
         }
