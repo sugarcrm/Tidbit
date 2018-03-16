@@ -75,7 +75,7 @@ class ModuleGenerator implements Generator
         $query = "DELETE FROM `{$bean->getTableName()}` WHERE {$this->getDeleteWhereCondition()}";
         $GLOBALS['db']->query($query, true);
         if ($bean->hasCustomFields()) {
-            $query = "DELETE FROM `{$bean->get_custom_table_name()}` WHERE $this->getDeleteWhereConditionCstm()";
+            $query = "DELETE FROM `{$bean->get_custom_table_name()}` WHERE {$this->getDeleteWhereConditionCstm()}";
             $GLOBALS['db']->query($query, true);
         }
 
@@ -96,14 +96,20 @@ class ModuleGenerator implements Generator
     {
         $bean = $this->bean;
         $module = $bean->getModuleName();
+        $idColumnName = 'id';
+
+        // TODO: EmailText generation has to be implemented as 1-1 relationship to Emails module
+        if ($module == 'EmailText') {
+            $idColumnName = 'email_id';
+        }
 
         $query = "DELETE FROM `{$bean->getTableName()}` "
-            . "WHERE {$this->getDeleteWhereCondition()} AND `id` LIKE 'seed-%'";
+            . "WHERE {$this->getDeleteWhereCondition()} AND `$idColumnName` LIKE 'seed-%'";
         $GLOBALS['db']->query($query, true);
 
         if ($bean->hasCustomFields()) {
             $query = "DELETE FROM `{$bean->get_custom_table_name()}` "
-                . "WHERE {$this->getDeleteWhereCondition()} AND `id_c` LIKE 'seed-%'";
+                . "WHERE {$this->getDeleteWhereConditionCstm()} AND `{$idColumnName}_c` LIKE 'seed-%'";
             $GLOBALS['db']->query($query, true);
         }
 
@@ -116,7 +122,7 @@ class ModuleGenerator implements Generator
                 continue;
             }
             $GLOBALS['obliterated'][$rel['table']] = true;
-            $GLOBALS['db']->query("DELETE FROM `{$rel['table']}` WHERE 1 = 1 `id` LIKE 'seed-%'", true);
+            $GLOBALS['db']->query("DELETE FROM `{$rel['table']}` WHERE `id` LIKE 'seed-%'", true);
         }
     }
 
