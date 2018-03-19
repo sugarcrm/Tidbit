@@ -36,10 +36,61 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-interface Generator
+class ErasedFieldsDecorator extends Decorator
 {
-    public function obliterate();
-    public function clean();
-    public function generateRecord($n);
-    public function bean();
+    protected $piiFields = [];
+
+    protected $piiFieldsEncoded;
+
+    protected $config = [];
+
+    protected $tableNameEncoded;
+
+    public function __construct(Generator $g)
+    {
+        parent::__construct($g);
+        foreach ([$g->bean()->getModuleName(), 'default'] as $module) {
+            if (isset($GLOBALS['dataTool'][$module]['_erased_fields'])) {
+                $this->config = $GLOBALS['dataTool'][$module]['_erased_fields'];
+            }
+        }
+
+        foreach ($this->bean()->field_defs as $field => $fieldDef) {
+            $isDB = empty($fieldDef['source']) || $fieldDef['source'] == 'db';
+            if (!empty($fieldDef['pii']) && $isDB) {
+                $this->piiFields[] = $field;
+            }
+        }
+        $this->piiFieldsEncoded = "'".json_encode($this->piiFields)."'";
+        $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
+    }
+
+    public function isUsefull()
+    {
+        return $this->config['probability'] > 0 && count($this->piiFields) > 0;
+    }
+
+    public function clean()
+    {
+        parent::clean();
+        $tableName = $this->bean()->getTableName();
+        $GLOBALS['db']->query("DELETE FROM erased_fields WHERE table_name = '$tableName' AND bean_id LIKE 'seed-%'");
+    }
+
+    public function generateRecord($n)
+    {
+        $data = parent::generateRecord($n);
+        if (mt_rand(0, 99) < $this->config['probability']) {
+            foreach ($this->piiFields as $field) {
+                $data['data'][$this->bean()->getTableName()][0][$field] = 'NULL';
+            }
+
+            $data['data']['erased_fields'][] = [
+                'bean_id' => "'".$data['id']."'",
+                'table_name' => $this->tableNameEncoded,
+                'data' => $this->piiFieldsEncoded,
+            ];
+        }
+        return $data;
+    }
 }

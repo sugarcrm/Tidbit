@@ -176,4 +176,9 @@ class ModuleGenerator implements Generator
 
         return $result;
     }
+
+    public function bean()
+    {
+        return $this->bean;
+    }
 }
