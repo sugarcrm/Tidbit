@@ -178,6 +178,12 @@ foreach ($module_keys as $module) {
         $generatorClass = \Sugarcrm\Tidbit\Generator\ModuleGenerator::class;
     }
     $g = new $generatorClass($bean, $activityGenerator);
+    if (method_exists($bean, 'hasPiiFields') && $bean->hasPiiFields()) {
+        $d = new Sugarcrm\Tidbit\Generator\ErasedFieldsDecorator($g);
+        if ($d->isUsefull()) {
+            $g = $d;
+        }
+    }
     $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean, $activityGenerator);
 
     if (isset($GLOBALS['obliterate'])) {

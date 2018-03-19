@@ -76,3 +76,5 @@ $GLOBALS['dataTool']['default']['currency'] = array('range' => array('min' => 0,
 $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
 $GLOBALS['dataTool']['default']['id'] = [];
+$GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
+$GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 20];

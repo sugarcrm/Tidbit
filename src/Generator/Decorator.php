@@ -36,10 +36,42 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-interface Generator
+class Decorator implements Generator
 {
-    public function obliterate();
-    public function clean();
-    public function generateRecord($n);
-    public function bean();
+    /**
+     * Parent Generator
+     *
+     * @var Generator
+     */
+    protected $parent;
+
+    public function __construct(Generator $parent)
+    {
+        $this->parent = $parent;
+    }
+
+    public function obliterate()
+    {
+        $this->parent->obliterate();
+    }
+
+    public function clean()
+    {
+        $this->parent->clean();
+    }
+
+    public function generateRecord($n)
+    {
+        return $this->parent->generateRecord($n);
+    }
+
+    public function bean()
+    {
+        return $this->parent->bean();
+    }
+
+    public function isUsefull()
+    {
+        return true;
+    }
 }
