@@ -57,3 +57,4 @@ $GLOBALS['dataTool']['Tasks']['date_due'] = array(
         'days' => '30'
     )
 );
+$GLOBALS['dataTool']['Tasks']['subscriptions'] = ['probability' => 30];

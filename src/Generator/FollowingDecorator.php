@@ -36,45 +36,40 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-class ErasedFieldsDecorator extends Decorator
+use Sugarcrm\Tidbit\Core\Factory;
+
+class FollowingDecorator extends Decorator
 {
-    protected $piiFields = [];
-
-    protected $piiFieldsEncoded;
-
     protected $config = [];
-
+    protected $fieldName = '';
     protected $tableNameEncoded;
+    protected $idGenerator;
 
     public function __construct(Generator $g)
     {
         parent::__construct($g);
         foreach ([$g->bean()->getModuleName(), 'default'] as $module) {
-            if (isset($GLOBALS['dataTool'][$module]['_erased_fields'])) {
-                $this->config = $GLOBALS['dataTool'][$module]['_erased_fields'];
+            if (isset($GLOBALS['dataTool'][$module]['subscriptions'])) {
+                $this->config = $GLOBALS['dataTool'][$module]['subscriptions'];
             }
         }
 
-        foreach ($this->bean()->field_defs as $field => $fieldDef) {
-            $isDB = empty($fieldDef['source']) || $fieldDef['source'] == 'db';
-            if (!empty($fieldDef['pii']) && $isDB) {
-                $this->piiFields[] = $field;
-            }
-        }
-        $this->piiFieldsEncoded = "'".json_encode($this->piiFields)."'";
         $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
+
+        $this->idGenerator = Factory::getComponent('intervals');
     }
 
     public function isUsefull()
     {
-        return $this->config['probability'] > 0 && count($this->piiFields) > 0;
+        return $this->config['probability'] > 0;
     }
 
     public function clean()
     {
         parent::clean();
         $tableName = $this->bean()->getTableName();
-        $GLOBALS['db']->query("DELETE FROM erased_fields WHERE table_name = '$tableName' AND bean_id LIKE 'seed-%'");
+        $GLOBALS['db']->query("DELETE FROM subscriptions 
+          WHERE parent_type = '$tableName' AND parent_id LIKE 'seed-%'");
     }
 
     public function generateRecord($n)
@@ -82,14 +77,17 @@ class ErasedFieldsDecorator extends Decorator
         $data = parent::generateRecord($n);
         $mod = $n % 100;
         if ($mod <= $this->config['probability']) {
-            foreach ($this->piiFields as $field) {
-                $data['data'][$this->bean()->getTableName()][0][$field] = 'NULL';
-            }
-
-            $data['data']['erased_fields'][] = [
-                'bean_id' => "'".$data['id']."'",
-                'table_name' => $this->tableNameEncoded,
-                'data' => $this->piiFieldsEncoded,
+            $data['data']['subscriptions'][] = [
+                'id' => $this->idGenerator->generateTidbitID(
+                    $n,
+                    $this->bean()->getModuleName() . 'Subscription'
+                ),
+                'parent_id' => "'".$data['id']."'",
+                'parent_type' => $this->tableNameEncoded,
+                'date_entered' => $data['data'][$this->bean()->getTableName()][0]['date_entered'],
+                'date_modified' => $data['data'][$this->bean()->getTableName()][0]['date_modified'],
+                'modified_user_id' => $data['data'][$this->bean()->getTableName()][0]['assigned_user_id'],
+                'created_by' => $data['data'][$this->bean()->getTableName()][0]['assigned_user_id'],
             ];
         }
         return $data;

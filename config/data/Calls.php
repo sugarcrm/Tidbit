@@ -62,3 +62,4 @@ $GLOBALS['dataTool']['Calls']['date_end'] = array(
 $GLOBALS['dataTool']['Calls']['status'] = array('meeting_probability' => true);
 $GLOBALS['dataTool']['Calls']['reminder_time'] = array('value' => -1);
 $GLOBALS['dataTool']['Calls']['email_reminder_time'] = array('value' => -1);
+$GLOBALS['dataTool']['Calls']['subscriptions'] = ['probability' => 75];

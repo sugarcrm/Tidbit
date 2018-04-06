@@ -50,3 +50,4 @@ $GLOBALS['dataTool']['Emails']['bcc_addrs_ids'] = array('value' => "''");
 $GLOBALS['dataTool']['Emails']['bcc_addrs_names'] = array('value' => "''");
 $GLOBALS['dataTool']['Emails']['bcc_addrs_emails'] = array('value' => "''");
 $GLOBALS['dataTool']['Emails']['description_html'] = array('same' => 'description');
+$GLOBALS['dataTool']['Emails']['subscriptions'] = ['probability' => 30];
