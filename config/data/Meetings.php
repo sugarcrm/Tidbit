@@ -65,3 +65,4 @@ $GLOBALS['dataTool']['Meetings']['date_end'] = array(
     )
 );
 $GLOBALS['dataTool']['Meetings']['displayed_url'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['subscriptions'] = ['probability' => 25];

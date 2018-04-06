@@ -62,3 +62,4 @@ $GLOBALS['dataTool']['Leads']['phone_other'] = array('phone' => true);
 $GLOBALS['dataTool']['Leads']['phone_mobile'] = array('phone' => true);
 $GLOBALS['dataTool']['Leads']['phone_home'] = array('phone' => true);
 $GLOBALS['dataTool']['Leads']['picture'] = ['skip' => true];
+$GLOBALS['dataTool']['Leads']['subscriptions'] = ['probability' => 60];

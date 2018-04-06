@@ -184,6 +184,12 @@ foreach ($module_keys as $module) {
             $g = $d;
         }
     }
+    if ($bean->isActivityEnabled()) {
+        $d = new Sugarcrm\Tidbit\Generator\FollowingDecorator($g);
+        if ($d->isUsefull()) {
+            $g = $d;
+        }
+    }
     $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean, $activityGenerator);
 
     if (isset($GLOBALS['obliterate'])) {
