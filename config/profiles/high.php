@@ -5,6 +5,7 @@ $modules = array(
     'ACLRoles' => 2000,
     'Users' => 1000,
     'Teams' => 200,
+    'TeamSets' => 1200,
     'Accounts' => 200000,
     'Quotes' => 200000,
     'ProductBundles' => 400000,

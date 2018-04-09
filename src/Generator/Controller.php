@@ -75,6 +75,7 @@ class Controller
         showProgress(0, $total);
         for ($i = 0; $i < $total; $i++) {
             $data = $this->g->generateRecord($i);
+            $data = $this->g->afterGenerateRecord($i, $data);
             $generatedIds[] = $data['id'];
 
             $GLOBALS['processedRecords']++;
@@ -99,16 +100,6 @@ class Controller
         }
 
         showProgress($total, $total);
-
-        if ($this->bean->getModuleName() == 'Teams') {
-            $teamGenerator = new TeamSets(
-                $GLOBALS['db'],
-                $GLOBALS['storageAdapter'],
-                $generatedIds,
-                $GLOBALS['maxTeamsPerSet']
-            );
-            $teamGenerator->generate();
-        }
 
         if ($this->bean->getModuleName() == 'Users') {
             if (!empty($GLOBALS['as_populate'])) {

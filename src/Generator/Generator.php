@@ -41,5 +41,6 @@ interface Generator
     public function obliterate();
     public function clean();
     public function generateRecord($n);
+    public function afterGenerateRecord($n, $data);
     public function bean();
 }

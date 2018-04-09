@@ -6,6 +6,7 @@ $modules = array(
     'ACLRoles' => 2000,
     'Users' => 1000,
     'Teams' => 200,
+    'TeamSets' => 1200,
     'Accounts' => 4000000,
     'Quotes' => 120000000,
     'ProductBundles' => 4000000,
@@ -42,5 +43,5 @@ $sugarFavoritesModules = array(
 );
 
 $profile_opts = array(
-    
+
 );

@@ -36,47 +36,10 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-class Decorator implements Generator
+class TeamSetCore extends \TeamSet
 {
-    /**
-     * Parent Generator
-     *
-     * @var Generator
-     */
-    protected $parent;
-
-    public function __construct(Generator $parent)
+    public function getStatistics($teams)
     {
-        $this->parent = $parent;
-    }
-
-    public function obliterate()
-    {
-        $this->parent->obliterate();
-    }
-
-    public function clean()
-    {
-        $this->parent->clean();
-    }
-
-    public function generateRecord($n)
-    {
-        return $this->parent->generateRecord($n);
-    }
-
-    public function afterGenerateRecord($n, $data)
-    {
-        return $this->parent->afterGenerateRecord($n, $data);
-    }
-
-    public function bean()
-    {
-        return $this->parent->bean();
-    }
-
-    public function isUsefull()
-    {
-        return true;
+        return $this->_getStatistics($teams);
     }
 }
