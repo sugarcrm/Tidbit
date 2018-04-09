@@ -70,6 +70,7 @@ $GLOBALS['dataTool']['default']['email'] = array('list' => 'last_name_array', 's
 $GLOBALS['dataTool']['default']['phone'] = array('phone' => true);
 $GLOBALS['dataTool']['default']['meeting_probability'] = array('set' => false);
 $GLOBALS['dataTool']['default']['team_id'] = array('related' => array('module' => 'Teams'));
+$GLOBALS['dataTool']['default']['team_set_id'] = array('related' => array('module' => 'TeamSets'));
 $GLOBALS['dataTool']['default']['created_by'] = array('related' => array('module' => 'Users'));
 $GLOBALS['dataTool']['default']['assigned_user_id'] = array('related' => array('module' => 'Users'));
 $GLOBALS['dataTool']['default']['modified_user_id'] = array('related' => array('module' => 'Users'));

@@ -115,6 +115,7 @@ Options
                         like DB2. Default is no batches.
 
     -s                  The number of teams per team set and per record.
+                        Defaults to 10.
 
     --tba               Turn Team-based ACL Mode on.
 
@@ -373,7 +374,9 @@ if (!isset($opts['with-favorites'])) {
     unset($modules['SugarFavorites']);
 }
 
-$maxTeamsPerSet = (!empty($opts['s'])) ? $opts['s'] : $defaultMaxTeamsPerSet;
+if (!empty($opts['s'])) {
+    $tidbit_relationships['TeamSets']['Teams']['degree'] = (int) $opts['s'];
+}
 
 if (isset($opts['tba'])) {
     if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {

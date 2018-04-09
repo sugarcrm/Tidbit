@@ -96,13 +96,18 @@ class Relationships
         }
 
         foreach ($tidbitRelationships[$module] as $relModule => $relationship) {
+            // skip typed relationships as they are processed with corresponding decorators
+            if (isset($relationship['type'])) {
+                continue;
+            }
+
             // TODO: remove this check or replace with something else
             if (!is_dir('modules/' . $relModule)) {
                 continue;
             }
 
             $modules = $this->config->get('modules');
-            
+
             if (empty($modules[$relModule])) {
                 continue;
             }

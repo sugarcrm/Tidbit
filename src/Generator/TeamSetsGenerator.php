@@ -36,47 +36,28 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-class Decorator implements Generator
+class TeamSetsGenerator extends ModuleGenerator
 {
-    /**
-     * Parent Generator
-     *
-     * @var Generator
-     */
-    protected $parent;
+    protected $teamSetCore;
 
-    public function __construct(Generator $parent)
+    public function __construct(\SugarBean $bean, Activity $activityGenerator)
     {
-        $this->parent = $parent;
-    }
-
-    public function obliterate()
-    {
-        $this->parent->obliterate();
-    }
-
-    public function clean()
-    {
-        $this->parent->clean();
-    }
-
-    public function generateRecord($n)
-    {
-        return $this->parent->generateRecord($n);
+        parent::__construct($bean, $activityGenerator);
+        $this->teamSetCore = new TeamSetCore();
     }
 
     public function afterGenerateRecord($n, $data)
     {
-        return $this->parent->afterGenerateRecord($n, $data);
-    }
+        $teams = [];
+        foreach ($data['data']['team_sets_teams'] as $tst) {
+            $teams[] = $tst['team_id'];
+        }
+        $stats = $this->teamSetCore->getStatistics($teams);
 
-    public function bean()
-    {
-        return $this->parent->bean();
-    }
+        $data['data'][$this->bean()->getTableName()][0]['team_md5'] = "'".$stats['team_md5']."'";
+        $data['data'][$this->bean()->getTableName()][0]['name'] = "'".$stats['team_md5']."'";
+        $data['data'][$this->bean()->getTableName()][0]['team_count'] = count($data['data']['team_sets_teams']);
 
-    public function isUsefull()
-    {
-        return true;
+        return $data;
     }
 }

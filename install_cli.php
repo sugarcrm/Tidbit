@@ -69,7 +69,6 @@ echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
 echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
-echo "With " . $maxTeamsPerSet ." teams in Team Sets \n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
 echo "With Team-based Restriction Level " .
     (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
@@ -178,6 +177,19 @@ foreach ($module_keys as $module) {
         $generatorClass = \Sugarcrm\Tidbit\Generator\ModuleGenerator::class;
     }
     $g = new $generatorClass($bean, $activityGenerator);
+    if (isset($tidbit_relationships[$module])) {
+        foreach ($tidbit_relationships[$module] as $relationship) {
+            if (!isset($relationship['type'])) {
+                continue;
+            }
+
+            $relationship['self_total'] = $total;
+            $relationship['you_total'] = $modules[$relationship['you_module']];
+            $rdc = "\Sugarcrm\Tidbit\Generator\\" . ucfirst($relationship['type']) . "Relationship";
+            $g = new $rdc($g, $relationship);
+        }
+    }
+
     if (method_exists($bean, 'hasPiiFields') && $bean->hasPiiFields()) {
         $d = new Sugarcrm\Tidbit\Generator\ErasedFieldsDecorator($g);
         if ($d->isUsefull()) {

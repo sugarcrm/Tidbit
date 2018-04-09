@@ -68,9 +68,6 @@ class DataTool
     public $module = '';
     public $count = 0;
 
-    // TeamSet with all teams inside
-    static public $team_sets_array = array();
-
     // based on xhprof, db_convert for datetime and time generation, consume a lot of time.
     // getConvertDatetime() function re-generate time only when this index reach max number
     // so we will re-generate time only for self::$datetimeIndexMax record
@@ -209,19 +206,6 @@ class DataTool
         }
         if (!empty($this->fields['modified_user_id'])) {
             $this->installData['modified_user_id'] = 1;
-        }
-
-        if (!empty($this->fields['team_set_id'])) {
-            $teamIdField = ($this->module == 'Users') ? 'default_team' : 'team_id';
-
-            if (!empty($this->installData[$teamIdField])) {
-                $this->installData['team_set_id'] = "'" . $this->getTeamSetForTeamId($teamIdField) . "'";
-            }
-
-            // Handle TBA configuration
-            if (!empty($GLOBALS['tba'])) {
-                $this->installData['acl_team_set_id'] = $this->installData['team_set_id'];
-            }
         }
     }
 
@@ -592,75 +576,6 @@ class DataTool
         }
 
         return $baseValue;
-    }
-
-    /**
-     * Looks for specific team set that will contain selected Team
-     *
-     * @param string $fieldName
-     * @return string
-     */
-    protected function getTeamSetForTeamId($fieldName)
-    {
-        static $teamIdTeamSetMapping;
-
-        // Create mapping for all teams with associated team sets
-        if (!$teamIdTeamSetMapping) {
-            foreach (self::$team_sets_array as $teamSetId => $teamsArray) {
-                foreach ($teamsArray as $teamId) {
-                    if (!isset($teamIdTeamSetMapping[$teamId])) {
-                        $teamIdTeamSetMapping[$teamId] = array(
-                            'team_set_ids' => array(),
-                            'counts'       => array(),
-                        );
-                    }
-
-                    $teamIdTeamSetMapping[$teamId]['team_set_ids'][] = $teamSetId;
-                    $teamIdTeamSetMapping[$teamId]['counts'][] = count($teamsArray);
-                }
-            }
-
-            $result = array();
-
-            // Calculate average number of teams per team set inside team sets that have $teamId
-            // Assign $teamId team_set_id with apr. average number of teams
-            // So we can guarantee that $beans with same team_id will receive have team_sets
-            foreach ($teamIdTeamSetMapping as $teamId => $data) {
-                // if team is in one team_set only just map it and go for next
-                if (count($data['team_set_ids']) == 1) {
-                    $result[$teamId] = $data['team_set_ids'][0];
-                    continue;
-                }
-                // average number of teams in team sets that contain $teamId
-                $average = floor(array_sum($data['counts']) / count($data['counts']));
-                sort($data['counts']);
-
-                for ($i = 0; $i < count($data['counts']) - 1; $i++) {
-                    $tempTeamId = 0;
-
-                    // Find first close to average team_set_id that is lower than the average
-                    if ($data['counts'][$i] <= $average && $data['counts'][$i + 1] > $average) {
-                        $result[$teamId] = $data['team_set_ids'][$i];
-                        break;
-                    } elseif ($data['counts'][$i] == $average) {
-                        // save team_set_ids which number of teams is equal to average
-                        // specific case all team_sets have same number of teams,
-                        // so average will be equal
-                        $tempTeamId = $data['team_set_ids'][$i];
-                    }
-
-                    // if $result for $teamId is still empty, set $tempTeamId as $result
-                    if (!isset($result[$teamId]) && $tempTeamId) {
-                        $result[$teamId] = $tempTeamId;
-                    }
-                }
-            }
-
-            $teamIdTeamSetMapping = $result;
-        }
-
-        $beanTeamId = trim($this->installData[$fieldName], "'");
-        return $teamIdTeamSetMapping[$beanTeamId];
     }
 
     /**

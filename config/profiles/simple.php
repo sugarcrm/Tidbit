@@ -6,6 +6,7 @@ $modules = array(
     'ACLRoles' => 10,
     'Users' => 20,
     'Teams' => 4,
+    'TeamSets' => 24,
     'Accounts' => 1000,
     'Quotes' => 1000,
     'ProductBundles' => 2000,
@@ -29,5 +30,5 @@ $modules = array(
 );
 
 $profile_opts = array(
-    
+
 );

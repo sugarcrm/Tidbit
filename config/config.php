@@ -39,8 +39,6 @@ $storageType = 'mysql';
 $logQueriesPath = '';
 $tidbitCsvDir = 'csv';
 
-$defaultMaxTeamsPerSet = 10;
-
 // Default Sugar location path, could be overridden by "--sugar_path" argument
 $sugarPath = __DIR__ . '/../..';
 
@@ -50,6 +48,7 @@ $modules = array(
     'ACLRoles' => 10,
     'Users' => 100,
     'Teams' => 20,
+    'TeamSets' => 120,
     'Accounts' => 1000,
     'Quotes' => 1000,
     'ProductBundles' => 2000,
@@ -84,16 +83,16 @@ $productTemplatesPerLevel = 3;
 
 /*
  * When using --allmodules this is the number of records to create per-module
- * when the module is not defined in the $modules array.  
+ * when the module is not defined in the $modules array.
  */
 $all_modules_default_count = 5000;
 
 /*
- * Add a module alias for GUID creation. All records created will have a GUID 
+ * Add a module alias for GUID creation. All records created will have a GUID
  * that begins with the string 'seed-', then the module name or this alias, then
  * a timestamp and an auto incrementing integer. It is recommended that all
  * module names over 10 characters have a shorter alias to ensure that unique
- * GUIDs can be created.    
+ * GUIDs can be created.
  */
 $aliases = array(
     'EmailAddresses' => 'Emadd',
@@ -109,6 +108,17 @@ $activityModulesBlackList = array(
     'EmailAddresses',
     'Documents'
 );
+
+$tidbit_relationships['TeamSets'] = [
+    'Teams' => [
+        'type' => 'combinations',
+        'degree' => 10,
+        'self' => 'team_set_id',
+        'you' => 'team_id',
+        'you_module' => 'Teams',
+        'table' => 'team_sets_teams',
+    ],
+];
 
 $tidbit_relationships['ACLRoles'] = array(
     'Users' => array(
