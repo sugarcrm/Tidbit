@@ -38,6 +38,8 @@
 $GLOBALS['dataTool']['default'] = array();
 $GLOBALS['dataTool']['default']['int'] = array('range' => array('min' => 0, 'max' => 100));
 $GLOBALS['dataTool']['default']['uint'] = array('range' => array('min' => 0, 'max' => 100));
+$GLOBALS['dataTool']['default']['long'] = array('range' => array('min' => 0, 'max' => 100));
+$GLOBALS['dataTool']['default']['ulong'] = array('range' => array('min' => 0, 'max' => 100));
 $GLOBALS['dataTool']['default']['double'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 1.7);
 $GLOBALS['dataTool']['default']['float'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 2.3);
 $GLOBALS['dataTool']['default']['decimal'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 3.2);
@@ -52,6 +54,7 @@ $GLOBALS['dataTool']['default']['date'] = array(
 );
 //NEEDS THE DROPDOWN LIST TO GET THE PROPER VALUE
 $GLOBALS['dataTool']['default']['enum'] = array('set' => false);
+$GLOBALS['dataTool']['default']['multienum'] = array('set' => false);
 $GLOBALS['dataTool']['default']['datetime'] = array(
     'range' => array('min' => -30, 'max' => 30),
     'type' => 'datetime',
