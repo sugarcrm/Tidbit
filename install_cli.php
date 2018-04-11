@@ -130,12 +130,17 @@ foreach ($module_keys as $module) {
         continue;
     }
 
+    $total = $modules[$module];
+    if ($total == 0) {
+        echo "Skipping module: $module as it's configured to generate 0 records\n";
+        continue;
+    }
+
     echo "\nProcessing Module $module"
         .(isset($tidbit_relationships[$module])
             ? " with relationships to ".implode(", ", array_keys($tidbit_relationships[$module]))
             :"")
         .":\n";
-    $total = $modules[$module];
 
     if (in_array($module, $moduleUsingGenerators)) {
         $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
