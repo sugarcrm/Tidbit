@@ -81,5 +81,5 @@ $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
 $GLOBALS['dataTool']['default']['id'] = [];
 $GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
-$GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 20];
+$GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['subscriptions'] = ['probability' => 2];
