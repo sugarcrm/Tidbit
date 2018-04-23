@@ -31,3 +31,5 @@ $modules = array(
 $profile_opts = array(
 
 );
+
+$tidbit_relationships['Users']['Teams']['ratio'] = 5;
