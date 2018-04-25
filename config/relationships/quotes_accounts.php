@@ -35,5 +35,6 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['quotes_accounts']['repeat'] = array('factor' => 2);
-$GLOBALS['dataTool']['quotes_accounts']['account_role'] = array('binary_enum' => array("'Ship To'", "'Bill To'"));
+$GLOBALS['dataTool']['quotes_accounts']['account_role'] = [
+    'binary_enum' => [ "'Ship To'", "'Bill To'"]
+];

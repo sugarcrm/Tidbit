@@ -176,63 +176,6 @@ class RelationshipsTest extends TidbitTestCase
     }
 
     /**
-     * @covers ::calculateBodyMultiplier
-     * @dataProvider dataTestCalculateBodyMultiplierProvider
-     *
-     * @param string $relTable
-     * @param int $expected
-     */
-    public function testCalculateBodyMultiplier($relTable, $expected)
-    {
-        $GLOBALS['dataTool'] = array(
-            'accounts_contacts' => array(),
-            'quotes_accounts' => array(
-                'repeat'    => array('factor' => 5),
-                'some_data' => array('list_too'),
-            ),
-            'emails_beans' => array('bean_module' => array('getmodule' => true)),
-        );
-
-        $definition = $GLOBALS['dataTool'][$relTable];
-
-        $relationships = new Relationships($this->getConfig());
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\Core\Relationships', 'calculateBodyMultiplier');
-
-        $actual = $method->invokeArgs($relationships, array($relTable));
-
-        $this->assertEquals($expected, $actual);
-
-        if ($expected == 1) {
-            $this->assertEmpty($relationships->getRestoreSettings());
-        } else {
-            // assert that relation definition was stored before modification
-            $this->assertEquals($definition, $relationships->getRestoreSettings());
-        }
-    }
-
-    /**
-     * @see testCalculateBodyMultiplier
-     * @return array
-     */
-    public function dataTestCalculateBodyMultiplierProvider()
-    {
-        return array(
-            array( // general case
-                'accounts_contacts',
-                1
-            ),
-            array( // general case
-                'emails_beans',
-                1
-            ),
-            array( // general case
-                'quotes_accounts',
-                5
-            ),
-        );
-    }
-
-    /**
      * @covers ::getRelationshipInstallData
      */
     public function testGetRelationshipInstallData()
