@@ -67,8 +67,6 @@ $modules = array(
     'Documents' => 1000,
     'Categories' => 600,
     'KBContents' => 1000,
-    // Will be set by SugarFavorites Generator class
-    'SugarFavorites' => 1000,
     'Reports' => 1000,
     'ProductCategories' => 1000,
 );
@@ -428,17 +426,4 @@ $kbLanguage = array(
         'ru' => 'Russian',
     ),
     'primary' => 'en',
-);
-
-$sugarFavoritesModules = array(
-    'Accounts'      => 100, // 10% of base accounts
-    'Contacts'      => 400,
-    'Leads'         => 400,
-    'Opportunities' => 200,
-    'Calls'         => 1200, // 5% of base calls
-    'Meetings'      => 400, // 5% of base meetings
-    'Cases'         => 200,
-    'Bugs'          => 150,
-    'Tasks'         => 200,
-    'Notes'         => 200,
 );

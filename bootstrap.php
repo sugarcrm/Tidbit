@@ -128,12 +128,6 @@ Options
     --with-tags         Turn on Tags and Tags Relations generation. If you do
                         not specify this option, default will be false.
 
-    --with-favorites    Turn on Sugar Favorites generation. Will generate
-                        records in "sugarfavorites" table for modules describes
-                        in config as \$sugarFavoritesModules,
-                        \$sugarFavoritesModules will be multiplied with "load
-                        factor" (-l) argument.
-
     --profile           Name of file in folder config/profiles (without .php)
                         or path to php-config-file with profile data. File can
                         contain php-arrays
@@ -166,7 +160,6 @@ $opts = getopt(
         'tba_level:',
         'tba',
         'with-tags',
-        'with-favorites',
         'allmodules',
         'allrelationships',
         'as_populate',
@@ -324,7 +317,7 @@ if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
     $insertBatchSize = ((int)$opts['insert_batch_size']);
 }
 
-$moduleUsingGenerators = array('KBContents', 'Categories', 'SugarFavorites', 'ProductCategories');
+$moduleUsingGenerators = array('KBContents', 'Categories', 'ProductCategories');
 
 
 if (isset($opts['l']) && !isset($opts['profile'])) {
@@ -334,13 +327,6 @@ if (isset($opts['l']) && !isset($opts['profile'])) {
     $factor = $opts['l'] / $modules['Accounts'];
     foreach ($modules as $m => $n) {
         $modules[$m] *= $factor;
-    }
-
-    // Multiple favorites with $factor too
-    if (isset($opts['with-favorites'])) {
-        foreach ($sugarFavoritesModules as $m => $n) {
-            $sugarFavoritesModules[$m] *= $factor;
-        }
     }
 }
 if (isset($opts['u'])) {
@@ -368,10 +354,6 @@ if (isset($opts['c'])) {
 }
 if (isset($opts['o'])) {
     $GLOBALS['obliterate'] = true;
-}
-
-if (!isset($opts['with-favorites'])) {
-    unset($modules['SugarFavorites']);
 }
 
 if (!empty($opts['s'])) {
