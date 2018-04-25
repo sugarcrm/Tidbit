@@ -186,7 +186,8 @@ $tidbit_relationships['Accounts'] = array(
     'Quotes' => array(
         'self' => 'account_id',
         'you' => 'quote_id',
-        'table' => 'quotes_accounts'
+        'table' => 'quotes_accounts',
+        'repeat' => 2,
     ),
     'Tags' => array(
         'self' => 'bean_id',

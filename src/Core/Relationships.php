@@ -18,9 +18,6 @@ class Relationships
     /** @var array relationships counters */
     public $relationshipCounters = array();
 
-    /** @var mixed - temp storage for relation config settings */
-    protected $restoreSettings;
-
     /** @var Config */
     protected $config;
 
@@ -126,7 +123,7 @@ class Relationships
                 $currentRelModule = $this->coreIntervals->getAlias($relModule);
                 $relId = $this->coreIntervals->assembleId($currentRelModule, $relIntervalID, false);
 
-                $multiply = $this->calculateBodyMultiplier($relationship['table']);
+                $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
@@ -135,8 +132,6 @@ class Relationships
                 }
 
                 $GLOBALS['allProcessedRecords']++;
-
-                $this->restoreRelationConfig($relationship['table']);
 
                 $relQueryCount++;
             }
@@ -171,49 +166,6 @@ class Relationships
 
         return $thisToRelatedRatio;
     }
-
-    /**
-     * Calculate body multiplier, in relation configs, we can set ["repeat"]["factor"] that will
-     * indicate how many SAME relations will be generated for $bean
-     *
-     * @see "quotes_accounts" relation config
-     *
-     * TODO: remove GLOBALS
-     *
-     * @param string $relTable
-     * @return int
-     */
-    protected function calculateBodyMultiplier($relTable)
-    {
-        /* If a repeat factor is specified, then we will process the body multiple times. */
-        if (!empty($GLOBALS['dataTool'][$relTable]) &&
-            !empty($GLOBALS['dataTool'][$relTable]['repeat'])) {
-            $multiply = $GLOBALS['dataTool'][$relTable]['repeat']['factor'];
-
-            // We don't want 'repeat' to get into the DB, but we'll put it back into the globals later.
-            $this->restoreSettings = $GLOBALS['dataTool'][$relTable];
-            unset($GLOBALS['dataTool'][$relTable]['repeat']);
-        } else {
-            $multiply = 1;
-        }
-
-        return $multiply;
-    }
-
-    /**
-     * Restore relationships config
-     *
-     * @param $relTable
-     */
-    protected function restoreRelationConfig($relTable)
-    {
-        if ($this->restoreSettings) {
-            $GLOBALS['dataTool'][$relTable] = $this->restoreSettings;
-            // clean up settings
-            $this->restoreSettings = null;
-        }
-    }
-
 
     /**
      * Generate relationship data to insert
@@ -308,15 +260,5 @@ class Relationships
     public function setCoreIntervals(Intervals $intervals)
     {
         $this->coreIntervals = $intervals;
-    }
-
-    /**
-     * Getter for restoreSettings
-     *
-     * @return mixed
-     */
-    public function getRestoreSettings()
-    {
-        return $this->restoreSettings;
     }
 }
