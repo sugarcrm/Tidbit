@@ -83,6 +83,7 @@ $GLOBALS['dataTool']['default']['id'] = [];
 $GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['subscriptions'] = ['probability' => 2];
+$GLOBALS['dataTool']['default']['favorites'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['billing_address_country'] = $GLOBALS['dataTool']['default']['shipping_address_country'] = ['value' => "'USA'"];
 $GLOBALS['dataTool']['default']['billing_address_street'] = $GLOBALS['dataTool']['default']['shipping_address_street'] = [
     'range' => ['min' => 1, 'max' => 1500],

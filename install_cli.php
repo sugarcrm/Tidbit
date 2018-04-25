@@ -57,13 +57,6 @@ foreach ($module_keys as $module) {
     echo "{$modules[$module]} {$module}\n";
 }
 
-if (isset($opts['with-favorites'])) {
-    echo "\nSugar Favorites Generated:\n";
-    foreach ($sugarFavoritesModules as $favModule => $favCount) {
-        echo "\t$favCount {$favModule}\n";
-    }
-}
-
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
@@ -203,6 +196,13 @@ foreach ($module_keys as $module) {
     }
     if ($bean->isActivityEnabled()) {
         $d = new Sugarcrm\Tidbit\Generator\FollowingDecorator($g);
+        if ($d->isUsefull()) {
+            $g = $d;
+        }
+    }
+    if ($bean->isFavoritesEnabled()) {
+        echo $bean->getModuleName();
+        $d = new Sugarcrm\Tidbit\Generator\FavoritesDecorator($g);
         if ($d->isUsefull()) {
             $g = $d;
         }

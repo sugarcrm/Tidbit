@@ -60,7 +60,6 @@ $modules = array(
     'Documents' => 100,
     'Categories' => 60,
     'KBContents' => 100,
-    'SugarFavorites' => 100,
     'Reports' => 100
 );
 

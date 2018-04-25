@@ -25,21 +25,7 @@ $modules = array(
     'Documents' => 5000,
     'Categories' => 3000,
     'KBContents' => 5000,
-    'SugarFavorites' => 5000,
     'Reports' => 1000
-);
-
-$sugarFavoritesModules = array(
-    'Accounts'      => 500, // 10% of base accounts
-    'Contacts'      => 2000,
-    'Leads'         => 2000,
-    'Opportunities' => 1000,
-    'Calls'         => 6000, // 5% of base calls
-    'Meetings'      => 2000, // 5% of base meetings
-    'Cases'         => 1000,
-    'Bugs'          => 600,
-    'Tasks'         => 1000,
-    'Notes'         => 1000,
 );
 
 $profile_opts = array(

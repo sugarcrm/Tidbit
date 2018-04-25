@@ -38,9 +38,6 @@ class Config
      * For some generators we need to dynamically set number of
      * Records that will be generated for Module
      *
-     * F.e. For SugarFavorites we need to modify this value for each Favorite module
-     * and KBContents
-     *
      * @param string $module
      * @param int $count
      */
