@@ -83,3 +83,15 @@ $GLOBALS['dataTool']['default']['id'] = [];
 $GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['subscriptions'] = ['probability' => 2];
+$GLOBALS['dataTool']['default']['billing_address_country'] = $GLOBALS['dataTool']['default']['shipping_address_country'] = ['value' => "'USA'"];
+$GLOBALS['dataTool']['default']['billing_address_street'] = $GLOBALS['dataTool']['default']['shipping_address_street'] = [
+    'range' => ['min' => 1, 'max' => 1500],
+    'suffixlist' => ['last_name_array', 'streetTypes'],
+    'isQuoted' => true
+];
+$GLOBALS['dataTool']['default']['billing_address_city'] = $GLOBALS['dataTool']['default']['shipping_address_city'] = ['list' => 'city_array'];
+$GLOBALS['dataTool']['default']['billing_address_state'] = $GLOBALS['dataTool']['default']['shipping_address_state'] = ['list' => 'state_array'];
+$GLOBALS['dataTool']['default']['billing_address_postalcode'] = $GLOBALS['dataTool']['default']['shipping_address_postalcode'] = [
+    'range' => ['min' => 15000, 'max' => 99999],
+    'isQuoted' => true
+];

@@ -352,13 +352,6 @@ class DataTool
             }
             return $sum;
         }
-        if (!empty($typeData['sum_ref'])) {
-            $sum = 0;
-            foreach ($typeData['sum_ref'] as $piece) {
-                $sum += $this->accessRemoteField($piece['module'], $piece['field']);
-            }
-            return $sum;
-        }
         if (!empty($typeData['same'])) {
             if (is_string($typeData['same']) && !empty($this->fields[$typeData['same']])) {
                 $rtn = $this->accessLocalField($typeData['same']);
@@ -374,13 +367,6 @@ class DataTool
             }
 
             return @trim($rtn);
-        }
-        if (!empty($typeData['same_ref'])) {
-            /* We aren't going to consider literal values,
-             * because you can just use 'same' for that.
-             */
-            //echo "SR: ";
-            return @trim($this->accessRemoteField($typeData['same_ref']['module'], $typeData['same_ref']['field']));
         }
         if (!empty($typeData['same_sugar_hash'])) {
             return $this->getSameSugarHash($typeData['same_sugar_hash']);
@@ -614,62 +600,6 @@ class DataTool
         } else {
             return $fieldName;
         }
-    }
-
-    /**
-     * Returns the value of $module's field called $fieldName.
-     *
-     * Calls accessLocalField($fieldName) on a separate DataTool object
-     * for the remote module.
-     *
-     * @param $module - Name of remote module to access.
-     * @param $fieldName - Name of field in remote module to retrieve.
-     *
-     * @return string
-     */
-    public function accessRemoteField($module, $fieldName)
-    {
-        /* Form is 'Module' => field */
-        /* I need to call $this->getData. */
-        /* I need to load the Data/Module.php file,
-         * to make a proper call to getData. */
-        /* I need the var_defs for the Module, so
-         * I can access its type or dbType. (only if it's an enum...)*/
-        /* I also need the remote count of the 'parent' or 'related'
-         * module.  This count would be the one that I get when
-         * I generate relationships or fill 'related' fields.
-         */
-        /* But getData looks at $this->module... ick */
-        /* Well, I'm loading the vardefs for this class, so I might
-         * as well load a new dataTool for it.
-         */
-        /* 1. Load Data/Module definitions
-         * 2. Load class[Module]
-         * 3. Identify related count - ?
-         * 4. call getData on the one field we want.
-         */
-
-        /* Should one accidentally refer to itsself, just call local */
-        if ($module == $this->module) {
-            return $this->accessLocalField($fieldName);
-        }
-
-        /* Check if a cached dataTool object exists. */
-        if (!empty($GLOBALS['foreignDataTools']) && !empty($GLOBALS['foreignDataTools'][$module])) {
-            $rbfd = $GLOBALS['foreignDataTools'][$module];
-        } else {
-            $bean = \BeanFactory::getBean($module);
-            $rbfd = new DataTool($this->storageType);
-            $rbfd->table_name = $bean->table_name;
-            $rbfd->module = $module;
-            $rbfd->setFields($bean->field_defs);
-            /* Cache the dataTool object. */
-            $GLOBALS['foreignDataTools'][$module] = $rbfd;
-        }
-        $rbfd->clean();
-        $rbfd->count = $this->coreIntervals->getRelatedId($rbfd->count, $module, $module);
-
-        return $rbfd->accessLocalField($fieldName);
     }
 
     /**

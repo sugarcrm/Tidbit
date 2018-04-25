@@ -36,14 +36,6 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Quotes']['quote_num'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Quotes']['subtotal'] =
-    array(
-        'sum_ref' =>
-            array(
-                array('module' => 'ProductBundles', 'field' => 'total'),
-                array('module' => 'ProductBundles', 'field' => 'total')
-            )
-    );
 $GLOBALS['dataTool']['Quotes']['subtotal_usdollar'] = array('same' => 'subtotal');
 $GLOBALS['dataTool']['Quotes']['shipping_usdollar'] = array('same' => 'shipping');
 $GLOBALS['dataTool']['Quotes']['tax_usdollar'] = array('same' => 'tax');
@@ -53,35 +45,5 @@ $GLOBALS['dataTool']['Quotes']['total_usdollar'] = array(
 );
 /* Eventually the following should reference Accounts */
 $GLOBALS['dataTool']['Quotes']['quote_stage'] = array('value' => "'Draft'");
-$GLOBALS['dataTool']['Quotes']['billing_address_street'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_street')
-);
-$GLOBALS['dataTool']['Quotes']['billing_address_city'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_city')
-);
-$GLOBALS['dataTool']['Quotes']['billing_address_state'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_state')
-);
-$GLOBALS['dataTool']['Quotes']['billing_address_postalcode'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_postalcode')
-);
-$GLOBALS['dataTool']['Quotes']['billing_address_country'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'billing_address_country')
-);
-$GLOBALS['dataTool']['Quotes']['shipping_address_street'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_street')
-);
-$GLOBALS['dataTool']['Quotes']['shipping_address_city'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_city')
-);
-$GLOBALS['dataTool']['Quotes']['shipping_address_state'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_state')
-);
-$GLOBALS['dataTool']['Quotes']['shipping_address_postalcode'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_postalcode')
-);
-$GLOBALS['dataTool']['Quotes']['shipping_address_country'] = array(
-    'same_ref' => array('module' => 'Accounts', 'field' => 'shipping_address_country')
-);
 $GLOBALS['dataTool']['Quotes']['quote_type'] = ['skip' => true];
 $GLOBALS['dataTool']['Quotes']['date_closed_timestamp'] = ['skip' => true];

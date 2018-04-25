@@ -35,25 +35,6 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Accounts']['billing_address_street'] = array(
-    'range' => array('min' => 1, 'max' => 1500),
-    'suffixlist' => array('last_name_array', 'streetTypes'),
-    'isQuoted' => true
-);
-$GLOBALS['dataTool']['Accounts']['shipping_address_street'] =
-    $GLOBALS['dataTool']['Accounts']['billing_address_street'];
-$GLOBALS['dataTool']['Accounts']['billing_address_city'] = array('list' => 'city_array');
-$GLOBALS['dataTool']['Accounts']['shipping_address_city'] = $GLOBALS['dataTool']['Accounts']['billing_address_city'];
-$GLOBALS['dataTool']['Accounts']['billing_address_state'] = array('list' => 'state_array');
-$GLOBALS['dataTool']['Accounts']['shipping_address_state'] = $GLOBALS['dataTool']['Accounts']['billing_address_state'];
-$GLOBALS['dataTool']['Accounts']['billing_address_postalcode'] = array(
-    'range' => array('min' => 15000, 'max' => 99999),
-    'isQuoted' => true
-);
-$GLOBALS['dataTool']['Accounts']['shipping_address_postalcode'] =
-    $GLOBALS['dataTool']['Accounts']['billing_address_postalcode'];
-$GLOBALS['dataTool']['Accounts']['billing_address_country'] = array('value' => "'USA'");
-$GLOBALS['dataTool']['Accounts']['shipping_address_country'] = array('value' => "'USA'");
 $GLOBALS['dataTool']['Accounts']['annual_revenue'] = array('range' => array('min' => 10000, 'max' => 500000000));
 $GLOBALS['dataTool']['Accounts']['employees'] = array('range' => array('min' => 3, 'max' => 50000));
 $GLOBALS['dataTool']['Accounts']['website'] = array('value' => "'www.example.com'");
