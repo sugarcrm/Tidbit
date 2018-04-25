@@ -118,7 +118,7 @@ class Relationships
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
                 $relIntervalID = (!empty($relationship['random_id']))
                     ? $this->coreIntervals->getRandomInterval($relModule)
-                    : $this->getRelatedLinkId($count, $module, $relModule);
+                    : $this->coreIntervals->getRelatedId($count, $module, $relModule, $j);
 
                 $currentRelModule = $this->coreIntervals->getAlias($relModule);
                 $relId = $this->coreIntervals->assembleId($currentRelModule, $relIntervalID, false);
@@ -202,37 +202,6 @@ class Relationships
         }
 
         return $installData;
-    }
-
-    /**
-     * Get related module id for current module
-     *
-     * @param int $count
-     * @param string $module
-     * @param string $relModule
-     *
-     * @return string
-     */
-    public function getRelatedLinkId($count, $module, $relModule)
-    {
-        /* The baseModule needs to be Accounts normally
-         * but we need to keep Quotes inclusive
-         * and Teams and Users, which are above Accounts,
-         * need to have themselves as the base.
-         */
-        if ($relModule == 'Teams') {
-            $baseModule = 'Teams';
-        } elseif ($module == 'ACLRoles') {
-            $baseModule = 'ACLRoles';
-        } elseif ($module == 'Users') {
-            $baseModule = 'Users';
-        } elseif ($module == 'ProductBundles') {
-            $baseModule = 'Quotes';
-        } else {
-            $baseModule = 'Accounts';
-        }
-
-        return $this->coreIntervals->getRelatedId($count, $module, $relModule, $baseModule);
     }
 
     /**

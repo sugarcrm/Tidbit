@@ -398,7 +398,7 @@ class DataTool
         }
         if (!empty($typeData['related'])) {
             $relModule = $this->coreIntervals->getAlias($typeData['related']['module']);
-            $relUpID = $this->coreIntervals->getRelatedUpId(
+            $relUpID = $this->coreIntervals->getRelatedId(
                 $this->count,
                 $this->module,
                 $typeData['related']['module']
@@ -667,7 +667,7 @@ class DataTool
             $GLOBALS['foreignDataTools'][$module] = $rbfd;
         }
         $rbfd->clean();
-        $rbfd->count = $this->coreIntervals->getRelatedUpId($rbfd->count, $module, $module);
+        $rbfd->count = $this->coreIntervals->getRelatedId($rbfd->count, $module, $module);
 
         return $rbfd->accessLocalField($fieldName);
     }

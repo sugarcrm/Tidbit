@@ -36,7 +36,7 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Products']['account_id'] = array('related' => array('module' => 'Accounts'));
-$GLOBALS['dataTool']['Products']['contact_id'] = array('related' => array('module' => 'Contact'));
+$GLOBALS['dataTool']['Products']['contact_id'] = array('related' => array('module' => 'Contacts'));
 $GLOBALS['dataTool']['Products']['quote_id'] = array('skip' => true);
 $GLOBALS['dataTool']['Products']['tax_class'] = array('skip' => true);
 $GLOBALS['dataTool']['Products']['support_term'] = array('skip' => true);

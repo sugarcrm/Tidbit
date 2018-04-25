@@ -138,34 +138,6 @@ class IntervalsTest extends TidbitTestCase
     }
 
     /**
-     * @covers Sugarcrm\Tidbit\Core\Intervals::getRelatedId
-     * @dataProvider dataTestGetRelatedIdProvider
-     *
-     * @param integer $counter
-     * @param array $counters
-     * @param string $curModule
-     * @param string $relModule
-     * @param integer $expected
-     */
-    public function testGetRelatedIdRelAndBaseAreTheSame($counter, $counters, $curModule, $relModule, $expected)
-    {
-        $GLOBALS['modules'] = array(
-            'Contacts' => 100,
-            'Accounts' => 10
-        );
-
-        $instance = new Intervals($this->getConfig());
-
-        $instance->counters = $counters;
-
-        $actual = $instance->getRelatedId($counter, $curModule, $relModule, $relModule);
-
-        $this->assertEquals($expected, $actual);
-        $this->assertArrayHasKey($curModule . $relModule, $instance->counters);
-        $this->assertEquals($counters[$curModule . $relModule] + 1, $instance->counters[$curModule . $relModule]);
-    }
-
-    /**
      * @see testGetRelatedIdRelAndBaseAreTheSame
      * @return array
      */
@@ -201,98 +173,6 @@ class IntervalsTest extends TidbitTestCase
                 9
             ),
         );
-    }
-
-    /**
-     * @covers Sugarcrm\Tidbit\Core\Intervals::getRelatedId
-     * @dataProvider dataTestGetRelatedIdProviderDiffBase
-     *
-     * @param integer $counter
-     * @param array $counters
-     * @param string $curModule
-     * @param string $relModule
-     * @param string $baseModule
-     * @param integer $expected
-     */
-    public function testGetRelatedIdDiffBase($counter, $counters, $curModule, $relModule, $baseModule, $expected)
-    {
-        $GLOBALS['modules'] = array(
-            'Calls'    => 1000,
-            'Contacts' => 400,
-            'Accounts' => 100
-        );
-
-        $instance = new Intervals($this->getConfig());
-
-        $instance->counters = $counters;
-
-        $actual = $instance->getRelatedId($counter, $curModule, $relModule, $baseModule);
-
-        $this->assertEquals($expected, $actual);
-        $this->assertArrayHasKey($curModule . $relModule, $instance->counters);
-        $this->assertEquals($counters[$curModule . $relModule] + 1, $instance->counters[$curModule . $relModule]);
-    }
-
-    /**
-     * @see testGetRelatedIdDiffBase
-     * @return array
-     */
-    public function dataTestGetRelatedIdProviderDiffBase()
-    {
-        return array(
-            array( // Initial values
-                0,
-                array('CallsContacts' => 0),
-                'Calls',
-                'Contacts',
-                'Accounts',
-                0
-            ),
-            array(
-                105,
-                array('CallsContacts' => 105),
-                'Calls',
-                'Contacts',
-                'Accounts',
-                41
-            ),
-        );
-    }
-
-    /**
-     * @covers Sugarcrm\Tidbit\Core\Intervals::generateRelatedTidbitID
-     * @dataProvider dataTestGenerateRelatedTidbitIDProvider
-     *
-     * @param int $counter
-     * @param string $curModule
-     * @param string $relModule
-     * @param string $expected
-     */
-    public function testGenerateRelatedTidbitID($counter, $curModule, $relModule, $expected)
-    {
-        $GLOBALS['baseTime'] = '1000';
-
-        $GLOBALS['aliases'] = array(
-            'EmailAddresses' => 'Emadd',
-            'ProductBundles' => 'Prodb',
-            'Opportunities'  => 'Oppty',
-        );
-
-        $GLOBALS['modules'] = array(
-            'Calls'          => 1000,
-            'Contacts'       => 400,
-            'Accounts'       => 100,
-            'Users'          => 20,
-            'Teams'          => 40,
-            'LongNameModule' => 1000,
-        );
-
-        $instance = new Intervals($this->getConfig());
-        $instance->counters[$curModule . $relModule] = $counter;
-        $actual = $instance->generateRelatedTidbitID($counter, $curModule, $relModule);
-
-        $this->assertIsQuoted($actual);
-        $this->assertEquals($expected, $this->removeQuotes($actual));
     }
 
     /**

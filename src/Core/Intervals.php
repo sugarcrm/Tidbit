@@ -21,9 +21,6 @@ class Intervals
     /** Indicates how many chars from beginning and end of module name */
     const MODULE_NAME_PART = 5;
 
-    /** @var array counters array */
-    public $counters = array();
-
     /** @var array cache for Rel Modules IDs */
     public $assembleIdCache = array();
 
@@ -59,10 +56,10 @@ class Intervals
             // example seed-Calls146161708310000
             $id = sprintf("'%s-%s%s'", static::PREFIX, $currentModule, substr(md5($id), 0, -($moduleLength + 1)));
         }
-        
+
         return $id;
     }
-    
+
     /**
      * Generate Tidbit like related ID $relModule
      *
@@ -73,7 +70,7 @@ class Intervals
      */
     public function generateRelatedTidbitID($counter, $curModule, $relModule)
     {
-        $relUpID   = $this->getRelatedUpId($counter, $curModule, $relModule);
+        $relUpID   = $this->getRelatedId($counter, $curModule, $relModule);
         $relModule = $this->getAlias($relModule);
         $relatedId = $this->assembleId($relModule, $relUpID);
 
@@ -108,69 +105,20 @@ class Intervals
     }
 
     /**
-     * Generate a 'parent' id for use
-     * by handleType:'parent'
+     * Calculate a 'related' id
      *
      * @param int $counter
      * @param string $curModule
      * @param string $relModule
-     *
-     * @return string
-     */
-    public function getRelatedUpId($counter, $curModule, $relModule)
-    {
-        /* The relModule that we point up to should be the base */
-        return $this->getRelatedId($counter, $curModule, $relModule, $relModule);
-    }
-
-    /**
-     * Generate a 'related' id for use
-     * by handleType:'related' and 'generateRelationships'
-     *
-     * @param int $counter
-     * @param string $curModule
-     * @param string $relModule
-     * @param string $baseModule
+     * @param int $shift
      *
      * @return integer
      */
-    public function getRelatedId($counter, $curModule, $relModule, $baseModule)
+    public function getRelatedId($counter, $curModule, $relModule, $shift = 0)
     {
-        if (empty($this->counters[$curModule . $relModule])) {
-            $this->counters[$curModule . $relModule] = 0;
-        }
-
-        $c = $this->counters[$curModule . $relModule];
-        $result = 0;
-
         $modules = $this->config->get('modules');
-
-        /*
-         * All ratios can be determined simply by looking
-         * at the relative counts in $GLOBALS['modules']
-         *
-         * Such a module must exist.
-         */
-        
-        if (!empty($modules[$relModule]) && array_key_exists($curModule, $modules)) {
-            $baseToRelatedRatio = $modules[$relModule] / $modules[$baseModule];
-            $baseToThisRatio = $modules[$curModule] / $modules[$baseModule];
-
-            /*
-             * floor($this->count/$acctToThisRatio) determines what 'group'
-             * this record is a part of.  Multiplying by $acctToRelatedRatio
-             * gives us the starting record for the group of the related type.
-             */
-            $n = floor(floor($counter / $baseToThisRatio) * $baseToRelatedRatio);
-
-            $this->counters[$curModule . $relModule]++;
-
-            /*
-             * There are $acctToRelatedRatio of the related types
-             * in the group, so we can just pick one of them.
-             */
-            $result = $n + ($c % ceil($baseToRelatedRatio));
-        }
+        $n = round($counter * $modules[$relModule] / $modules[$curModule]);
+        $result = ($n + $shift) % $modules[$relModule];
 
         return $result;
     }
