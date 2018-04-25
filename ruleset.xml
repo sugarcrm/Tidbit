@@ -8,6 +8,7 @@
     <file>./config/</file>
     <file>./tests/</file>
 
+    <exclude-pattern>./config</exclude-pattern>
     <exclude-pattern>./tests/bootstrap.php</exclude-pattern>
 
     <arg name="tab-width" value="4"/>

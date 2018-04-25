@@ -28,54 +28,6 @@ class SameTest extends TidbitTestCase
     }
 
     /**
-     * Trick: set local ref instead of remove ref by specifying the same module name
-     * Sum all remote field values and return result
-     *
-     * @covers ::handleType
-     */
-    public function testSumRefType()
-    {
-        $GLOBALS['dataTool']['Contacts']['field1'] = [];
-        $GLOBALS['dataTool']['Contacts']['field2'] = [];
-        $GLOBALS['dataTool']['Contacts']['field3'] = [];
-        $GLOBALS['dataTool']['Contacts']['field4'] = [
-            'sum_ref' => [
-                [
-                    'module' => 'Contacts',
-                    'field'  => 'field1',
-                ],
-                [
-                    'module' => 'Contacts',
-                    'field'  => 'field2',
-                ],
-                [
-                    'module' => 'Contacts',
-                    'field'  => 'field3',
-                ],
-            ]
-        ];
-        $this->dataTool->module = 'Contacts';
-
-        $this->dataTool->setFields([
-            'field1' => ['type' => 'int'],
-            'field2' => ['type' => 'int'],
-            'field3' => ['type' => 'int'],
-            'field4' => ['type' => 'int'],
-        ]);
-
-        $this->dataTool->installData = [
-            'field1' => 10,
-            'field2' => 20,
-            'field3' => 33,
-        ];
-
-        $this->dataTool->generateData();
-        $actual = $this->dataTool->installData['field4'];
-
-        $this->assertEquals(63, $actual);
-    }
-
-    /**
      * @covers ::handleType
      */
     public function testSameType()
