@@ -61,7 +61,6 @@ echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
-echo "With ActivityStream Populating Mode " . (isset($GLOBALS['as_populate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
 echo "With Team-based Restriction Level " .
     (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
@@ -96,18 +95,6 @@ $obliterated = array();
 $relationStorageBuffers = array();
 
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
-$activityGenerator = new \Sugarcrm\Tidbit\Generator\Activity(
-    $GLOBALS['db'],
-    $storageAdapter,
-    $activityStreamOptions['insertion_buffer_size'],
-    $activityStreamOptions['activities_per_module_record'],
-    $activityStreamOptions['last_n_records']
-);
-$activityGenerator->setActivityModulesBlackList($activityModulesBlackList);
-if (isset($GLOBALS['obliterate'])) {
-    echo "Obliterating activities ... \n";
-    $activityGenerator->obliterateActivities();
-}
 
 foreach ($module_keys as $module) {
     $moduleTimeStart = microtime();
@@ -150,15 +137,6 @@ foreach ($module_keys as $module) {
             echo "DONE";
         }
 
-        if (!empty($GLOBALS['as_populate'])) {
-            $generator->setActivityStreamGenerator($activityGenerator);
-            $activityBean = $generator->getActivityBean();
-            if ($activityBean && $activityGenerator->willGenerateActivity($activityBean)) {
-                echo "\n\tWill create " . $activityGenerator->calculateActivitiesToCreate($modules[$module])
-                    . " activity records";
-            }
-        }
-
         echo "\n\tHitting DB... ";
         $generator->generate();
         $total = $generator->getInsertCounter();
@@ -174,7 +152,7 @@ foreach ($module_keys as $module) {
     if (!class_exists($generatorClass)) {
         $generatorClass = \Sugarcrm\Tidbit\Generator\ModuleGenerator::class;
     }
-    $g = new $generatorClass($bean, $activityGenerator);
+    $g = new $generatorClass($bean);
     if (isset($tidbit_relationships[$module])) {
         foreach ($tidbit_relationships[$module] as $relationship) {
             if (!isset($relationship['type'])) {
@@ -207,7 +185,7 @@ foreach ($module_keys as $module) {
             $g = $d;
         }
     }
-    $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean, $activityGenerator);
+    $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean);
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
@@ -219,10 +197,6 @@ foreach ($module_keys as $module) {
         echo "DONE\n";
     }
 
-    if (!empty($GLOBALS['as_populate']) && $activityGenerator->willGenerateActivity($bean)) {
-        echo "\tWill create " . $activityGenerator->calculateActivitiesToCreate($total) . " activity records\n";
-    }
-
     $c->generate($total);
     echo "\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
 }
@@ -230,23 +204,10 @@ foreach ($module_keys as $module) {
 // Update enabled Modules Tabs
 \Sugarcrm\Tidbit\Helper\ModuleTabs::updateEnabledTabs($GLOBALS['db'], $module_keys, $GLOBALS['moduleList']);
 
-// force immediately destructors work
-$totalInsertedActivities = $activityGenerator->getInsertedActivitiesCount();
-unset($activityGenerator);
-
 echo "\n";
 echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
 echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
-
-if (!empty($GLOBALS['as_populate'])) {
-    echo "Activities: \n";
-    echo " - user activities per module record: " . $activityStreamOptions['activities_per_module_record'] . "\n";
-    echo " - users: " . $modules['Users'] . "\n";
-    echo " - max number of records for each module: " .
-        ($activityStreamOptions['last_n_records'] ? $activityStreamOptions['last_n_records'] : 'all') . "\n";
-    echo " - total records inserted: " . $totalInsertedActivities . "\n";
-}
 
 if ($storageType == 'csv') {
     // Save table-dictionaries

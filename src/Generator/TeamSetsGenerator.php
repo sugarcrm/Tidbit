@@ -40,9 +40,9 @@ class TeamSetsGenerator extends ModuleGenerator
 {
     protected $teamSetCore;
 
-    public function __construct(\SugarBean $bean, Activity $activityGenerator)
+    public function __construct(\SugarBean $bean)
     {
-        parent::__construct($bean, $activityGenerator);
+        parent::__construct($bean);
         $this->teamSetCore = new TeamSetCore();
     }
 
