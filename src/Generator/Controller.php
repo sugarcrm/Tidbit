@@ -54,18 +54,10 @@ class Controller
      */
     protected $bean;
 
-    /**
-     * Activity Generator
-     *
-     * @var Activity
-     */
-    protected $activityGenerator;
-
-    public function __construct(Generator $g, \SugarBean $bean, Activity $activity)
+    public function __construct(Generator $g, \SugarBean $bean)
     {
         $this->g = $g;
         $this->bean = $bean;
-        $this->activityGenerator = $activity;
     }
 
     public function generate($total)
@@ -100,12 +92,6 @@ class Controller
         }
 
         showProgress($total, $total);
-
-        if ($this->bean->getModuleName() == 'Users') {
-            if (!empty($GLOBALS['as_populate'])) {
-                $this->activityGenerator->setUserIds($generatedIds);
-            }
-        }
 
         // Apply TBA Rules for some modules
         // $roleActions are defined in configs

@@ -54,9 +54,7 @@ class ModuleGenerator implements Generator
      */
     protected $dTool;
 
-    protected $activityGenerator;
-
-    public function __construct(\SugarBean $bean, Activity $activityGenerator)
+    public function __construct(\SugarBean $bean)
     {
         $this->bean = $bean;
         $dTool = new DataTool($GLOBALS['storageType']);
@@ -64,7 +62,6 @@ class ModuleGenerator implements Generator
         $dTool->module = $bean->getModuleName();
         $dTool->setFields($bean->field_defs);
         $this->dTool = $dTool;
-        $this->activityGenerator = $activityGenerator;
     }
 
     public function obliterate()
@@ -165,14 +162,6 @@ class ModuleGenerator implements Generator
             $result['data'][$table] = $rows;
         }
         $relationships->clearRelatedModules();
-
-        if (!empty($GLOBALS['as_populate']) && (
-            empty($GLOBALS['activityStreamOptions']['last_n_records'])
-            || $total < $GLOBALS['activityStreamOptions']['last_n_records']
-            || $i >= $total - $GLOBALS['activityStreamOptions']['last_n_records']
-        )) {
-            $this->activityGenerator->createActivityForRecord($dTool, $this->bean);
-        }
 
         return $result;
     }

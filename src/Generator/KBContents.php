@@ -102,8 +102,6 @@ class KBContents extends Common
             $this->kbNumberOfArticlesWithRevision = $kbNumberOfArticlesWithRevision;
         }
 
-        $this->activityBean = \BeanFactory::getBean('KBContents');
-
         parent::__construct($db, $storageAdapter, $recordsNumber);
     }
 

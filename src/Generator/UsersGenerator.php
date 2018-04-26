@@ -41,9 +41,9 @@ class UsersGenerator extends ModuleGenerator
     protected $defaultPrefs;
     protected $currentDateTime;
 
-    public function __construct(\SugarBean $bean, Activity $activityGenerator)
+    public function __construct(\SugarBean $bean)
     {
-        parent::__construct($bean, $activityGenerator);
+        parent::__construct($bean);
         $contents = [
             'timezone' => "America/Phoenix",
             'ut' => 1,

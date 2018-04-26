@@ -83,19 +83,6 @@ Options
                         are already configured, those configurations are not
                         overridden but only appended-to.
 
-    --as_populate       Whether to generate ActivityStream records.
-
-    --as_last_rec <N>   Works with "--as_populate" key only. Populate last N
-                        records of each module (default: all available).
-
-    --as_number <N>     Works with "--as_populate" key only. Number of
-                        ActivityStream records for each module record
-                        (default 10).
-
-    --as_buffer <N>     Works with "--as_populate" key only. Size of
-                        ActivityStream insertion buffer (by default equals to
-                        insert_batch_size).
-
     --storage name      Database Type.  Tidbit will try to auto-detect your
                         database based on your sugar configuration, otherwise
                         you can specify the storage type with one of the
@@ -158,12 +145,8 @@ $opts = getopt(
         'tba',
         'allmodules',
         'allrelationships',
-        'as_populate',
-        'as_number:',
-        'as_buffer:',
         'storage:',
         'sugar_path:',
-        'as_last_rec:',
         'insert_batch_size:',
         'profile:',
         'base_time:'
@@ -306,7 +289,6 @@ if (isset($opts['allrelationships'])) {
 
 $GLOBALS['modules'] = $modules;
 $GLOBALS['startTime'] = microtime();
-$GLOBALS['totalRecords'] = 0;
 
 $insertBatchSize = 20;
 if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
@@ -373,19 +355,6 @@ if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
         : $tbaRestrictionLevelDefault;
 }
 
-if (isset($opts['as_populate'])) {
-    $GLOBALS['as_populate'] = true;
-    if (isset($opts['as_number'])) {
-        $GLOBALS['as_number'] = $opts['as_number'];
-    }
-    if (isset($opts['as_buffer'])) {
-        $GLOBALS['as_buffer'] = $opts['as_buffer'];
-    }
-    if (isset($opts['as_last_rec'])) {
-        $GLOBALS['as_last_rec'] = $opts['as_last_rec'];
-    }
-}
-
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
 if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
     echo "Knowledge Base Tidbit Data population is available only for 7.7.0.0 and newer versions of SugarCRM\n";
@@ -394,13 +363,3 @@ if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['s
     unset($modules['Categories']);
     unset($modules['KBContents']);
 }
-
-foreach ($modules as $records) {
-    $GLOBALS['totalRecords'] += $records;
-}
-
-$activityStreamOptions = array(
-    'activities_per_module_record' => !empty($GLOBALS['as_number']) ? $GLOBALS['as_number'] : 10,
-    'insertion_buffer_size' => !empty($GLOBALS['as_buffer']) ? $GLOBALS['as_buffer'] : $GLOBALS['insertBatchSize'],
-    'last_n_records' => !empty($GLOBALS['as_last_rec']) ? $GLOBALS['as_last_rec'] : 0,
-);
