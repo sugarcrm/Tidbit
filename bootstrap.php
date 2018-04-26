@@ -125,9 +125,6 @@ Options
     --insert_batch_size Number of VALUES to be added to one INSERT statement
                         for bean data. Defaults to 20.
 
-    --with-tags         Turn on Tags and Tags Relations generation. If you do
-                        not specify this option, default will be false.
-
     --profile           Name of file in folder config/profiles (without .php)
                         or path to php-config-file with profile data. File can
                         contain php-arrays
@@ -159,7 +156,6 @@ $opts = getopt(
     array(
         'tba_level:',
         'tba',
-        'with-tags',
         'allmodules',
         'allrelationships',
         'as_populate',
@@ -388,11 +384,6 @@ if (isset($opts['as_populate'])) {
     if (isset($opts['as_last_rec'])) {
         $GLOBALS['as_last_rec'] = $opts['as_last_rec'];
     }
-}
-
-// Remove Tags module, if it's not turned in CLI options
-if (!isset($opts['with-tags'])) {
-    unset($modules['Tags']);
 }
 
 // Do not populate KBContent and KBCategories for versions less that 7.7.0.0
