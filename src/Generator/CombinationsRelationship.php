@@ -78,7 +78,7 @@ class CombinationsRelationship extends Decorator
         $table = $this->config['table'];
         foreach ($relatedNs as $relatedN) {
             $data['data'][$table][] = [
-                'id' => "'" . $this->relationships->generateRelID($table) . "'",
+                'id' => "'" . $this->relationships->generateRelID($selfModule, $n, $youModule, $relatedN, 0, 0) . "'",
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
                 'deleted' => 0,
