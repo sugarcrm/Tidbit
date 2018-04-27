@@ -179,7 +179,6 @@ foreach ($module_keys as $module) {
         }
     }
     if ($bean->isFavoritesEnabled()) {
-        echo $bean->getModuleName();
         $d = new Sugarcrm\Tidbit\Generator\FavoritesDecorator($g);
         if ($d->isUsefull()) {
             $g = $d;

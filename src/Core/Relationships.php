@@ -13,10 +13,7 @@ use Sugarcrm\Tidbit\DataTool;
  */
 class Relationships
 {
-    const PREFIX = 'seed-rel';
-
-    /** @var array relationships counters */
-    public $relationshipCounters = array();
+    const PREFIX = 'seed-r';
 
     /** @var Config */
     protected $config;
@@ -62,14 +59,25 @@ class Relationships
      * @param $relTable
      * @return string
      */
-    public function generateRelID($relTable)
+    public function generateRelID($module, $count, $relModule, $relIntervalID, $shift, $multiply)
     {
-        $this->relationshipCounters[$relTable] = isset($this->relationshipCounters[$relTable]) ?
-            $this->relationshipCounters[$relTable] + 1 :
-            1
-        ;
+        static $modules;
+        if (!$modules) {
+            $modules = array_flip(array_keys($this->config->get('modules')));
+        }
 
-        return sprintf('%s-%d%d', static::PREFIX, $GLOBALS['baseTime'], $this->relationshipCounters[$relTable]);
+        $bin = $suffix = \pack(
+            "CLCLCC",
+            $modules[$module],
+            $count,
+            $modules[$relModule],
+            $relIntervalID,
+            $shift,
+            $multiply
+        );
+        $suffix = \bin2hex($suffix);
+
+        return static::PREFIX . $suffix;
     }
 
     /**
@@ -100,7 +108,7 @@ class Relationships
 
             // TODO: remove this check or replace with something else
             if (!is_dir('modules/' . $relModule)) {
-                continue;
+                throw new Exception("Unknown module $relModule");
             }
 
             $modules = $this->config->get('modules');
@@ -116,22 +124,34 @@ class Relationships
              * through $relationship['table']
              */
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
-                $relIntervalID = (!empty($relationship['random_id']))
-                    ? $this->coreIntervals->getRandomInterval($relModule)
-                    : $this->coreIntervals->getRelatedId($count, $module, $relModule, $j);
-
-                $currentRelModule = $this->coreIntervals->getAlias($relModule);
-                $relId = $this->coreIntervals->assembleId($currentRelModule, $relIntervalID, false);
-
                 $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
-                    $data = $this->getRelationshipInstallData($relationship, $module, $count, $baseId, $relId);
-                    $this->relatedModules[$relationship['table']][] = $data;
-                }
+                    $youN = $this->coreIntervals->getRelatedId($count, $module, $relModule, $j);
+                    $youAlias = $this->coreIntervals->getAlias($relModule);
+                    $youID = $this->coreIntervals->assembleId($youAlias, $youN, false);
 
-                $GLOBALS['allProcessedRecords']++;
+                    $dataTool = $this->getDataTool($module, $count);
+                    $date = $dataTool->getConvertDatetime();
+                    $relID = $this->generateRelID($module, $count, $relModule, $youN, $j, $multiply);
+                    $installData = [
+                        'id'                  => "'" . $relID . "'",
+                        $relationship['self'] => "'" . $baseId . "'",
+                        $relationship['you']  => "'" . $youID . "'",
+                        'deleted'             => 0,
+                        'date_modified'       => $date,
+                    ];
+
+                    $relationTable = $relationship['table'];
+                    if (!empty($GLOBALS['dataTool'][$relationTable])) {
+                        foreach ($GLOBALS['dataTool'][$relationTable] as $field => $typeData) {
+                            $installData[$field] = $dataTool->handleType($typeData, '', $field);
+                        }
+                    }
+
+                    $this->relatedModules[$relationTable][] = $installData;
+                }
 
                 $relQueryCount++;
             }
@@ -165,43 +185,6 @@ class Relationships
         }
 
         return $thisToRelatedRatio;
-    }
-
-    /**
-     * Generate relationship data to insert
-     *
-     * TODO: remove $GLOBALS
-     *
-     * @param array $relationship
-     * @param string $module
-     * @param int $count
-     * @param string $baseId
-     * @param string $relId
-     * @return array
-     */
-    protected function getRelationshipInstallData(array $relationship, $module, $count, $baseId, $relId)
-    {
-        $relationTable = $relationship['table'];
-
-        $dataTool = $this->getDataTool($module, $count);
-
-        $date = $dataTool->getConvertDatetime();
-
-        $installData = array(
-            'id'                  => "'" . $this->generateRelID($relationTable) . "'",
-            $relationship['self'] => "'" . $baseId . "'",
-            $relationship['you']  => "'" . $relId . "'",
-            'deleted'             => 0,
-            'date_modified'       => $date,
-        );
-
-        if (!empty($GLOBALS['dataTool'][$relationTable])) {
-            foreach ($GLOBALS['dataTool'][$relationTable] as $field => $typeData) {
-                $installData[$field] = $dataTool->handleType($typeData, '', $field);
-            }
-        }
-
-        return $installData;
     }
 
     /**
