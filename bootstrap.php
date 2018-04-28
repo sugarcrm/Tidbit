@@ -125,6 +125,8 @@ Options
                         current timestamp. When provided also used as a seed
                         for Random Number Generator.
 
+    --parallel          Parallel the data generation into n threads.
+
     "Powered by SugarCRM"
 EOS;
 
@@ -140,7 +142,7 @@ if (!function_exists('getopt')) {
 
 $opts = getopt(
     'l:u:s:x:cohv',
-    array(
+    [
         'tba_level:',
         'tba',
         'allmodules',
@@ -149,8 +151,9 @@ $opts = getopt(
         'sugar_path:',
         'insert_batch_size:',
         'profile:',
-        'base_time:'
-    )
+        'base_time:',
+        'parallel:',
+    ]
 );
 
 if ($opts === false) {
@@ -362,4 +365,9 @@ if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['s
 
     unset($modules['Categories']);
     unset($modules['KBContents']);
+}
+
+$GLOBALS['parallel'] = false;
+if (isset($opts['parallel'])) {
+    $GLOBALS['parallel'] = (int) $opts['parallel'];
 }
