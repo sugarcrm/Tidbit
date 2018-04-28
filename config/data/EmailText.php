@@ -41,6 +41,6 @@ $GLOBALS['dataTool']['EmailText']['reply_to_addr'] = array('value' => null);
 $GLOBALS['dataTool']['EmailText']['to_addrs'] = array('list' => 'last_name_array', 'suffix' => "@example.com");
 $GLOBALS['dataTool']['EmailText']['cc_addrs'] = array('value' => null);
 $GLOBALS['dataTool']['EmailText']['bcc_addrs'] = array('value' => null);
-// $GLOBALS['dataTool']['EmailText']['description'] = array('gibberish' => -1);
+$GLOBALS['dataTool']['EmailText']['description'] = array('gibberish' => -1);
 $GLOBALS['dataTool']['EmailText']['description_html'] = array('value' => null);
 $GLOBALS['dataTool']['EmailText']['raw_source'] = array('value' => null);
