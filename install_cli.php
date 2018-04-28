@@ -184,7 +184,11 @@ foreach ($module_keys as $module) {
             $g = $d;
         }
     }
-    $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean);
+    if ($GLOBALS['parallel']) {
+        $c = new \Sugarcrm\Tidbit\Generator\ForkingController($g, $bean, $GLOBALS['parallel']);
+    } else {
+        $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean);
+    }
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";
