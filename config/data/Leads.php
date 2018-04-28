@@ -55,7 +55,7 @@ $GLOBALS['dataTool']['Leads']['primary_address_country'] = array('value' => "'US
 $GLOBALS['dataTool']['Leads']['alt_address_country'] = array('value' => "'USA'");
 $GLOBALS['dataTool']['Leads']['account_id'] = array('related' => array('module' => 'Accounts'));
 $GLOBALS['dataTool']['Leads']['contact_id'] = array('related' => array('module' => 'Contacts'));
-$GLOBALS['dataTool']['Leads']['lead_source_description'] = array('gibberish' => 8);
+// $GLOBALS['dataTool']['Leads']['lead_source_description'] = array('gibberish' => 8);
 $GLOBALS['dataTool']['Leads']['phone_fax'] = array('phone' => true);
 $GLOBALS['dataTool']['Leads']['phone_work'] = array('phone' => true);
 $GLOBALS['dataTool']['Leads']['phone_other'] = array('phone' => true);

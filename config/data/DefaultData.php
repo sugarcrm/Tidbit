@@ -46,7 +46,8 @@ $GLOBALS['dataTool']['default']['decimal'] = array('range' => array('min' => 0, 
 $GLOBALS['dataTool']['default']['decimal2'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 4.3);
 $GLOBALS['dataTool']['default']['short'] = array('range' => array('min' => 0, 'max' => 10));
 $GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
-$GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
+// $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
+$GLOBALS['dataTool']['default']['text'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['date'] = array(
     'range' => array('min' => -30, 'max' => 30),
     'type' => 'date',
