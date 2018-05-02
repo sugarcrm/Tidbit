@@ -37,6 +37,7 @@
 namespace Sugarcrm\Tidbit\Generator;
 
 use Sugarcrm\Tidbit\InsertBuffer;
+use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
 
 class ForkingController
 {
@@ -81,7 +82,10 @@ class ForkingController
             } else {
                 $GLOBALS['db']->connect();
                 $chunk = round($total / $this->threads);
-                $this->doGenerate($i * $chunk, ($i + 1) * $chunk, $i);
+                if ($GLOBALS['storageAdapter'] instanceof Csv) {
+                    $GLOBALS['storageAdapter']->setFilenameSuffix('.'.($i + 1));
+                }
+                $this->doGenerate($i * $chunk, min(($i + 1) * $chunk, $total), $i);
                 exit(0);
             }
         }
