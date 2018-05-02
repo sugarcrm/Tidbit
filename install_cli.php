@@ -212,11 +212,4 @@ echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";
 echo "Total Records Inserted: " . $GLOBALS['allProcessedRecords'] . "\n";
 
-if ($storageType == 'csv') {
-    // Save table-dictionaries
-    $converter = new \Sugarcrm\Tidbit\CsvConverter($GLOBALS['db'], $storageAdapter);
-    $converter->convert('config');
-    $converter->convert('acl_actions');
-}
-
 echo "Done\n";

@@ -46,6 +46,26 @@ class Csv extends Common
      */
     const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
 
+    protected $filenameSuffix = '';
+
+    public function __construct($storageResource, $logQueryPath = '')
+    {
+        parent::__construct($storageResource, $logQueryPath);
+        if (!$this->storageResource
+            || !is_string($this->storageResource)
+            || !file_exists($this->storageResource)
+        ) {
+            throw new Exception(
+                "For csv generation storageResource must be string with path to saving directory"
+            );
+        }
+    }
+
+    public function setFilenameSuffix($suffix)
+    {
+        $this->filenameSuffix = $suffix;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -56,7 +76,7 @@ class Csv extends Common
             throw new Exception("Csv adapter error: wrong data to save");
         }
 
-        $fileName = $this->getCurrentFilePathName($tableName);
+        $fileName = $this->getFileName($tableName);
         $needHeader = !file_exists($fileName);
         $storeFile = fopen($fileName, 'a');
 
@@ -99,17 +119,9 @@ class Csv extends Common
      * @return string
      * @throws \Sugarcrm\Tidbit\Exception
      */
-    protected function getCurrentFilePathName($tableName)
+    protected function getFileName($tableName)
     {
-        if (!$this->storageResource
-            || !is_string($this->storageResource)
-            || !file_exists($this->storageResource)
-        ) {
-            throw new Exception(
-                "For csv generation storageResource must be string with path to saving directory"
-            );
-        }
-        return $this->storageResource . '/' . $tableName . '.csv';
+        return $this->storageResource . '/' . $tableName . $this->filenameSuffix . '.csv';
     }
 
     /**
