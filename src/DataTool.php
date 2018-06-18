@@ -301,14 +301,7 @@ class DataTool
          * user1, user2 etc.
          */
         if (!empty($typeData['incname'])) {
-            static $ninc = 0;
-
-            if ($resetStatic) {
-                $ninc = 0;
-            }
-
-            $ninc++;
-            return "'" . @trim($typeData['incname'] . $ninc) . "'";
+            return "'" . @trim($typeData['incname'] . $this->count) . "'";
         }
 
         if (!empty($typeData['autoincrement'])) {
@@ -476,7 +469,7 @@ class DataTool
                 $isQuote = false;
             }
         } elseif (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
-            $selected = mt_rand(0, count($GLOBALS[$typeData['list']]) - 1);
+            $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$typeData['list']]);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
 
@@ -508,10 +501,8 @@ class DataTool
 
         if (!empty($typeData['suffixlist'])) {
             foreach ($typeData['suffixlist'] as $suffixlist) {
-                if (!empty($GLOBALS[$suffixlist])) {
-                    $selected = mt_rand(0, count($GLOBALS[$suffixlist]) - 1);
-                    $baseValue .= ' ' . $GLOBALS[$suffixlist][$selected];
-                }
+                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$suffixlist]);
+                $baseValue .= ' ' . $GLOBALS[$suffixlist][$selected];
             }
         } elseif ($type == 'enum') {
             if (!empty($GLOBALS['fieldData']['options'])
@@ -532,10 +523,8 @@ class DataTool
         }
         if (!empty($typeData['prefixlist'])) {
             foreach ($typeData['prefixlist'] as $prefixlist) {
-                if (!empty($GLOBALS[$prefixlist])) {
-                    $selected = mt_rand(0, count($GLOBALS[$prefixlist]) - 1);
-                    $baseValue = $GLOBALS[$prefixlist][$selected] . ' ' . $baseValue;
-                }
+                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$prefixlist]);
+                $baseValue = $GLOBALS[$prefixlist][$selected] . ' ' . $baseValue;
             }
         }
 

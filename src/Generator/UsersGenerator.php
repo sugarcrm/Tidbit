@@ -36,10 +36,13 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use \Sugarcrm\Tidbit\Core\Factory;
+
 class UsersGenerator extends ModuleGenerator
 {
     protected $defaultPrefs;
     protected $currentDateTime;
+    protected $idGenerator;
 
     public function __construct(\SugarBean $bean)
     {
@@ -52,6 +55,7 @@ class UsersGenerator extends ModuleGenerator
         ];
         $this->defaultPrefs = "'" . base64_encode(serialize($contents)) . "'";
         $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+        $this->idGenerator = Factory::getComponent('intervals');
     }
 
     protected function getDeleteWhereCondition()
@@ -71,12 +75,16 @@ class UsersGenerator extends ModuleGenerator
             ? 'ALTER TABLE user_preferences ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE'
             : $GLOBALS['db']->truncateTableSQL('user_preferences');
         $GLOBALS['db']->query($query, true);
+        $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
     }
 
     public function clean()
     {
         parent::clean();
         $GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'", true);
+        $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
     }
 
     public function generateRecord($n)
@@ -91,6 +99,32 @@ class UsersGenerator extends ModuleGenerator
             'date_modified' => $this->currentDateTime,
             'assigned_user_id' => "'" . $userID . "'",
             'contents' => $this->defaultPrefs,
+        ];
+
+        $privateTeamID = $this->idGenerator->generateTidbitID($n, 'TeamsPr');
+        $userData = $data['data']['users'][0];
+        $fullName = sprintf("'%s %s'", trim($userData['first_name'], "'"), trim($userData['last_name'], "'"));
+        $description = sprintf("'Private team for %s'", trim($userData['user_name'], "'"));
+
+        $data['data']['teams'][] = [
+            'id' => $privateTeamID,
+            'name' => $fullName,
+            'date_entered' => $this->currentDateTime,
+            'date_modified' => $this->currentDateTime,
+            'modified_user_id' => "'1'",
+            'created_by' => "'1'",
+            'description' => $description,
+            'deleted' => 0,
+            'associated_user_id' => "'$userID'",
+            'private' => 1,
+        ];
+
+        $data['data']['team_memberships'][] = [
+            'id' => $privateTeamID,
+            'user_id' => "'$userID'",
+            'team_id' => $privateTeamID,
+            'deleted' => 0,
+            'date_modified' => $this->currentDateTime,
         ];
 
         return $data;

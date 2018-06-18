@@ -119,7 +119,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testSuffixListType()
     {
-        $type = array('suffixlist' => array('suf1', 'suf2', 'suf3_not_exists'));
+        $type = array('suffixlist' => array('suf1', 'suf2'));
 
         $GLOBALS['suf1'] = array('suf1value');
         $GLOBALS['suf2'] = array('suf2value');
@@ -135,7 +135,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testPrefixListType()
     {
-        $type = array('prefixlist' => array('pref1', 'pref2', 'pref3_not_exists'));
+        $type = array('prefixlist' => array('pref1', 'pref2'));
 
         $GLOBALS['pref1'] = array('pref1value');
         $GLOBALS['pref2'] = array('pref2value');
