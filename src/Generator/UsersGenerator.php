@@ -115,6 +115,7 @@ class UsersGenerator extends ModuleGenerator
             'created_by' => "'1'",
             'description' => $description,
             'deleted' => 0,
+            'name_2' => "''",
             'associated_user_id' => "'$userID'",
             'private' => 1,
         ];
