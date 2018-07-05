@@ -35,3 +35,5 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Teams']['private'] = ['value' => 0];
+$GLOBALS['dataTool']['Teams']['name'] = ['incname' => 'Team'];
+$GLOBALS['dataTool']['Teams']['name_2'] = ['value' => "''"];
