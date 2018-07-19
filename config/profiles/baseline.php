@@ -23,8 +23,8 @@ $modules = array(
     'Tasks' => 430000,
     'Notes' => 300000,
     'Documents' => 2000,
-    'Categories' => 5,
-    'KBContents' => 10,
+    'Categories' => 500,
+    'KBContents' => 10000,
     'Reports' => 1000,
 );
 
