@@ -12,12 +12,6 @@ $GLOBALS['dataTool']['RevenueLineItems']['account_id'] = [
     ]
 ];
 
-$GLOBALS['dataTool']['RevenueLineItems']['account_id'] = [
-    'related' => [
-        'module' => 'Accounts',
-    ]
-];
-
 $GLOBALS['dataTool']['RevenueLineItems']['product_template_id'] = [
     'related' => [
         'module' => 'ProductTemplates',
