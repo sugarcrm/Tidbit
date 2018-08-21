@@ -25,7 +25,12 @@ $modules = array(
     'Documents' => 1000,
     'Categories' => 600,
     'KBContents' => 1000,
-    'Reports' => 1000
+    'Reports' => 1000,
+    'ProductCategories' => 100,
+    'ProductTypes' => 100,
+    'ProductTemplates' => 1000,
+    'RevenueLineItems' => 14000,
+    'Manufacturers' => 100,
 );
 
 $profile_opts = array(
