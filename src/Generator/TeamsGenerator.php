@@ -40,12 +40,12 @@ class TeamsGenerator extends ModuleGenerator
 {
     protected function getDeleteWhereCondition()
     {
-        return "`id` != '1'";
+        return "id != '1'";
     }
 
     protected function getDeleteWhereConditionCstm()
     {
-        return "`id_c` != '1'";
+        return "id_c != '1'";
     }
 
     public function obliterate()
@@ -58,7 +58,7 @@ class TeamsGenerator extends ModuleGenerator
     public function clean()
     {
         parent::clean();
-        $GLOBALS['db']->query("DELETE FROM `team_sets_teams` WHERE `id` LIKE 'seed-%'");
-        $GLOBALS['db']->query("DELETE FROM `team_sets` WHERE `id` LIKE 'seed-%'");
+        $GLOBALS['db']->query("DELETE FROM team_sets_teams WHERE id LIKE 'seed-%'");
+        $GLOBALS['db']->query("DELETE FROM team_sets WHERE id LIKE 'seed-%'");
     }
 }
