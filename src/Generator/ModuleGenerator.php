@@ -69,10 +69,10 @@ class ModuleGenerator implements Generator
         $bean = $this->bean;
         $module = $bean->getModuleName();
 
-        $query = "DELETE FROM `{$bean->getTableName()}` WHERE {$this->getDeleteWhereCondition()}";
+        $query = "DELETE FROM {$bean->getTableName()} WHERE {$this->getDeleteWhereCondition()}";
         $GLOBALS['db']->query($query, true);
         if ($bean->hasCustomFields()) {
-            $query = "DELETE FROM `{$bean->get_custom_table_name()}` WHERE {$this->getDeleteWhereConditionCstm()}";
+            $query = "DELETE FROM {$bean->get_custom_table_name()} WHERE {$this->getDeleteWhereConditionCstm()}";
             $GLOBALS['db']->query($query, true);
         }
 
@@ -85,7 +85,7 @@ class ModuleGenerator implements Generator
                 continue;
             }
             $GLOBALS['obliterated'][$rel['table']] = true;
-            $GLOBALS['db']->query("DELETE FROM `{$rel['table']}` WHERE 1 = 1", true);
+            $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE 1 = 1", true);
         }
     }
 
@@ -100,13 +100,13 @@ class ModuleGenerator implements Generator
             $idColumnName = 'email_id';
         }
 
-        $query = "DELETE FROM `{$bean->getTableName()}` "
-            . "WHERE {$this->getDeleteWhereCondition()} AND `$idColumnName` LIKE 'seed-%'";
+        $query = "DELETE FROM {$bean->getTableName()} "
+            . "WHERE {$this->getDeleteWhereCondition()} AND $idColumnName LIKE 'seed-%'";
         $GLOBALS['db']->query($query, true);
 
         if ($bean->hasCustomFields()) {
-            $query = "DELETE FROM `{$bean->get_custom_table_name()}` "
-                . "WHERE {$this->getDeleteWhereConditionCstm()} AND `{$idColumnName}_c` LIKE 'seed-%'";
+            $query = "DELETE FROM {$bean->get_custom_table_name()} "
+                . "WHERE {$this->getDeleteWhereConditionCstm()} AND {$idColumnName}_c LIKE 'seed-%'";
             $GLOBALS['db']->query($query, true);
         }
 
@@ -119,7 +119,7 @@ class ModuleGenerator implements Generator
                 continue;
             }
             $GLOBALS['obliterated'][$rel['table']] = true;
-            $GLOBALS['db']->query("DELETE FROM `{$rel['table']}` WHERE `id` LIKE 'seed-%'", true);
+            $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE id LIKE 'seed-%'", true);
         }
     }
 

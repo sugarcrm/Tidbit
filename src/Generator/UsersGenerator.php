@@ -60,12 +60,12 @@ class UsersGenerator extends ModuleGenerator
 
     protected function getDeleteWhereCondition()
     {
-        return "`id` != '1'";
+        return "id != '1'";
     }
 
     protected function getDeleteWhereConditionCstm()
     {
-        return "`id_c` != '1'";
+        return "id_c != '1'";
     }
 
     public function obliterate()
