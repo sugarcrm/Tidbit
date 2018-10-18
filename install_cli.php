@@ -74,7 +74,7 @@ if (empty($opts['storage'])) {
         case 'oci8':
             $storageType = 'oracle';
             break;
-        case 'db2':
+        case 'ibm_db2':
             $storageType = 'db2';
             break;
         default:
