@@ -71,14 +71,14 @@ class RevenueLineItemsGenerator extends ModuleGenerator
         $rliData = $data['data']['revenue_line_items'][0];
         $diff = 3 * ($n % 7 - 4);
         $rliData['date_closed'] = "'" . $this->getDateTimeByFormat(
-            trim($rliData['date_closed'], "'"),
+            trim($rliData['date_closed'], "'to_date()YMD- ,"),
             $this->dateClosedFormat
         )->modify($diff . ' months')->format($this->dateClosedFormat) . "'";
         $data['data']['revenue_line_items'][0]['date_closed'] =
             $rliData['date_closed'];
 
         $rliData['date_closed_timestamp'] = "'" . $this->getTimestampFromDateByFormat(
-            trim($rliData['date_closed'], "'"),
+            trim($rliData['date_closed'], "'to_date()YMD- ,"),
             $this->dateClosedFormat
         ) . "'";
         $data['data']['revenue_line_items'][0]['date_closed_timestamp'] =
