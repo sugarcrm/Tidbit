@@ -39,7 +39,7 @@ $modules = array(
     'Tags' => 100,
     'EmailAddresses' => 120,
     'ACLRoles' => 10,
-    'Users' => 20,
+    'Users' => 5,
     'Teams' => 6,
     'TeamSets' => 45,
     'Accounts' => 100,
@@ -60,7 +60,12 @@ $modules = array(
     'Documents' => 100,
     'Categories' => 60,
     'KBContents' => 100,
-    'Reports' => 100
+    'Reports' => 100,
+    'ProductCategories' => 10,
+    'ProductTypes' => 10,
+    'ProductTemplates' => 100,
+    'RevenueLineItems' => 1400,
+    'Manufacturers' => 10,
 );
 
 $profile_opts = array(
