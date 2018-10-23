@@ -106,10 +106,14 @@ class UsersGenerator extends ModuleGenerator
         $fullName = sprintf("'%s %s'", trim($userData['first_name'], "'"), trim($userData['last_name'], "'"));
         $description = sprintf("'Private team for %s'", trim($userData['user_name'], "'"));
 
-        $managerID = $this->idGenerator->generateTidbitID((int) ($n / 10), 'Users');
+        $managerID = $this->idGenerator->generateTidbitID(($n - ($n % 10)) + 1, 'Users');
 
         if ($n == 0) {
             $managerID = "''";
+        }
+
+        if ($n % 10 == 1) {
+            $managerID = $this->idGenerator->generateTidbitID(0, 'Users');
         }
 
         $data['data']['users'][0]['reports_to_id'] = $managerID;
