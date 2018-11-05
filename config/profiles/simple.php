@@ -33,6 +33,11 @@ $modules = array(
     'Manufacturers' => 100,
 );
 
+$aliases = [
+    'ProductTemplatesFavorites' => 'ProdTPLFav',
+    'ProductsFavorites' => 'ProdFav',
+];
+
 $profile_opts = array(
 
 );
