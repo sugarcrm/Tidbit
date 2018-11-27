@@ -50,7 +50,7 @@ class TeamSetsGenerator extends ModuleGenerator
     {
         $teams = [];
         foreach ($data['data']['team_sets_teams'] as $tst) {
-            $teams[] = $tst['team_id'];
+            $teams[] = preg_replace("~(^')|('$)~", '', $tst['team_id']);
         }
         $stats = $this->teamSetCore->getStatistics($teams);
 
