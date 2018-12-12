@@ -47,6 +47,7 @@ $modules = array(
     'ProductBundles' => 200,
     'Products' => 400,
     'Calls' => 240,
+    'Notifications' => 50,
     'Emails' => 160,
     'EmailText' => 160,
     'Contacts' => 400,

@@ -11,6 +11,7 @@ $modules = array(
     'ProductBundles' => 400000,
     'Products' => 800000,
     'Calls' => 4800000,
+    'Notifications' => 10000,
     'Emails' => 3200000,
     'EmailText' => 3200000,
     'Contacts' => 800000,
