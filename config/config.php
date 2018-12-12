@@ -418,3 +418,11 @@ $kbLanguage = array(
     ),
     'primary' => 'en',
 );
+
+$notifications_severity_list = array(
+    'alert',
+    'information',
+    'other',
+    'success',
+    'warning',
+);

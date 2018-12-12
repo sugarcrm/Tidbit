@@ -35,45 +35,10 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$modules = array(
-    'Tags' => 100,
-    'EmailAddresses' => 120,
-    'ACLRoles' => 10,
-    'Users' => 5,
-    'Teams' => 6,
-    'TeamSets' => 45,
-    'Accounts' => 100,
-    'Quotes' => 100,
-    'ProductBundles' => 200,
-    'Products' => 400,
-    'Calls' => 240,
-    'Notifications' => 50,
-    'Emails' => 160,
-    'EmailText' => 160,
-    'Contacts' => 400,
-    'Leads' => 400,
-    'Opportunities' => 200,
-    'Cases' => 400,
-    'Bugs' => 300,
-    'Meetings' => 800,
-    'Tasks' => 400,
-    'Notes' => 400,
-    'Documents' => 100,
-    'Categories' => 60,
-    'KBContents' => 100,
-    'Reports' => 100,
-    'ProductCategories' => 10,
-    'ProductTypes' => 10,
-    'ProductTemplates' => 100,
-    'RevenueLineItems' => 1400,
-    'Manufacturers' => 10,
+$GLOBALS['dataTool']['Notifications']['name'] = array(
+    'list' => 'last_name_array',
+    'prefix' => '[Tidbit] '
 );
-
-$aliases = [
-    'ProductTemplatesFavorites' => 'ProdTPLFav',
-    'ProductsFavorites' => 'ProdFav',
-];
-
-$profile_opts = array(
-
-);
+$GLOBALS['dataTool']['Notifications']['is_read'] = array('range' => array('min' => 0, 'max' => 1));
+$GLOBALS['dataTool']['Notifications']['severity'] = array('list' => 'notifications_severity_list');
+$GLOBALS['dataTool']['Notifications']['parent_type'] = array('value' => 'null');
