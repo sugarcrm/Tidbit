@@ -68,6 +68,7 @@ $modules = array(
     'RevenueLineItems' => 1400,
     'Manufacturers' => 10,
 );
+$tidbit_relationships['TeamSets']['Teams']['degree'] = 5;
 
 $aliases = [
     'ProductTemplatesFavorites' => 'ProdTPLFav',
