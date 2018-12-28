@@ -140,6 +140,14 @@ class UsersGenerator extends ModuleGenerator
             'date_modified' => $this->currentDateTime,
         ];
 
+        $data['data']['team_memberships'][] = [
+            'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
+            'user_id' => "'$userID'",
+            'team_id' => "'1'",
+            'deleted' => 0,
+            'date_modified' => $this->currentDateTime,
+        ];
+
         return $data;
     }
 }

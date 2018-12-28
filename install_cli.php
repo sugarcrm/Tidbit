@@ -50,7 +50,7 @@ foreach ($modules as $module => $count) {
 $module_keys = array_keys($modules);
 array_unshift($module_keys, 'Users');
 array_unshift($module_keys, 'Teams');
-$module_keys = array_unique($module_keys);
+$module_keys = array_values(array_unique($module_keys));
 
 echo "Constructing\n";
 foreach ($module_keys as $module) {
@@ -96,7 +96,9 @@ $relationStorageBuffers = array();
 
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
 
-foreach ($module_keys as $module) {
+$mc = count($module_keys);
+for ($mn = 1; $mn <= $mc; $mn++) {
+    $module = $module_keys[$mn-1];
     $moduleTimeStart = microtime();
 
     // Check module class exists in bean factory
@@ -115,6 +117,8 @@ foreach ($module_keys as $module) {
         echo "Skipping module: $module as it's configured to generate 0 records\n";
         continue;
     }
+
+    $progressLogPrefix = "$module [$mn/$mc]";
 
     echo "\nProcessing Module $module"
         .(isset($tidbit_relationships[$module])
@@ -140,7 +144,7 @@ foreach ($module_keys as $module) {
         echo "\n\tHitting DB... ";
         $generator->generate();
         $total = $generator->getInsertCounter();
-        showProgress($modules[$module], $modules[$module]);
+        showProgress($progressLogPrefix, $modules[$module], $modules[$module]);
         echo "\n\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
         continue;
     }
@@ -189,6 +193,7 @@ foreach ($module_keys as $module) {
     } else {
         $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean);
     }
+    $c->setProgressLogPrefix($progressLogPrefix);
 
     if (isset($GLOBALS['obliterate'])) {
         echo "\tObliterating all existing data ... ";

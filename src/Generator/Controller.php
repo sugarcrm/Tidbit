@@ -54,17 +54,25 @@ class Controller
      */
     protected $bean;
 
+    protected $progressLogPrefix;
+
     public function __construct(Generator $g, \SugarBean $bean)
     {
         $this->g = $g;
         $this->bean = $bean;
     }
 
+    public function setProgressLogPrefix($progressLogPrefix)
+    {
+        $this->progressLogPrefix = $progressLogPrefix;
+    }
+
     public function generate($total)
     {
         $buffers = [];
         $generatedIds = [];
-        showProgress(0, $total);
+        showProgress($this->progressLogPrefix, 0, $total);
+        $t = microtime(true);
         for ($i = 0; $i < $total; $i++) {
             $data = $this->g->generateRecord($i);
             $data = $this->g->afterGenerateRecord($i, $data);
@@ -82,8 +90,9 @@ class Controller
                 }
             }
 
-            if ($i % (int)(max(1, min($total/100, 1000))) == 0) {
-                showProgress($i, $total);
+            if (microtime(true) - $t > 15) {
+                showProgress($this->progressLogPrefix, $i, $total);
+                $t = microtime(true);
             }
         }
 
@@ -91,7 +100,7 @@ class Controller
             $buffer->flush();
         }
 
-        showProgress($total, $total);
+        showProgress($this->progressLogPrefix, $total, $total);
 
         // Apply TBA Rules for some modules
         // $roleActions are defined in configs

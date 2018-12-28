@@ -62,11 +62,18 @@ class ForkingController
      */
     protected $threads;
 
+    protected $progressLogPrefix;
+
     public function __construct(Generator $g, \SugarBean $bean, $threads)
     {
         $this->g = $g;
         $this->bean = $bean;
         $this->threads = $threads;
+    }
+
+    public function setProgressLogPrefix($progressLogPrefix)
+    {
+        $this->progressLogPrefix = $progressLogPrefix;
     }
 
     public function generate($total)
@@ -108,6 +115,7 @@ class ForkingController
         $buffers = [];
         $generatedIds = [];
         $this->showProgress($thread, $from, $from, $to);
+        $t = microtime(true);
         for ($i = $from; $i < $to; $i++) {
             $data = $this->g->generateRecord($i);
             $data = $this->g->afterGenerateRecord($i, $data);
@@ -125,8 +133,9 @@ class ForkingController
                 }
             }
 
-            if ($i % (int)(max(1, min($to/100, 1000))) == 0) {
+            if (microtime(true) - $t > 15) {
                 $this->showProgress($thread, $from, $i, $to);
+                $t = microtime(true);
             }
         }
 
@@ -160,7 +169,7 @@ class ForkingController
     protected function showProgress($thread, $from, $i, $to)
     {
         printf(
-            "\t[%3d] %d/%d (%d%%) [%d:%d)\n",
+            "\t{$this->progressLogPrefix} [%3d] %d/%d (%d%%) [%d:%d)\n",
             $thread+1,
             $i-$from,
             $to-$from,

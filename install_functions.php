@@ -127,7 +127,7 @@ function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
  * @param int $total
  * @param int $size
  */
-function showProgress($done, $total, $size = 40)
+function showProgress($prefix, $done, $total, $size = 40)
 {
     $perc = (double)($done/$total);
     $bar = floor($perc*$size);
@@ -141,14 +141,6 @@ function showProgress($done, $total, $size = 40)
         $arrow = "=";
     }
     $disp = number_format($perc*100, 0);
-    if (posix_isatty(STDOUT)) {
-        $status_bar = "\r\033[K\tHitting DB... [" . $progress . $arrow . $empty . "] $disp%  $done/$total";
-        if ($done == $total) {
-            $status_bar .= "\n";
-        }
-    } else {
-        $status_bar = "\tHitting DB... [" . $progress . $arrow . $empty . "] $disp%  $done/$total\n";
-    }
-
+    $status_bar = "\t$prefix [" . $progress . $arrow . $empty . "] $disp%  $done/$total\n";
     echo "$status_bar";
 }
