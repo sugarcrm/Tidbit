@@ -77,6 +77,7 @@ class UsersGenerator extends ModuleGenerator
         $GLOBALS['db']->query($query, true);
         $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
         $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsGl%'", true);
     }
 
     public function clean()
@@ -85,6 +86,7 @@ class UsersGenerator extends ModuleGenerator
         $GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'", true);
         $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
         $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsGl%'", true);
     }
 
     public function generateRecord($n)
@@ -138,6 +140,8 @@ class UsersGenerator extends ModuleGenerator
             'team_id' => $privateTeamID,
             'deleted' => 0,
             'date_modified' => $this->currentDateTime,
+            'explicit_assign' => 1,
+            'implicit_assign' => 0,
         ];
 
         $data['data']['team_memberships'][] = [
@@ -146,6 +150,8 @@ class UsersGenerator extends ModuleGenerator
             'team_id' => "'1'",
             'deleted' => 0,
             'date_modified' => $this->currentDateTime,
+            'explicit_assign' => 1,
+            'implicit_assign' => 0,
         ];
 
         return $data;
