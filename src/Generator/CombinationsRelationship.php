@@ -5,6 +5,7 @@ namespace Sugarcrm\Tidbit\Generator;
 // use \Sugarcrm\Tidbit\Core\Intervals;
 use \Sugarcrm\Tidbit\Core\Factory;
 use \Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Core\Relationships;
 
 class CombinationsRelationship extends Decorator
 {
@@ -21,7 +22,7 @@ class CombinationsRelationship extends Decorator
         parent::__construct($g);
         $this->idGenerator = Factory::getComponent('intervals');
         $this->dataTool = new \Sugarcrm\Tidbit\DataTool($GLOBALS['storageType']);
-        $this->relationships = Factory::getComponent('relationships');
+        $this->relationships = new Relationships();
         $this->config = $config;
 
         $selfModule = $this->bean()->getModuleName();

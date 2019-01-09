@@ -15,44 +15,12 @@ class Relationships
 {
     const PREFIX = 'seed-r';
 
-    /** @var Config */
-    protected $config;
-
-    /**
-     * Storage for relationship install data, will be used
-     * on install_cli to put this into Buffers
-     *
-     * @var array
-     */
-    protected $relatedModules = array();
-
     /**
      * Relationships constructor.
-     *
-     * @param Config $config
      */
-    public function __construct(Config $config)
+    public function __construct()
     {
-        $this->config = $config;
         $this->coreIntervals = Factory::getComponent('Intervals');
-    }
-
-    /**
-     * Related modules getter
-     *
-     * @return array
-     */
-    public function getRelatedModules()
-    {
-        return $this->relatedModules;
-    }
-
-    /**
-     * Clear related modules
-     */
-    public function clearRelatedModules()
-    {
-        $this->relatedModules = array();
     }
 
     /**
@@ -63,7 +31,7 @@ class Relationships
     {
         static $modules;
         if (!$modules) {
-            $modules = array_flip(array_keys($this->config->get('modules')));
+            $modules = array_flip(array_keys($GLOBALS['modules']));
         }
 
         $bin = $suffix = \pack(
@@ -85,56 +53,45 @@ class Relationships
      * on the contents of the global array $tidbit_relationships.
      *
      * @param string $module
-     * @param int $count
+     * @param int $n
      * @param array $installData
      */
-    public function generateRelationships($module, $count, $installData)
+    public function generate($module, $n, $baseId)
     {
-        global $relQueryCount;
-
-        $baseId = trim($installData['id'], "'");
-
-        $tidbitRelationships = $this->config->get('tidbit_relationships');
-
+        $tidbitRelationships = $GLOBALS['tidbit_relationships'];
         if (empty($tidbitRelationships[$module])) {
-            return;
+            return [];
         }
 
+        $result = [];
         foreach ($tidbitRelationships[$module] as $relModule => $relationship) {
             // skip typed relationships as they are processed with corresponding decorators
             if (isset($relationship['type'])) {
                 continue;
             }
 
-            // TODO: remove this check or replace with something else
-            if (!is_dir('modules/' . $relModule)) {
-                throw new Exception("Unknown module $relModule");
-            }
-
-            $modules = $this->config->get('modules');
-
+            $modules = $GLOBALS['modules'];
             if (empty($modules[$relModule])) {
                 continue;
             }
-
-            $thisToRelatedRatio = $this->calculateRatio($module, $relationship, $relModule);
 
             /* According to $relationship['ratio'],
              * we attach that many of the related object to the current object
              * through $relationship['table']
              */
+            $thisToRelatedRatio = $this->calculateRatio($module, $relationship, $relModule);
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
                 $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
-                    $youN = $this->coreIntervals->getRelatedId($count, $module, $relModule, $j);
+                    $youN = $this->coreIntervals->getRelatedId($n, $module, $relModule, $j);
                     $youAlias = $this->coreIntervals->getAlias($relModule);
                     $youID = $this->coreIntervals->assembleId($youAlias, $youN, false);
 
-                    $dataTool = $this->getDataTool($module, $count);
+                    $dataTool = $this->getDataTool($module, $n);
                     $date = $dataTool->getConvertDatetime();
-                    $relID = $this->generateRelID($module, $count, $relModule, $youN, $j, $multiply);
+                    $relID = $this->generateRelID($module, $n, $relModule, $youN, $j, $multiply);
                     $installData = [
                         'id'                  => "'" . $relID . "'",
                         $relationship['self'] => "'" . $baseId . "'",
@@ -150,12 +107,12 @@ class Relationships
                         }
                     }
 
-                    $this->relatedModules[$relationTable][] = $installData;
+                    $result[$relationTable][] = $installData;
                 }
-
-                $relQueryCount++;
             }
         }
+
+        return $result;
     }
 
     /**
@@ -180,7 +137,7 @@ class Relationships
                 $relationship['random_ratio']['max']
             );
         } else {
-            $modules = $this->config->get('modules');
+            $modules = $GLOBALS['modules'];
             $thisToRelatedRatio = $modules[$relModule] / $modules[$module];
         }
 
@@ -196,8 +153,7 @@ class Relationships
      */
     protected function getDataTool($module, $count)
     {
-        $storageType = $this->config->get('storageType');
-        $dTool = new DataTool($storageType);
+        $dTool = new DataTool($GLOBALS['storageType']);
         $dTool->module = $module;
         $dTool->count = $count;
 
