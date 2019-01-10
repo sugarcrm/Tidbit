@@ -15,14 +15,11 @@ class CombinationsRelationship extends Decorator
 
     protected $dataTool;
 
-    protected $relationships;
-
     public function __construct(Generator $g, array $config)
     {
         parent::__construct($g);
         $this->idGenerator = Factory::getComponent('intervals');
         $this->dataTool = new \Sugarcrm\Tidbit\DataTool($GLOBALS['storageType']);
-        $this->relationships = new Relationships();
         $this->config = $config;
 
         $selfModule = $this->bean()->getModuleName();
@@ -79,7 +76,7 @@ class CombinationsRelationship extends Decorator
         $table = $this->config['table'];
         foreach ($relatedNs as $relatedN) {
             $data['data'][$table][] = [
-                'id' => "'" . $this->relationships->generateRelID($selfModule, $n, $youModule, $relatedN, 0, 0) . "'",
+                'id' => "'" . $this->relsGen()->generateRelID($n, $youModule, $relatedN, 0, 0) . "'",
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
                 'deleted' => 0,

@@ -134,25 +134,25 @@ class UsersGenerator extends ModuleGenerator
             'private' => 1,
         ];
 
-        $data['data']['team_memberships'][] = [
-            'id' => $privateTeamID,
-            'user_id' => "'$userID'",
-            'team_id' => $privateTeamID,
-            'deleted' => 0,
-            'date_modified' => $this->currentDateTime,
-            'explicit_assign' => 1,
-            'implicit_assign' => 0,
+        $teamMembershipRows = [
+            [
+                'id' => $privateTeamID,
+                'user_id' => "'$userID'",
+                'team_id' => $privateTeamID,
+                'deleted' => 0,
+                'date_modified' => $this->currentDateTime,
+            ],[
+                'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
+                'user_id' => "'$userID'",
+                'team_id' => "'1'",
+                'deleted' => 0,
+                'date_modified' => $this->currentDateTime,
+            ],
         ];
 
-        $data['data']['team_memberships'][] = [
-            'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
-            'user_id' => "'$userID'",
-            'team_id' => "'1'",
-            'deleted' => 0,
-            'date_modified' => $this->currentDateTime,
-            'explicit_assign' => 1,
-            'implicit_assign' => 0,
-        ];
+        foreach ($teamMembershipRows as $row) {
+            $data['data']['team_memberships'][] = $this->relsGen->enrichRow('team_memberships', $row);
+        }
 
         return $data;
     }

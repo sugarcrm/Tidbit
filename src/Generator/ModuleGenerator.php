@@ -69,7 +69,7 @@ class ModuleGenerator implements Generator
         $dTool->module = $bean->getModuleName();
         $dTool->setFields($bean->field_defs);
         $this->dTool = $dTool;
-        $this->relsGen = new Relationships();
+        $this->relsGen = new Relationships($bean->getModuleName(), $dTool);
     }
 
     public function obliterate()
@@ -163,7 +163,7 @@ class ModuleGenerator implements Generator
             return $result;
         }
 
-        $relData = $this->relsGen->generate($dTool->module, $n, $beanId);
+        $relData = $this->relsGen->generate($n, $beanId);
         foreach ($relData as $table => $rows) {
             $result['data'][$table] = $rows;
         }
@@ -179,5 +179,10 @@ class ModuleGenerator implements Generator
     public function bean()
     {
         return $this->bean;
+    }
+
+    public function relsGen(): Relationships
+    {
+        return $this->relsGen;
     }
 }

@@ -36,6 +36,8 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Relationships;
+
 class Decorator implements Generator
 {
     /**
@@ -78,5 +80,9 @@ class Decorator implements Generator
     public function isUsefull()
     {
         return true;
+    }
+
+    public function relsGen(): Relationships {
+        return $this->parent->relsGen();
     }
 }

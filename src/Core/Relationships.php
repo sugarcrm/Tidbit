@@ -15,11 +15,16 @@ class Relationships
 {
     const PREFIX = 'seed-r';
 
+    protected $module;
+    protected $dataTool;
+
     /**
      * Relationships constructor.
      */
-    public function __construct()
+    public function __construct(string $module, DataTool $dataTool)
     {
+        $this->module = $module;
+        $this->dataTool = $dataTool;
         $this->coreIntervals = Factory::getComponent('Intervals');
     }
 
@@ -27,7 +32,7 @@ class Relationships
      * @param $relTable
      * @return string
      */
-    public function generateRelID($module, $count, $relModule, $relIntervalID, $shift, $multiply)
+    public function generateRelID($count, $relModule, $relIntervalID, $shift, $multiply)
     {
         static $modules;
         if (!$modules) {
@@ -36,7 +41,7 @@ class Relationships
 
         $bin = $suffix = \pack(
             "CLCLCC",
-            $modules[$module],
+            $modules[$this->module],
             $count,
             $modules[$relModule],
             $relIntervalID,
@@ -56,15 +61,15 @@ class Relationships
      * @param int $n
      * @param array $installData
      */
-    public function generate($module, $n, $baseId)
+    public function generate($n, $baseID)
     {
         $tidbitRelationships = $GLOBALS['tidbit_relationships'];
-        if (empty($tidbitRelationships[$module])) {
+        if (empty($tidbitRelationships[$this->module])) {
             return [];
         }
 
         $result = [];
-        foreach ($tidbitRelationships[$module] as $relModule => $relationship) {
+        foreach ($tidbitRelationships[$this->module] as $relModule => $relationship) {
             // skip typed relationships as they are processed with corresponding decorators
             if (isset($relationship['type'])) {
                 continue;
@@ -79,40 +84,47 @@ class Relationships
              * we attach that many of the related object to the current object
              * through $relationship['table']
              */
-            $thisToRelatedRatio = $this->calculateRatio($module, $relationship, $relModule);
+            $thisToRelatedRatio = $this->calculateRatio($relationship, $relModule);
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
                 $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
-                    $youN = $this->coreIntervals->getRelatedId($n, $module, $relModule, $j);
+                    $youN = $this->coreIntervals->getRelatedId($n, $this->module, $relModule, $j);
                     $youAlias = $this->coreIntervals->getAlias($relModule);
                     $youID = $this->coreIntervals->assembleId($youAlias, $youN, false);
 
-                    $dataTool = $this->getDataTool($module, $n);
-                    $date = $dataTool->getConvertDatetime();
-                    $relID = $this->generateRelID($module, $n, $relModule, $youN, $j, $multiply);
+                    $date = $this->dataTool->getConvertDatetime();
+                    $relID = $this->generateRelID($n, $relModule, $youN, $j, $multiply);
                     $installData = [
                         'id'                  => "'" . $relID . "'",
-                        $relationship['self'] => "'" . $baseId . "'",
+                        $relationship['self'] => "'" . $baseID . "'",
                         $relationship['you']  => "'" . $youID . "'",
                         'deleted'             => 0,
                         'date_modified'       => $date,
                     ];
 
                     $relationTable = $relationship['table'];
-                    if (!empty($GLOBALS['dataTool'][$relationTable])) {
-                        foreach ($GLOBALS['dataTool'][$relationTable] as $field => $typeData) {
-                            $installData[$field] = $dataTool->handleType($typeData, '', $field);
-                        }
-                    }
-
+                    $installData = $this->enrichRow($relationTable, $installData);
                     $result[$relationTable][] = $installData;
                 }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Some relationships have additional fields defined in the config
+     */
+    public function enrichRow(string $table, array $row): array
+    {
+        if (!empty($GLOBALS['dataTool'][$table])) {
+            foreach ($GLOBALS['dataTool'][$table] as $field => $typeData) {
+                $row[$field] = $this->dataTool->handleType($typeData, '', $field);
+            }
+        }
+        return $row;
     }
 
     /**
@@ -127,7 +139,7 @@ class Relationships
      * @param $relModule
      * @return float|int
      */
-    protected function calculateRatio($module, $relationship, $relModule)
+    protected function calculateRatio($relationship, $relModule)
     {
         if (!empty($relationship['ratio'])) {
             $thisToRelatedRatio = $relationship['ratio'];
@@ -138,35 +150,9 @@ class Relationships
             );
         } else {
             $modules = $GLOBALS['modules'];
-            $thisToRelatedRatio = $modules[$relModule] / $modules[$module];
+            $thisToRelatedRatio = $modules[$relModule] / $modules[$this->module];
         }
 
         return $thisToRelatedRatio;
-    }
-
-    /**
-     * Get DataTool instance for current $module and $count
-     *
-     * @param string $module
-     * @param int $count
-     * @return DataTool
-     */
-    protected function getDataTool($module, $count)
-    {
-        $dTool = new DataTool($GLOBALS['storageType']);
-        $dTool->module = $module;
-        $dTool->count = $count;
-
-        return $dTool;
-    }
-
-    /**
-     * Setter for coreIntervals
-     *
-     * @param Intervals $intervals
-     */
-    public function setCoreIntervals(Intervals $intervals)
-    {
-        $this->coreIntervals = $intervals;
     }
 }
