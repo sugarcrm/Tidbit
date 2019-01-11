@@ -1,7 +1,8 @@
 <?php
+
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -34,56 +35,29 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-namespace Sugarcrm\Tidbit\Generator;
+namespace Sugarcrm\Tidbit\Helper;
 
-use Sugarcrm\Tidbit\Core\Relationships;
-
-class Decorator implements Generator
+/**
+ * Class RepairTeams
+ *
+ * Repairs team hierarchy
+ */
+class RepairTeams
 {
     /**
-     * Parent Generator
-     *
-     * @var Generator
+     * Repair
      */
-    protected $parent;
-
-    public function __construct(Generator $parent)
+    public static function repair()
     {
-        $this->parent = $parent;
-    }
-
-    public function obliterate()
-    {
-        $this->parent->obliterate();
-    }
-
-    public function clean()
-    {
-        $this->parent->clean();
-    }
-
-    public function generateRecord($n)
-    {
-        return $this->parent->generateRecord($n);
-    }
-
-    public function afterGenerateRecord($n, $data)
-    {
-        return $this->parent->afterGenerateRecord($n, $data);
-    }
-
-    public function bean()
-    {
-        return $this->parent->bean();
-    }
-
-    public function isUsefull()
-    {
-        return true;
-    }
-
-    public function relsGen(): Relationships
-    {
-        return $this->parent->relsGen();
+        $_REQUEST['silent'] = 1;
+        $_POST['process'] = true;
+        $_POST['process_private_team'] = 'on';
+        $_POST['process_implict_teams'] = 'on';
+        require SUGAR_PATH . '/modules/Administration/RepairTeams.php';
+        process_team_access(false, true, true);
+        unset($_REQUEST['silent']);
+        unset($_POST['process']);
+        unset($_POST['process_private_team']);
+        unset($_POST['process_implict_teams']);
     }
 }

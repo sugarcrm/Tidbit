@@ -212,6 +212,16 @@ for ($mn = 1; $mn <= $mc; $mn++) {
 // Update enabled Modules Tabs
 \Sugarcrm\Tidbit\Helper\ModuleTabs::updateEnabledTabs($GLOBALS['db'], $module_keys, $GLOBALS['moduleList']);
 
+if ($storageType != 'csv') {
+    echo "Creating implicit team memberships based on the users hierarchy\n";
+    \Sugarcrm\Tidbit\Helper\RepairTeams::repair();
+
+    echo "Rebuild team security denormalized table\n";
+    if (\Sugarcrm\Tidbit\Helper\TeamSecurityDenorm::denorm() != 0) {
+        exit(11);
+    }
+}
+
 echo "\n";
 echo "Total Time: " . microtime_diff($GLOBALS['startTime'], microtime()) . "\n";
 echo "Core Records Inserted: " . $GLOBALS['processedRecords'] . "\n";

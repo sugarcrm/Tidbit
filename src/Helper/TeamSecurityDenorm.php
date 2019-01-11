@@ -1,7 +1,8 @@
 <?php
+
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -34,56 +35,35 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-namespace Sugarcrm\Tidbit\Generator;
+namespace Sugarcrm\Tidbit\Helper;
 
-use Sugarcrm\Tidbit\Core\Relationships;
+use Sugarcrm\Sugarcrm\Denormalization\TeamSecurity\Command\StateAwareRebuild;
+use Sugarcrm\Sugarcrm\DependencyInjection\Container;
 
-class Decorator implements Generator
+/**
+ * Runs team security denorm
+ */
+class TeamSecurityDenorm
 {
-    /**
-     * Parent Generator
-     *
-     * @var Generator
-     */
-    protected $parent;
-
-    public function __construct(Generator $parent)
+    public static function denorm(): int
     {
-        $this->parent = $parent;
-    }
+        $ppbak = $GLOBALS['sugar_config']['perfProfile'] ?? false;
 
-    public function obliterate()
-    {
-        $this->parent->obliterate();
-    }
+        $config = Container::getInstance()->get(\SugarConfig::class);
+        $config->clearCache();
+        $GLOBALS['sugar_config']['perfProfile']['TeamSecurity']['default']['use_denorm'] = true;
+        $command = Container::getInstance()->get(StateAwareRebuild::class);
 
-    public function clean()
-    {
-        $this->parent->clean();
-    }
+        $ignoreUpToDate = true;
+        list($status, $message) = $command($ignoreUpToDate);
+        echo $message."\n";
 
-    public function generateRecord($n)
-    {
-        return $this->parent->generateRecord($n);
-    }
+        if ($ppbak === false) {
+            unset($GLOBALS['sugar_config']['perfProfile']);
+        } else {
+            $GLOBALS['sugar_config']['perfProfile'] = $ppbak;
+        }
 
-    public function afterGenerateRecord($n, $data)
-    {
-        return $this->parent->afterGenerateRecord($n, $data);
-    }
-
-    public function bean()
-    {
-        return $this->parent->bean();
-    }
-
-    public function isUsefull()
-    {
-        return true;
-    }
-
-    public function relsGen(): Relationships
-    {
-        return $this->parent->relsGen();
+        return $status ? 0 : 1;
     }
 }
