@@ -27,14 +27,14 @@ class CombinationsRelationship extends Decorator
         $selfTotal = $this->config['self_total'];
         $youTotal = $this->config['you_total'];
 
-        $maxAllowedDegree = $youTotal - 1;
-        if ($this->config['degree'] > $maxAllowedDegree) {
-            $this->config['degree'] = $maxAllowedDegree;
+        if ($this->config['degree'] * 2 > $youTotal) {
             /**
-             * The degree is configured too high, there are not enough records in '$youTotal'
-             * to satisfy this degree of relationship.
+             * The degree can't be higher than $youTotal/2 because otherwise in the case of high
+             * enough number of $selfTotal records there will be duplidate combinations generated
              */
-            echo "WARNING: Decreasing the degree of $selfModule <-> $youModule relationship to $maxAllowedDegree\n";
+            echo "ERROR: $selfModule <-> $youModule relationship: The degree can't be higher than $youModule/2 " .
+                "because otherwise in the case of high enough number of $selfModule records " .
+                "duplidate combinations will be generated.\n";
         }
 
         /*

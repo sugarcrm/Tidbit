@@ -41,7 +41,7 @@ $modules = array(
     'ACLRoles' => 10,
     'Users' => 5,
     'Teams' => 6,
-    'TeamSets' => 45,
+    'TeamSets' => 24,
     'Accounts' => 100,
     'Quotes' => 100,
     'ProductBundles' => 200,
@@ -68,7 +68,7 @@ $modules = array(
     'RevenueLineItems' => 1400,
     'Manufacturers' => 10,
 );
-$tidbit_relationships['TeamSets']['Teams']['degree'] = 5;
+$tidbit_relationships['TeamSets']['Teams']['degree'] = 3;
 
 $aliases = [
     'ProductTemplatesFavorites' => 'ProdTPLFav',
