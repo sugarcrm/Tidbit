@@ -35,46 +35,35 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$modules = array(
-    'Tags' => 100,
-    'EmailAddresses' => 120,
-    'ACLRoles' => 10,
-    'Users' => 5,
-    'Teams' => 6,
-    'TeamSets' => 24,
-    'Accounts' => 100,
-    'Quotes' => 100,
-    'ProductBundles' => 200,
-    'Products' => 400,
-    'Calls' => 240,
-    'Notifications' => 50,
-    'Emails' => 160,
-    'EmailText' => 160,
-    'Contacts' => 400,
-    'Leads' => 400,
-    'Opportunities' => 200,
-    'Cases' => 400,
-    'Bugs' => 300,
-    'Meetings' => 800,
-    'Tasks' => 400,
-    'Notes' => 400,
-    'Documents' => 100,
-    'Categories' => 60,
-    'KBContents' => 100,
-    'Reports' => 100,
-    'ProductCategories' => 10,
-    'ProductTypes' => 10,
-    'ProductTemplates' => 100,
-    'RevenueLineItems' => 1400,
-    'Manufacturers' => 10,
-);
-$tidbit_relationships['TeamSets']['Teams']['degree'] = 3;
+namespace Sugarcrm\Tidbit\Helper;
 
-$aliases = [
-    'ProductTemplatesFavorites' => 'ProdTPLFav',
-    'ProductsFavorites' => 'ProdFav',
-];
+use Sugarcrm\Sugarcrm\Denormalization\TeamSecurity\Command\StateAwareRebuild;
+use Sugarcrm\Sugarcrm\DependencyInjection\Container;
 
-$profile_opts = array(
+/**
+ * Runs team security denorm
+ */
+class TeamSecurityDenorm
+{
+    public static function denorm(): int
+    {
+        $ppbak = $GLOBALS['sugar_config']['perfProfile'] ?? false;
 
-);
+        $config = Container::getInstance()->get(\SugarConfig::class);
+        $config->clearCache();
+        $GLOBALS['sugar_config']['perfProfile']['TeamSecurity']['default']['use_denorm'] = true;
+        $command = Container::getInstance()->get(StateAwareRebuild::class);
+
+        $ignoreUpToDate = true;
+        list($status, $message) = $command($ignoreUpToDate);
+        echo $message."\n";
+
+        if ($ppbak === false) {
+            unset($GLOBALS['sugar_config']['perfProfile']);
+        } else {
+            $GLOBALS['sugar_config']['perfProfile'] = $ppbak;
+        }
+
+        return $status ? 0 : 1;
+    }
+}

@@ -5,6 +5,7 @@ namespace Sugarcrm\Tidbit\Generator;
 // use \Sugarcrm\Tidbit\Core\Intervals;
 use \Sugarcrm\Tidbit\Core\Factory;
 use \Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Core\Relationships;
 
 class CombinationsRelationship extends Decorator
 {
@@ -14,14 +15,11 @@ class CombinationsRelationship extends Decorator
 
     protected $dataTool;
 
-    protected $relationships;
-
     public function __construct(Generator $g, array $config)
     {
         parent::__construct($g);
         $this->idGenerator = Factory::getComponent('intervals');
         $this->dataTool = new \Sugarcrm\Tidbit\DataTool($GLOBALS['storageType']);
-        $this->relationships = Factory::getComponent('relationships');
         $this->config = $config;
 
         $selfModule = $this->bean()->getModuleName();
@@ -29,14 +27,14 @@ class CombinationsRelationship extends Decorator
         $selfTotal = $this->config['self_total'];
         $youTotal = $this->config['you_total'];
 
-        $maxAllowedDegree = $youTotal - 1;
-        if ($this->config['degree'] > $maxAllowedDegree) {
-            $this->config['degree'] = $maxAllowedDegree;
+        if ($this->config['degree'] * 2 > $youTotal) {
             /**
-             * The degree is configured too high, there are not enough records in '$youTotal'
-             * to satisfy this degree of relationship.
+             * The degree can't be higher than $youTotal/2 because otherwise in the case of high
+             * enough number of $selfTotal records there will be duplidate combinations generated
              */
-            echo "WARNING: Decreasing the degree of $selfModule <-> $youModule relationship to $maxAllowedDegree\n";
+            echo "ERROR: $selfModule <-> $youModule relationship: The degree can't be higher than $youModule/2 " .
+                "because otherwise in the case of high enough number of $selfModule records " .
+                "duplidate combinations will be generated.\n";
         }
 
         /*
@@ -78,7 +76,7 @@ class CombinationsRelationship extends Decorator
         $table = $this->config['table'];
         foreach ($relatedNs as $relatedN) {
             $data['data'][$table][] = [
-                'id' => "'" . $this->relationships->generateRelID($selfModule, $n, $youModule, $relatedN, 0, 0) . "'",
+                'id' => "'" . $this->relsGen()->generateRelID($n, $youModule, $relatedN, 0, 0) . "'",
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
                 'deleted' => 0,

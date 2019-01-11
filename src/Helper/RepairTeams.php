@@ -2,7 +2,7 @@
 
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
- * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
+ * SugarCRM, Inc. Copyright (C) 2004-2016 SugarCRM Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -35,57 +35,29 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-namespace Sugarcrm\Tidbit;
-
-use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
+namespace Sugarcrm\Tidbit\Helper;
 
 /**
- * Class for convert tables from db to csv
+ * Class RepairTeams
+ *
+ * Repairs team hierarchy
  */
-class CsvConverter
+class RepairTeams
 {
     /**
-     * @var \DBManager
+     * Repair
      */
-    protected $db;
-
-    /**
-     * @var Csv
-     */
-    protected $csvAdapter;
-
-    /**
-     * CsvConverter constructor.
-     *
-     * @param \DBManager $db
-     * @param Csv $csvAdapter
-     */
-    public function __construct(\DBManager $db, Csv $csvAdapter)
+    public static function repair()
     {
-        $this->db = $db;
-        $this->csvAdapter = $csvAdapter;
-    }
-
-    /**
-     * Gets data from table fields and place it into csv file
-     *
-     * @param string $tableName
-     * @param array $fieldsArr
-     */
-    public function convert($tableName, array $fieldsArr = array())
-    {
-        $insertBuffer = new InsertBuffer($tableName, $this->csvAdapter);
-
-        $fields = empty($fieldsArr) ? '*' : join(',', $fieldsArr);
-        $sql = "SELECT " . $fields . " FROM " . $tableName;
-        $result = $this->db->query($sql);
-
-        while ($row = $this->db->fetchByAssoc($result)) {
-            foreach ($row as $k => $v) {
-                $row[$k] = "'" . $v . "'";
-            }
-            $insertBuffer->addInstallData($row);
-        }
-
+        $_REQUEST['silent'] = 1;
+        $_POST['process'] = true;
+        $_POST['process_private_team'] = 'on';
+        $_POST['process_implict_teams'] = 'on';
+        require SUGAR_PATH . '/modules/Administration/RepairTeams.php';
+        process_team_access(false, true, true);
+        unset($_REQUEST['silent']);
+        unset($_POST['process']);
+        unset($_POST['process_private_team']);
+        unset($_POST['process_implict_teams']);
     }
 }

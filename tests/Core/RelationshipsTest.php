@@ -6,6 +6,7 @@ use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\Core\Relationships;
 use Sugarcrm\Tidbit\Core\Config;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Sugarcrm\Tidbit\DataTool;
 
 /**
  * Class RelationshipsTest
@@ -36,10 +37,10 @@ class RelationshipsTest extends TidbitTestCase
             'Accounts' => 100,
         );
 
-        $relationships = new Relationships($this->getConfig());
+        $relationships = new Relationships($module, new DataTool('storageType'));
         $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\Core\Relationships', 'calculateRatio');
 
-        $actual = $method->invokeArgs($relationships, array($module, $relationship, $relModule));
+        $actual = $method->invokeArgs($relationships, array($relationship, $relModule));
 
         $this->assertEquals($expected, $actual);
     }

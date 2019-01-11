@@ -36,6 +36,8 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use Sugarcrm\Tidbit\Core\Relationships;
+
 interface Generator
 {
     public function obliterate();
@@ -43,4 +45,5 @@ interface Generator
     public function generateRecord($n);
     public function afterGenerateRecord($n, $data);
     public function bean();
+    public function relsGen(): Relationships;
 }

@@ -49,14 +49,4 @@ class Factory
         $config = Factory::getComponent('Config');
         return new Intervals($config);
     }
-
-    /**
-     * Configure Core Intervals class
-     */
-    protected static function configureRelationships()
-    {
-        /** @var Config $config */
-        $config = Factory::getComponent('Config');
-        return new Relationships($config);
-    }
 }

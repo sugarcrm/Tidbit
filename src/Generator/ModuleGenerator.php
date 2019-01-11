@@ -37,6 +37,8 @@
 namespace Sugarcrm\Tidbit\Generator;
 
 use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Core\Factory;
+use Sugarcrm\Tidbit\Core\Relationships;
 
 class ModuleGenerator implements Generator
 {
@@ -46,6 +48,11 @@ class ModuleGenerator implements Generator
      * @var \SugarBean
      */
     protected $bean;
+
+    /**
+     * @var \Sugarcrm\Tidbit\Core\Relationships
+     */
+    protected $relsGen;
 
     /**
      * DataTool
@@ -62,6 +69,7 @@ class ModuleGenerator implements Generator
         $dTool->module = $bean->getModuleName();
         $dTool->setFields($bean->field_defs);
         $this->dTool = $dTool;
+        $this->relsGen = new Relationships($bean->getModuleName(), $dTool);
     }
 
     public function obliterate()
@@ -155,13 +163,10 @@ class ModuleGenerator implements Generator
             return $result;
         }
 
-        /** @var \Sugarcrm\Tidbit\Core\Relationships $relationships */
-        $relationships = \Sugarcrm\Tidbit\Core\Factory::getComponent('Relationships');
-        $relationships->generateRelationships($dTool->module, $dTool->count, $dTool->installData);
-        foreach ($relationships->getRelatedModules() as $table => $rows) {
+        $relData = $this->relsGen->generate($n, $beanId);
+        foreach ($relData as $table => $rows) {
             $result['data'][$table] = $rows;
         }
-        $relationships->clearRelatedModules();
 
         return $result;
     }
@@ -174,5 +179,10 @@ class ModuleGenerator implements Generator
     public function bean()
     {
         return $this->bean;
+    }
+
+    public function relsGen(): Relationships
+    {
+        return $this->relsGen;
     }
 }
