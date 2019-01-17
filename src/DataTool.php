@@ -376,15 +376,19 @@ class DataTool
             }
         }
         if (!empty($typeData['related'])) {
-            $relModule = $this->coreIntervals->getAlias($typeData['related']['module']);
-            $relUpID = $this->coreIntervals->getRelatedId(
-                $this->count,
-                $this->module,
-                $typeData['related']['module']
-            );
+            $modules = is_array($typeData['related']['module'])
+                ? $typeData['related']['module']
+                : [$typeData['related']['module']];
 
-            $relatedId = $this->coreIntervals->assembleId($relModule, $relUpID);
+            $relN = $this->count;
+            $baseModule = $this->module;
+            foreach ($modules as $module) {
+                $relN = $this->coreIntervals->getRelatedId($relN, $baseModule, $module);
+                $baseModule = $module;
+            }
 
+            $relModule = $this->coreIntervals->getAlias($baseModule);
+            $relatedId = $this->coreIntervals->assembleId($relModule, $relN);
             return $relatedId;
         }
 
