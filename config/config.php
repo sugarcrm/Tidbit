@@ -118,12 +118,6 @@ $tidbit_relationships['ACLRoles'] = array(
 );
 
 $tidbit_relationships['Users'] = array(
-    'Teams' => array(
-        'self' => 'user_id',
-        'you' => 'team_id',
-        'table' => 'team_memberships',
-        'ratio' => 5,
-    ),
     'Calls' => array(
         'self' => 'user_id',
         'you' => 'call_id',

@@ -60,6 +60,19 @@ class Intervals
         return $id;
     }
 
+    public function decodeTidbitID($id, $module)
+    {
+        $module = $this->getAlias($module);
+        $this->ensureIdPrefixCache($module);
+        $id = substr($id, 1, -1);
+        $prefix = $this->assembleIdCache[$module];
+        if (substr($id, 0, strlen($prefix)) != $prefix) {
+            throw new \Exception("id $id of module $module doesn't start with $prefix");
+        }
+        $id = substr($id, strlen($prefix));
+        return (int) $id;
+    }
+
     /**
      * Generate Tidbit like related ID $relModule
      *
@@ -77,6 +90,15 @@ class Intervals
         return $relatedId;
     }
 
+    private function ensureIdPrefixCache($module)
+    {
+        if (empty($this->assembleIdCache[$module])) {
+            $this->assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
+                ? static::PREFIX . '-' . $module
+                : static::PREFIX . '-' . $module . $GLOBALS['baseTime'];
+        }
+    }
+
     /**
      * Assemble Bean id string by module and related/count IDs
      *
@@ -88,12 +110,7 @@ class Intervals
      */
     public function assembleId($module, $id, $quotes = true)
     {
-        if (empty($this->assembleIdCache[$module])) {
-            $this->assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
-                ? static::PREFIX . '-' . $module
-                : static::PREFIX . '-' . $module . $GLOBALS['baseTime'];
-        }
-
+        $this->ensureIdPrefixCache($module);
         $seedId = $this->assembleIdCache[$module] . $id;
 
         // should return id be quoted or not
@@ -117,7 +134,7 @@ class Intervals
     public function getRelatedId($counter, $curModule, $relModule, $shift = 0)
     {
         $modules = $this->config->get('modules');
-        $n = round($counter * $modules[$relModule] / $modules[$curModule]);
+        $n = floor($counter * $modules[$relModule] / $modules[$curModule]);
         $result = ($n + $shift) % $modules[$relModule];
 
         return $result;
