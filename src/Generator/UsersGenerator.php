@@ -43,6 +43,7 @@ class UsersGenerator extends ModuleGenerator
     protected $defaultPrefs;
     protected $currentDateTime;
     protected $idGenerator;
+    protected $teamSetCore;
 
     public function __construct(\SugarBean $bean)
     {
@@ -56,6 +57,7 @@ class UsersGenerator extends ModuleGenerator
         $this->defaultPrefs = "'" . base64_encode(serialize($contents)) . "'";
         $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
         $this->idGenerator = Factory::getComponent('intervals');
+        $this->teamSetCore = new TeamSetCore();
     }
 
     protected function getDeleteWhereCondition()
@@ -76,8 +78,8 @@ class UsersGenerator extends ModuleGenerator
             : $GLOBALS['db']->truncateTableSQL('user_preferences');
         $GLOBALS['db']->query($query, true);
         $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
-        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
-        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsGl%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-%'", true);
+
     }
 
     public function clean()
@@ -85,8 +87,7 @@ class UsersGenerator extends ModuleGenerator
         parent::clean();
         $GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'", true);
         $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
-        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsPr%'", true);
-        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-TeamsGl%'", true);
+        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-%'", true);
     }
 
     public function generateRecord($n)
@@ -149,6 +150,24 @@ class UsersGenerator extends ModuleGenerator
                 'date_modified' => $this->currentDateTime,
             ],
         ];
+
+        $teamSetN = $this->idGenerator->decodeTidbitID($data['data']['users'][0]['team_set_id'], 'TeamSets');
+        $teamSetsTeamsRelConfig = $GLOBALS['tidbit_relationships']['TeamSets']['Teams'];
+        $teamNs = CombinationsHelper::get(
+            $teamSetN,
+            $teamSetsTeamsRelConfig['degree'],
+            $GLOBALS['modules']['TeamSets'],
+            $GLOBALS['modules']['Teams']
+        );
+        foreach ($teamNs as $teamN) {
+            $teamMembershipRows[] = [
+                'id' => "'" . $this->relsGen->generateRelID($n, 'Teams', $teamN, 0, 0) . "'",
+                'user_id' => "'$userID'",
+                'team_id' => $this->idGenerator->generateTidbitID($teamN, 'Teams'),
+                'deleted' => 0,
+                'date_modified' => $this->currentDateTime,
+            ];
+        }
 
         foreach ($teamMembershipRows as $row) {
             $data['data']['team_memberships'][] = $this->relsGen->enrichRow('team_memberships', $row);
