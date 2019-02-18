@@ -17,6 +17,7 @@ class Relationships
 
     protected $module;
     protected $dataTool;
+    protected $currentDateTime;
 
     /**
      * Relationships constructor.
@@ -26,6 +27,7 @@ class Relationships
         $this->module = $module;
         $this->dataTool = $dataTool;
         $this->coreIntervals = Factory::getComponent('Intervals');
+        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
     }
 
     /**
@@ -94,14 +96,13 @@ class Relationships
                     $youAlias = $this->coreIntervals->getAlias($relModule);
                     $youID = $this->coreIntervals->assembleId($youAlias, $youN, false);
 
-                    $date = $this->dataTool->getConvertDatetime();
                     $relID = $this->generateRelID($n, $relModule, $youN, $j, $multiply);
                     $installData = [
                         'id'                  => "'" . $relID . "'",
                         $relationship['self'] => "'" . $baseID . "'",
                         $relationship['you']  => "'" . $youID . "'",
                         'deleted'             => 0,
-                        'date_modified'       => $date,
+                        'date_modified'       => $this->currentDateTime,
                     ];
 
                     $relationTable = $relationship['table'];

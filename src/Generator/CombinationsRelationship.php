@@ -38,7 +38,6 @@ namespace Sugarcrm\Tidbit\Generator;
 
 // use \Sugarcrm\Tidbit\Core\Intervals;
 use \Sugarcrm\Tidbit\Core\Factory;
-use \Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Core\Relationships;
 
 class CombinationsRelationship extends Decorator
@@ -47,14 +46,14 @@ class CombinationsRelationship extends Decorator
 
     protected $idGenerator;
 
-    protected $dataTool;
+    protected $currentDateTime;
 
     public function __construct(Generator $g, array $config)
     {
         parent::__construct($g);
         $this->idGenerator = Factory::getComponent('intervals');
-        $this->dataTool = new \Sugarcrm\Tidbit\DataTool($GLOBALS['storageType']);
         $this->config = $config;
+        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
 
         $selfModule = $this->bean()->getModuleName();
         $youModule = $this->config['you_module'];
@@ -105,7 +104,7 @@ class CombinationsRelationship extends Decorator
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
                 'deleted' => 0,
-                'date_modified' => $this->dataTool->getConvertDatetime(),
+                'date_modified' => $this->currentDateTime,
             ];
         }
 

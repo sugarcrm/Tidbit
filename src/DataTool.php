@@ -85,7 +85,6 @@ class DataTool
     protected $coreIntervals;
 
     // Skip db_convert for those types for optimization
-    // TODO: move this to config
     protected static $notConvertedTypes = array(
         'int',
         'uint',
@@ -189,23 +188,6 @@ class DataTool
                 continue;
             }
             $this->generateFieldData($field);
-        }
-
-        /* These fields are filled in once per record. */
-        if (!empty($this->fields['deleted'])) {
-            $this->installData['deleted'] = 0;
-        }
-        if (!empty($this->fields['date_modified'])) {
-            $this->installData['date_modified'] = $this->getConvertDatetime();
-        }
-        if (!empty($this->fields['date_entered'])) {
-            $this->installData['date_entered'] = $this->installData['date_modified'];
-        }
-        if (!empty($this->fields['assign_user_id'])) {
-            $this->installData['assigned_user_id'] = 1;
-        }
-        if (!empty($this->fields['modified_user_id'])) {
-            $this->installData['modified_user_id'] = 1;
         }
     }
 
@@ -458,14 +440,12 @@ class DataTool
                 $isQuote = true;
 
                 $dateTime = new \DateTime();
-                $baseTime = !empty($typeData['basetime']) ? $typeData['basetime'] : $GLOBALS['baseTime'];
+                $dateTime->setTimestamp($GLOBALS['baseTime']);
 
-                $dateTime->setTimestamp($baseTime);
-
-                if (!empty($baseValue)) {
-                    // +/- $baseValue days to current datetime
-                    $dateTime->modify($baseValue . " days");
+                if (empty($typeData['units'])) {
+                    throw new \Exception("units is not set for date/time range type field");
                 }
+                $dateTime->modify($baseValue . ' ' . $typeData['units']);
 
                 // Use Sugar class to convert dateTime to $type format for saving TZ settings
                 $baseValue = $GLOBALS['timedate']->asDbType($dateTime, $typeData['type']);
@@ -596,29 +576,6 @@ class DataTool
     }
 
     /**
-     * Cache datetime generation and convert to db format
-     * Based on xhprof data, this operation in time consuming, so we need to cache that
-     *
-     * @return mixed
-     */
-    public function getConvertDatetime()
-    {
-        static $datetime = '';
-
-        self::$datetimeCacheIndex++;
-
-        if ((self::$datetimeCacheIndex > self::$datetimeIndexMax) || empty($datetime)) {
-            $datetime = "'" . $GLOBALS['timedate']->nowDb() . "'";
-            if ($this->storageType != Factory::OUTPUT_TYPE_CSV) {
-                $datetime = $GLOBALS['db']->convert($datetime, 'datetime');
-            }
-            self::$datetimeCacheIndex = 0;
-        }
-
-        return $datetime;
-    }
-
-    /**
      * Returns a gibberish string based on a reordering of the base text
      * (Lorem ipsum dolor sit amet, ....)
      *
@@ -653,7 +610,6 @@ class DataTool
 
         return implode(' ', $resWords);
     }
-
 
     /**
      * Calculate datetime shift depending on type

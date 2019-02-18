@@ -48,24 +48,34 @@ $GLOBALS['dataTool']['default']['short'] = array('range' => array('min' => 0, 'm
 $GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
 // $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
 $GLOBALS['dataTool']['default']['text'] = ['value' => "''"];
-$GLOBALS['dataTool']['default']['date'] = array(
-    'range' => array('min' => -30, 'max' => 30),
+$GLOBALS['dataTool']['default']['date'] = [
+    'range' => ['min' => -30, 'max' => 30],
     'type' => 'date',
-    'basetime' => $GLOBALS['baseTime']
-);
+    'units' => 'days',
+];
+$GLOBALS['dataTool']['default']['datetime'] = [
+    'range' => ['min' => -30*24*60*60, 'max' => 30*24*60*60],
+    'type' => 'datetime',
+    'units' => 'seconds',
+];
+$GLOBALS['dataTool']['default']['time'] = [
+    'range' => ['min' => -12*60*60, 'max' => 12*60*60],
+    'type' => 'time',
+    'units' => 'seconds',
+];
+$GLOBALS['dataTool']['default']['date_entered'] = [
+    'range' => ['min' => -90*24*60*60, 'max' => 0],
+    'type' => 'datetime',
+    'units' => 'seconds',
+];
+$GLOBALS['dataTool']['default']['date_modified'] = [
+    'range' => ['min' => -90*24*60*60, 'max' => 0],
+    'type' => 'datetime',
+    'units' => 'seconds',
+];
 //NEEDS THE DROPDOWN LIST TO GET THE PROPER VALUE
 $GLOBALS['dataTool']['default']['enum'] = array('set' => false);
 $GLOBALS['dataTool']['default']['multienum'] = array('set' => false);
-$GLOBALS['dataTool']['default']['datetime'] = array(
-    'range' => array('min' => -30, 'max' => 30),
-    'type' => 'datetime',
-    'basetime' => $GLOBALS['baseTime']
-);
-$GLOBALS['dataTool']['default']['time'] = array(
-    'range' => array('min' => -30, 'max' => 30),
-    'type' => 'time',
-    'basetime' => $GLOBALS['baseTime']
-);
 $GLOBALS['dataTool']['default']['bool'] = array('range' => array('min' => 0, 'max' => 1));
 $GLOBALS['dataTool']['default']['email'] = array('list' => 'last_name_array', 'suffix' => '@example.com');
 $GLOBALS['dataTool']['default']['phone'] = array('phone' => true);
@@ -81,6 +91,7 @@ $GLOBALS['dataTool']['default']['currency'] = array('range' => array('min' => 0,
 $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
 $GLOBALS['dataTool']['default']['id'] = [];
+$GLOBALS['dataTool']['default']['deleted'] = ['value' => 0];
 $GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['subscriptions'] = ['probability' => 2];
