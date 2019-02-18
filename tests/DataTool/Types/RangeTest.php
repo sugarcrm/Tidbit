@@ -62,7 +62,7 @@ class RangeTest extends TidbitTestCase
     public function testRangeDateType()
     {
         $GLOBALS['timedate'] = TimeDate::getInstance();
-        $type = array('range' => array('min' => 5, 'max' => 5), 'type' => 'date');
+        $type = ['range' => ['min' => 5, 'max' => 5], 'type' => 'date', 'units' => 'days'];
 
         // Set varchar type, so DB->convert won't be called
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
@@ -83,7 +83,12 @@ class RangeTest extends TidbitTestCase
     {
         $GLOBALS['timedate'] = TimeDate::getInstance();
         $time = time();
-        $type = array('range' => array('min' => 5, 'max' => 5), 'type' => 'datetime', 'basetime' => $time);
+        $GLOBALS['baseTime'] = $time;
+        $type = [
+            'range' => ['min' => 5, 'max' => 5],
+            'type' => 'datetime',
+            'units' => 'days',
+        ];
 
         // Set varchar type, so DB->convert won't be called
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
@@ -106,7 +111,12 @@ class RangeTest extends TidbitTestCase
     {
         $GLOBALS['timedate'] = TimeDate::getInstance();
         $time = time();
-        $type = array('range' => array('min' => -10, 'max' => -10), 'type' => 'datetime', 'basetime' => $time);
+        $GLOBALS['baseTime'] = $time;
+        $type = [
+            'range' => ['min' => -10, 'max' => -10],
+            'type' => 'datetime',
+            'units' => 'days',
+        ];
 
         // Set varchar type, so DB->convert won't be called
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);

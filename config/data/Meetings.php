@@ -53,7 +53,7 @@ $GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min
 $GLOBALS['dataTool']['Meetings']['date_start'] = array(
     'range'    => array('min' => -400, 'max' => 36),
     'type'     => 'datetime',
-    'basetime' => $GLOBALS['baseTime']
+    'units' => 'days',
 );
 $GLOBALS['dataTool']['Meetings']['date_end'] = array(
     'same_datetime' => 'date_start',
