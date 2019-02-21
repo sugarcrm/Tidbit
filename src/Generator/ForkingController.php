@@ -168,12 +168,13 @@ class ForkingController
 
     protected function showProgress($thread, $from, $i, $to)
     {
+        $toMFrom = ($to-$from);
         printf(
             "\t{$this->progressLogPrefix} [%3d] %d/%d (%d%%) [%d:%d)\n",
             $thread+1,
             $i-$from,
             $to-$from,
-            ($i-$from)/($to-$from)*100,
+            ($i-$from)/($toMFrom == 0 ? 1 : $toMFrom)*100,
             $from,
             $to
         );

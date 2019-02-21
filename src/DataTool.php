@@ -172,6 +172,14 @@ class DataTool
                 continue;
             }
 
+            // enum probability option
+            if ($type === 'enum' && !empty($fieldDef['options'])) {
+                $fieldRules['enum_key_probabilities'] = $this->calcEnumProbabilities(
+                    $fieldDef,
+                    $fieldRules['enum_key_probabilities'] ?? []
+                );
+            }
+
             $this->fieldRules[$fieldName] = $fieldRules;
             $this->fields[$fieldName] = $fieldDef;
         }
@@ -254,6 +262,7 @@ class DataTool
      * @param bool $resetStatic
      *
      * @return string
+     * @throws \Exception
      */
     public function handleType($typeData, $type, $field, $resetStatic = false)
     {
@@ -491,11 +500,20 @@ class DataTool
         } elseif ($type == 'enum') {
             if (!empty($GLOBALS['fieldData']['options'])
                 && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
-                $options = $GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']];
-                $keys = array_keys($options);
+                $value = null;
+                $rnd = mt_rand(1, 100);
+                foreach ($typeData['enum_key_probabilities'] as $probabilityData) {
+                    if ($rnd > $probabilityData[0]) {
+                        $value = $probabilityData[1];
+                        break;
+                    }
+                }
 
-                $selected = mt_rand(0, count($keys) - 1);
-                return "'" . @trim($keys[$selected]) . "'";
+                if (is_null($value)) {
+                    throw new \Exception("Enum value was not generated for field: $field");
+                }
+
+                return "'$value'";
             }
         }
 
@@ -661,5 +679,32 @@ class DataTool
         }
 
         return $password;
+    }
+
+    /**
+     * Calculate a chance for each possible enum value using field options
+     * @param array $fieldDef
+     * @param array $all
+     * @return array
+     */
+    private function calcEnumProbabilities(array $fieldDef, array $all): array
+    {
+        $possibleKeys = $GLOBALS['app_list_strings'][$fieldDef['options']];
+        $rest = 100 - array_sum($all);
+        $missed = array_diff_key($possibleKeys, $all);
+        if ($rest > 0 && !empty($missed)) {
+            $probabilityPerValue = round($rest / count($missed));
+            foreach ($missed as $value) {
+                $all[$value] = $probabilityPerValue;
+            }
+        }
+
+        // transform probabilities to a [to, $value] fo further usage
+        $summary = 0;
+        foreach ($all as $key => $probability) {
+            $all[$key] = [$summary, $key];
+            $summary += $probability;
+        }
+        return array_reverse(array_values($all));
     }
 }
