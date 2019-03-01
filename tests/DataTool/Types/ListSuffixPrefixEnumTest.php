@@ -60,7 +60,12 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testEnumOptionsType()
     {
-        $type = array('enum' => true);
+        $type = [
+            'enum' => true,
+            'enum_key_probabilities' => [
+                [0, 'OPTION_1'],
+            ],
+        ];
 
         $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
         $GLOBALS['app_list_strings'] = array(
@@ -79,7 +84,12 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testEnumOptionsShouldBeTrimmedType()
     {
-        $type = array('enum' => true);
+        $type = [
+            'enum' => true,
+            'enum_key_probabilities' => [
+                [0, 'OPTION_1'],
+            ],
+        ];
 
         $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
         $GLOBALS['app_list_strings'] = array(
@@ -98,7 +108,15 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testEnumMultiOptionsType()
     {
-        $type = array('enum' => true);
+        $type = [
+            'enum' => true,
+            'enum_key_probabilities' => [
+                [0, 'OPTION_1'],
+                [30, 'OPTION_2'],
+                [60, 'OPTION_3'],
+            ],
+        ];
+
         $options = array(
             'OPTION_1' => 'Translation 1',
             'OPTION_2' => 'Translation 1',
