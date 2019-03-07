@@ -60,9 +60,6 @@ foreach ($module_keys as $module) {
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
-echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
-echo "With Team-based Restriction Level " .
-    (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
 echo "\n";
 
 // creating storage adapter
@@ -183,9 +180,9 @@ for ($mn = 1; $mn <= $mc; $mn++) {
         }
     }
     if ($GLOBALS['parallel']) {
-        $c = new \Sugarcrm\Tidbit\Generator\ForkingController($g, $bean, $GLOBALS['parallel']);
+        $c = new \Sugarcrm\Tidbit\Generator\ForkingController($g, $GLOBALS['parallel']);
     } else {
-        $c = new \Sugarcrm\Tidbit\Generator\Controller($g, $bean);
+        $c = new \Sugarcrm\Tidbit\Generator\Controller($g);
     }
     $c->setProgressLogPrefix($progressLogPrefix);
 

@@ -47,19 +47,11 @@ class Controller
      */
     protected $g;
 
-    /**
-     * SugarBean
-     *
-     * @var \SugarBean
-     */
-    protected $bean;
-
     protected $progressLogPrefix;
 
-    public function __construct(Generator $g, \SugarBean $bean)
+    public function __construct(Generator $g)
     {
         $this->g = $g;
-        $this->bean = $bean;
     }
 
     public function setProgressLogPrefix($progressLogPrefix)
@@ -101,23 +93,5 @@ class Controller
         }
 
         showProgress($this->progressLogPrefix, $total, $total);
-
-        // Apply TBA Rules for some modules
-        // $roleActions are defined in configs
-        if ($this->bean->getModuleName() == 'ACLRoles') {
-            $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $GLOBALS['storageAdapter']);
-
-            if (isset($GLOBALS['clean'])) {
-                $tbaGenerator->clearDB();
-            }
-
-            if (!empty($GLOBALS['tba'])) {
-                $tbaGenerator->setAclRoleIds($generatedIds);
-                $tbaGenerator->setRoleActions($GLOBALS['roleActions']);
-                $tbaGenerator->setTbaFieldAccess($GLOBALS['tbaFieldAccess']);
-                $tbaGenerator->setTbaRestrictionLevel($GLOBALS['tbaRestrictionLevel']);
-                $tbaGenerator->generate();
-            }
-        }
     }
 }

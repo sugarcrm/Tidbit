@@ -387,16 +387,6 @@ $tbaRestrictionLevel = array(
         'fields' => true
     ),
 );
-$roleActions = array(
-    'Accounts',
-    'Contacts',
-    'Leads',
-    'Quotes',
-    'Opportunities',
-    'Bugs',
-    'Cases',
-    'KBContents'
-);
 
 $kbCategoriesNestingLevel = 5;
 // Temporary disable generation of Notes for KB because of request
