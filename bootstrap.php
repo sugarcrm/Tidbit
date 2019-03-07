@@ -97,11 +97,6 @@ Options
     -s                  The number of teams per team set and per record.
                         Defaults to 10.
 
-    --tba               Turn Team-based ACL Mode on.
-
-    --tba_level         Specify restriction level for Team-based ACL. Could be
-                        (minimum/medium/maximum/full). Default level is medium.
-
     --insert_batch_size Number of VALUES to be added to one INSERT statement
                         for bean data. Defaults to 20.
 
@@ -136,8 +131,6 @@ if (!function_exists('getopt')) {
 $opts = getopt(
     'l:u:s:x:chv',
     [
-        'tba_level:',
-        'tba',
         'allmodules',
         'allrelationships',
         'storage:',
@@ -293,7 +286,6 @@ if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
 
 $moduleUsingGenerators = array('KBContents', 'Categories', 'ProductCategories');
 
-
 if (isset($opts['l']) && !isset($opts['profile'])) {
     if (!is_numeric($opts['l'])) {
         exitWithError($usageStr);
@@ -309,9 +301,6 @@ if (isset($opts['u'])) {
     }
     $modules['Teams'] = $opts['u'] * ($modules['Teams'] / $modules['Users']);
     $modules['Users'] = $opts['u'];
-    if (isset($opts['tba'])) {
-        $modules['ACLRoles'] = ceil($modules['Users'] / $modules['ACLRoles']);
-    }
 }
 
 if (isset($opts['x'])) {
@@ -329,32 +318,6 @@ if (isset($opts['c'])) {
 
 if (!empty($opts['s'])) {
     $tidbit_relationships['TeamSets']['Teams']['degree'] = (int) $opts['s'];
-}
-
-if (isset($opts['tba'])) {
-    if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.8.0', '>=')) {
-        $GLOBALS['tba'] = true;
-    } else {
-        echo "!!! WARNING !!!\n";
-        echo "Team Based ACL Settings could not be enabled for SugarCRM version less than 7.8 \n";
-        echo "!!! WARNING !!!\n";
-        echo "\n";
-    }
-}
-
-if (isset($GLOBALS['tba']) && $GLOBALS['tba'] == true) {
-    $GLOBALS['tba_level'] = in_array($opts['tba_level'], array_keys($tbaRestrictionLevel))
-        ? strtolower($opts['tba_level'])
-        : $tbaRestrictionLevelDefault;
-}
-
-// Do not populate KBContent and KBCategories for versions less that 7.7.0.0
-if (isset($modules['Categories']) && version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
-    echo "Knowledge Base Tidbit Data population is available only for 7.7.0.0 and newer versions of SugarCRM\n";
-    echo "\n";
-
-    unset($modules['Categories']);
-    unset($modules['KBContents']);
 }
 
 $GLOBALS['parallel'] = false;

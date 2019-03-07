@@ -49,13 +49,6 @@ class ForkingController
     protected $g;
 
     /**
-     * SugarBean
-     *
-     * @var \SugarBean
-     */
-    protected $bean;
-
-    /**
      * Threads count
      *
      * @var int
@@ -64,10 +57,9 @@ class ForkingController
 
     protected $progressLogPrefix;
 
-    public function __construct(Generator $g, \SugarBean $bean, $threads)
+    public function __construct(Generator $g, $threads)
     {
         $this->g = $g;
-        $this->bean = $bean;
         $this->threads = $threads;
     }
 
@@ -144,24 +136,6 @@ class ForkingController
         }
 
         $this->showProgress($thread, $from, $to, $to);
-
-        // Apply TBA Rules for some modules
-        // $roleActions are defined in configs
-        if ($this->bean->getModuleName() == 'ACLRoles') {
-            $tbaGenerator = new \Sugarcrm\Tidbit\Generator\TBA($GLOBALS['db'], $GLOBALS['storageAdapter']);
-
-            if (isset($GLOBALS['clean'])) {
-                $tbaGenerator->clearDB();
-            }
-
-            if (!empty($GLOBALS['tba'])) {
-                $tbaGenerator->setAclRoleIds($generatedIds);
-                $tbaGenerator->setRoleActions($GLOBALS['roleActions']);
-                $tbaGenerator->setTbaFieldAccess($GLOBALS['tbaFieldAccess']);
-                $tbaGenerator->setTbaRestrictionLevel($GLOBALS['tbaRestrictionLevel']);
-                $tbaGenerator->generate();
-            }
-        }
     }
 
     protected function showProgress($thread, $from, $i, $to)
