@@ -40,7 +40,6 @@ use Sugarcrm\Tidbit\Core\Relationships;
 
 interface Generator
 {
-    public function obliterate();
     public function clean();
     public function generateRecord($n);
     public function afterGenerateRecord($n, $data);

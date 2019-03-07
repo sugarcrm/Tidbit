@@ -139,11 +139,6 @@ abstract class Common
     abstract public function clearDB();
 
     /**
-     * Remove all data from the tables of DB affected by generator.
-     */
-    abstract public function obliterateDB();
-
-    /**
      * Contains truncate db table logic for different DB Managers
      *
      * @param $tableName

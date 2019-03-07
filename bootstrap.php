@@ -55,16 +55,9 @@ Options
                     	but loadFactor is, number of users is 1/10th of
                     	loadFactor.  Otherwise, default is 100.
 
-    -o              	Turn Obliterate Mode on.  All existing records and
-                        relationships in the tables populated by this script
-                        will be emptied.  This includes any custom data in
-                        those tables. The administrator account will not be
-                        deleted.
-
-    -c              	Turn Clean Mode on.  All existing demo data will be
+    -c                  Turn Clean Mode on.  All existing demo data will be
                         removed.  No Data created within the app will be
-                        affected, and the administrator account will not be
-                        deleted.  Has no effect if Obliterate Mode is enabled.
+                        affected.
 
     --allmodules        All Modules. Scans the Sugar system for all out-of-box
                         and custom modules and will insert records to populate
@@ -141,7 +134,7 @@ if (!function_exists('getopt')) {
 }
 
 $opts = getopt(
-    'l:u:s:x:cohv',
+    'l:u:s:x:chv',
     [
         'tba_level:',
         'tba',
@@ -332,9 +325,6 @@ if (isset($opts['x'])) {
 
 if (isset($opts['c'])) {
     $GLOBALS['clean'] = true;
-}
-if (isset($opts['o'])) {
-    $GLOBALS['obliterate'] = true;
 }
 
 if (!empty($opts['s'])) {

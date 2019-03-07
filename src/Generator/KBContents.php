@@ -147,20 +147,6 @@ class KBContents extends Common
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function obliterateDB()
-    {
-        foreach ($this->affectedTables as $table) {
-            if ($table == 'notes') {
-                $this->db->query("DELETE FROM notes WHERE parent_type = 'KBContents'");
-            } else {
-                $this->db->query($this->getTruncateTableSQL($table));
-            }
-        }
-    }
-
-    /**
      * Create and save to db bean.
      *
      * @param int $modelCounter

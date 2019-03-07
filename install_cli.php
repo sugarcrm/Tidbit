@@ -60,7 +60,6 @@ foreach ($module_keys as $module) {
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
 echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
-echo "With Obliterate Mode " . (isset($GLOBALS['obliterate']) ? "ON" : "OFF") . "\n";
 echo "With Team-based ACL Mode " . (isset($GLOBALS['tba']) ? "ON" : "OFF") . "\n";
 echo "With Team-based Restriction Level " .
     (isset($GLOBALS['tba_level']) ? strtoupper($GLOBALS['tba_level']) : "OFF") . "\n";
@@ -91,7 +90,6 @@ if ($storageType == 'csv') {
     $storage = $GLOBALS['db'];
 }
 
-$obliterated = array();
 $relationStorageBuffers = array();
 
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
@@ -131,11 +129,7 @@ for ($mn = 1; $mn <= $mc; $mn++) {
         /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
         $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $modules[$module]);
 
-        if (isset($GLOBALS['obliterate'])) {
-            echo "\tObliterating all existing data ... ";
-            $generator->obliterateDB();
-            echo "DONE";
-        } elseif (isset($GLOBALS['clean'])) {
+        if (isset($GLOBALS['clean'])) {
             echo "\tCleaning up Tidbit and demo data ... ";
             $generator->clearDB();
             echo "DONE";
@@ -195,11 +189,7 @@ for ($mn = 1; $mn <= $mc; $mn++) {
     }
     $c->setProgressLogPrefix($progressLogPrefix);
 
-    if (isset($GLOBALS['obliterate'])) {
-        echo "\tObliterating all existing data ... ";
-        $g->obliterate();
-        echo "DONE\n";
-    } elseif (isset($GLOBALS['clean'])) {
+    if (isset($GLOBALS['clean'])) {
         echo "\tCleaning up demo data ... ";
         $g->clean();
         echo "DONE\n";
