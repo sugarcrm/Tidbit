@@ -152,8 +152,6 @@ class ForkingController
 
             if (isset($GLOBALS['clean'])) {
                 $tbaGenerator->clearDB();
-            } elseif (isset($GLOBALS['obliterate'])) {
-                $tbaGenerator->obliterateDB();
             }
 
             if (!empty($GLOBALS['tba'])) {

@@ -60,28 +60,6 @@ class UsersGenerator extends ModuleGenerator
         $this->teamSetCore = new TeamSetCore();
     }
 
-    protected function getDeleteWhereCondition()
-    {
-        return "id != '1'";
-    }
-
-    protected function getDeleteWhereConditionCstm()
-    {
-        return "id_c != '1'";
-    }
-
-    public function obliterate()
-    {
-        parent::obliterate();
-        $query = ($GLOBALS['db']->dbType == 'ibm_db2')
-            ? 'ALTER TABLE user_preferences ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE'
-            : $GLOBALS['db']->truncateTableSQL('user_preferences');
-        $GLOBALS['db']->query($query, true);
-        $GLOBALS['db']->query("DELETE FROM teams WHERE id LIKE 'seed-TeamsPr%'", true);
-        $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-%'", true);
-
-    }
-
     public function clean()
     {
         parent::clean();

@@ -52,11 +52,6 @@ class Decorator implements Generator
         $this->parent = $parent;
     }
 
-    public function obliterate()
-    {
-        $this->parent->obliterate();
-    }
-
     public function clean()
     {
         $this->parent->clean();

@@ -136,15 +136,6 @@ class TBA extends Common
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function obliterateDB()
-    {
-        $this->db->query("DELETE FROM acl_roles_actions WHERE role_id LIKE 'seed-%'");
-        $this->db->query($this->getTruncateTableSQL('acl_fields'));
-    }
-
-    /**
      * Generate and save queries for 'acl_roles_actions' table
      *
      * @param $moduleName

@@ -124,14 +124,6 @@ class Categories extends Common
     }
 
     /**
-     * Remove all data from the tables of DB affected by generator.
-     */
-    public function obliterateDB()
-    {
-        $this->db->query($this->getTruncateTableSQL('categories'));
-    }
-
-    /**
      * Count tree indexes.
      *
      * @param array $categoryByLevels

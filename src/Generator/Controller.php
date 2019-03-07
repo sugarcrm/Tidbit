@@ -109,8 +109,6 @@ class Controller
 
             if (isset($GLOBALS['clean'])) {
                 $tbaGenerator->clearDB();
-            } elseif (isset($GLOBALS['obliterate'])) {
-                $tbaGenerator->obliterateDB();
             }
 
             if (!empty($GLOBALS['tba'])) {

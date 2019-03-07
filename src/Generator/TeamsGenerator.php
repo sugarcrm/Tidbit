@@ -38,23 +38,6 @@ namespace Sugarcrm\Tidbit\Generator;
 
 class TeamsGenerator extends ModuleGenerator
 {
-    protected function getDeleteWhereCondition()
-    {
-        return "id != '1'";
-    }
-
-    protected function getDeleteWhereConditionCstm()
-    {
-        return "id_c != '1'";
-    }
-
-    public function obliterate()
-    {
-        parent::obliterate();
-        $GLOBALS['db']->query("DELETE FROM team_sets");
-        $GLOBALS['db']->query("DELETE FROM team_sets_teams");
-    }
-
     public function clean()
     {
         parent::clean();

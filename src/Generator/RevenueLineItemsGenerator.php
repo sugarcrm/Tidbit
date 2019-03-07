@@ -53,12 +53,6 @@ class RevenueLineItemsGenerator extends ModuleGenerator
         $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function obliterate()
-    {
-        parent::obliterate();
-        $GLOBALS['db']->query("DELETE FROM forecast_worksheets WHERE id LIKE 'seed-%'", true);
-    }
-
     public function clean()
     {
         parent::clean();

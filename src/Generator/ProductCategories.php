@@ -54,7 +54,7 @@ class ProductCategories extends Common
      * @var integer
      */
     protected $modelCounter = 0;
-    
+
     /**
      * Data generator.
      *
@@ -94,16 +94,6 @@ class ProductCategories extends Common
         $this->db->query("DELETE FROM product_categories WHERE id LIKE 'seed-%'");
         $this->db->query("DELETE FROM product_templates WHERE id LIKE 'seed-%'");
     }
-
-    /**
-     * Remove all data from the tables of DB affected by generator.
-     */
-    public function obliterateDB()
-    {
-        $this->db->query($this->getTruncateTableSQL('product_categories'));
-        $this->db->query($this->getTruncateTableSQL('product_templates'));
-    }
-
 
     /**
      * Add insert record and return id of it.
