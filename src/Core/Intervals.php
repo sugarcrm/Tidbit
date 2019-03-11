@@ -161,18 +161,4 @@ class Intervals
             return $moduleName;
         }
     }
-
-    /**
-     * Get Random Related Module counter.
-     * Returns random value from $relModule generation interval
-     * f.e. if you generating 1000 Accounts, relatedId will be returned from 1 to 1000
-     *
-     * @param $module
-     * @return int
-     */
-    public function getRandomInterval($module)
-    {
-        $modules = $this->config->get('modules');
-        return mt_rand(0, $modules[$module] - 1);
-    }
 }
