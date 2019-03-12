@@ -36,7 +36,7 @@
  ********************************************************************************/
 
 $usageStr = "Usage: " . $_SERVER['PHP_SELF'] .
-    " [-l loadFactor] [-u userCount] [-x txBatchSize] [-c] [-h] [-v]\n";
+    " [-l loadFactor] [-u userCount] [-c] [-h] [-v]\n";
 
 $versionStr = "Tidbit v3.0 -- Compatible with SugarCRM 7.9 and up.\n";
 $helpStr = <<<EOS
@@ -91,9 +91,6 @@ Options
 
     -h                  Display this help text.
 
-    -x count            How often to commit module records - important on DBs
-                        like DB2. Default is no batches.
-
     -s                  The number of teams per team set and per record.
                         Defaults to 10.
 
@@ -129,7 +126,7 @@ if (!function_exists('getopt')) {
 }
 
 $opts = getopt(
-    'l:u:s:x:chv',
+    'l:u:s:chv',
     [
         'allmodules',
         'allrelationships',
@@ -301,15 +298,6 @@ if (isset($opts['u'])) {
     }
     $modules['Teams'] = $opts['u'] * ($modules['Teams'] / $modules['Users']);
     $modules['Users'] = $opts['u'];
-}
-
-if (isset($opts['x'])) {
-    if (!is_numeric($opts['x']) || $opts['x'] < 1) {
-        exitWithError($usageStr);
-    }
-    $_GLOBALS['txBatchSize'] = $opts['x'];
-} else {
-    $_GLOBALS['txBatchSize'] = 0;
 }
 
 if (isset($opts['c'])) {

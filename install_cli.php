@@ -59,7 +59,6 @@ foreach ($module_keys as $module) {
 
 echo "\n";
 echo "With Clean Mode " . (isset($GLOBALS['clean']) ? "ON" : "OFF") . "\n";
-echo "With Transaction Batch Mode " . (isset($_GLOBALS['txBatchSize']) ? $_GLOBALS['txBatchSize'] : "OFF") . "\n";
 echo "\n";
 
 // creating storage adapter
