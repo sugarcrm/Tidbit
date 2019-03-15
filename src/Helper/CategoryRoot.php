@@ -35,15 +35,26 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Categories']['name'] = ['incname' => 'Category'];
-$GLOBALS['dataTool']['Categories']['is_external'] = ['value' => 0];
-$GLOBALS['dataTool']['Categories']['description'] = ['value' => null];
-$GLOBALS['dataTool']['Categories']['source_id'] = ['value' => null];
-$GLOBALS['dataTool']['Categories']['source_type'] = ['value' => null];
-$GLOBALS['dataTool']['Categories']['source_meta'] = ['value' => null];
+namespace Sugarcrm\Tidbit\Helper;
 
-// these fields are set by the categories generator
-$GLOBALS['dataTool']['Categories']['root'] = ['skip' => true];
-$GLOBALS['dataTool']['Categories']['lvl'] = ['skip' => true];
-$GLOBALS['dataTool']['Categories']['lft'] = ['skip' => true];
-$GLOBALS['dataTool']['Categories']['rgt'] = ['skip' => true];
+use \Sugarcrm\Tidbit\Core\Factory;
+
+class CategoryRoot
+{
+    public static function setRoot()
+    {
+        $idGenerator = Factory::getComponent('intervals');
+        $rootID = $idGenerator->generateTidbitID(0, 'Categories');
+
+        $apiUser = new \User();
+        $apiUser->is_admin = '1';
+        $api = new \RestService();
+        $api->user = $apiUser;
+        $api->platform = 'base';
+        $client = new \ConfigModuleApi();
+        $client->configSave($api, [
+            'category_root' => $rootID,
+            'module' => 'KBContents',
+        ]);
+    }
+}
