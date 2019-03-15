@@ -206,6 +206,9 @@ if ($storageType != 'csv') {
     if (\Sugarcrm\Tidbit\Helper\TeamSecurityDenorm::denorm() != 0) {
         exit(11);
     }
+
+    echo "Set Categories root category in config\n";
+    \Sugarcrm\Tidbit\Helper\CategoryRoot::setRoot();
 }
 
 echo "\n";
