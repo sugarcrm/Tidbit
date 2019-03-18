@@ -37,7 +37,6 @@
 namespace Sugarcrm\Tidbit\Generator;
 
 use Sugarcrm\Tidbit\DataTool;
-use Sugarcrm\Tidbit\Core\Factory;
 use Sugarcrm\Tidbit\Core\Relationships;
 
 class ModuleGenerator implements Generator
@@ -98,7 +97,10 @@ class ModuleGenerator implements Generator
         }
 
         foreach ($GLOBALS['tidbit_relationships'][$module] as $rel) {
-            $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE id LIKE 'seed-%'", true);
+            if (!in_array($rel['table'], $GLOBALS['cleanedTables'])) {
+                $GLOBALS['db']->query("DELETE FROM {$rel['table']} WHERE id LIKE 'seed-%'", true);
+                $GLOBALS['cleanedTables'][] = $rel['table'];
+            }
         }
     }
 
