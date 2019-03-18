@@ -520,8 +520,7 @@ class DataTool
         // This is used to associate email addresses with rows in
         // Contacts or Leads.  See config/relationships/email_addr_bean_rel.php
         if (!empty($typeData['getmodule'])) {
-            $rtn = "'" . $this->module . "'";
-            return $rtn;
+            return "'" . $this->module . "'";
         }
         if (!empty($typeData['prefixlist'])) {
             foreach ($typeData['prefixlist'] as $prefixlist) {

@@ -302,6 +302,7 @@ if (isset($opts['u'])) {
 
 if (isset($opts['c'])) {
     $GLOBALS['clean'] = true;
+    $GLOBALS['cleanedTables'] = [];
 }
 
 if (!empty($opts['s'])) {
