@@ -344,7 +344,6 @@ $tidbit_relationships['Leads'] = array(
     )
 );
 
-$kbCategoriesNestingLevel = 5;
 // Temporary disable generation of Notes for KB because of request
 // 'Notes Account RelatedTo Filter' in Jmeter tests failing
 $kbNumberOfArticlesWithNotes = 0;
