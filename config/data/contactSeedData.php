@@ -21366,9 +21366,6 @@ $state_array = array(
 $companyPre = array('X/Z', 'Sugar', 'World', 'International', '', '', '', '', '194', '786', '3492',);
 
 $lang_array = array('en');
-if (isset($kbLanguage)) {
-    $lang_array = array_keys($kbLanguage['list']);
-}
 
 $last_name_count = count($last_name_array);
 $first_name_count = count($first_name_array);
