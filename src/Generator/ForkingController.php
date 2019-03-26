@@ -105,13 +105,11 @@ class ForkingController
     protected function doGenerate($from, $to, $thread)
     {
         $buffers = [];
-        $generatedIds = [];
         $this->showProgress($thread, $from, $from, $to);
         $t = microtime(true);
         for ($i = $from; $i < $to; $i++) {
             $data = $this->g->generateRecord($i);
             $data = $this->g->afterGenerateRecord($i, $data);
-            $generatedIds[] = $data['id'];
 
             $GLOBALS['processedRecords']++;
             foreach ($data['data'] as $table => $rows) {
