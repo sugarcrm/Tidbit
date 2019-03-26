@@ -62,13 +62,11 @@ class Controller
     public function generate($total)
     {
         $buffers = [];
-        $generatedIds = [];
         showProgress($this->progressLogPrefix, 0, $total);
         $t = microtime(true);
         for ($i = 0; $i < $total; $i++) {
             $data = $this->g->generateRecord($i);
             $data = $this->g->afterGenerateRecord($i, $data);
-            $generatedIds[] = $data['id'];
 
             $GLOBALS['processedRecords']++;
             foreach ($data['data'] as $table => $rows) {
