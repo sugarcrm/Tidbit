@@ -281,8 +281,6 @@ if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
     $insertBatchSize = ((int)$opts['insert_batch_size']);
 }
 
-$moduleUsingGenerators = ['ProductCategories'];
-
 if (isset($opts['l']) && !isset($opts['profile'])) {
     if (!is_numeric($opts['l'])) {
         exitWithError($usageStr);
