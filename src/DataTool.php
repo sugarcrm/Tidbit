@@ -693,8 +693,8 @@ class DataTool
         $missed = array_diff_key($possibleKeys, $all);
         if ($rest > 0 && !empty($missed)) {
             $probabilityPerValue = round($rest / count($missed));
-            foreach ($missed as $value) {
-                $all[$value] = $probabilityPerValue;
+            foreach ($missed as $key => $value) {
+                $all[$key] = $probabilityPerValue;
             }
         }
 

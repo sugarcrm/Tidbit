@@ -120,25 +120,6 @@ for ($mn = 1; $mn <= $mc; $mn++) {
             :"")
         .":\n";
 
-    if (in_array($module, $moduleUsingGenerators)) {
-        $generatorName = '\Sugarcrm\Tidbit\Generator\\' . $module;
-        /** @var \Sugarcrm\Tidbit\Generator\Common $generator */
-        $generator = new $generatorName($GLOBALS['db'], $storageAdapter, $modules[$module]);
-
-        if (isset($GLOBALS['clean'])) {
-            echo "\tCleaning up Tidbit and demo data ... ";
-            $generator->clearDB();
-            echo "DONE";
-        }
-
-        echo "\n\tHitting DB... ";
-        $generator->generate();
-        $total = $generator->getInsertCounter();
-        showProgress($progressLogPrefix, $modules[$module], $modules[$module]);
-        echo "\n\tTime spend... " . microtime_diff($moduleTimeStart, microtime()) . "s\n";
-        continue;
-    }
-
     echo "Inserting ${total} records.\n";
     $bean = BeanFactory::getBean($module);
 
