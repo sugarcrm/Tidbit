@@ -36,8 +36,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'test_name'", $actual);
+        $this->assertEquals("test_name", $actual);
     }
 
     /**
@@ -51,8 +50,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("''", $actual);
+        $this->assertEquals("", $actual);
     }
 
     /**
@@ -75,8 +73,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'OPTION_1'", $actual);
+        $this->assertEquals("OPTION_1", $actual);
     }
 
     /**
@@ -99,8 +96,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'OPTION_1'", $actual);
+        $this->assertEquals("OPTION_1", $actual);
     }
 
     /**
@@ -127,9 +123,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
         $GLOBALS['app_list_strings'] = array('LBL_SOME_OPTION' => $options);
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
-
-        $this->assertIsQuoted($actual);
-        $this->assertContains($this->removeQuotes($actual), array_keys($options));
+        $this->assertContains($actual, array_keys($options));
     }
 
     /**
@@ -144,8 +138,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals('suf1value suf2value', $this->removeQuotes($actual));
+        $this->assertEquals(' suf1value suf2value', $actual);
     }
 
     /**
@@ -160,8 +153,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals('pref2value pref1value', $this->removeQuotes($actual));
+        $this->assertEquals('pref2value pref1value ', $actual);
     }
 
     /**
@@ -175,8 +167,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals('last_name_value@test', $this->removeQuotes($actual));
+        $this->assertEquals('last_name_value@test', $actual);
     }
 
     /**
@@ -190,8 +181,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals('test@last_name_value', $this->removeQuotes($actual));
+        $this->assertEquals('test@last_name_value', $actual);
     }
 
     /**
@@ -206,7 +196,6 @@ class ListSuffixPrefixEnum extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals('test@last', $this->removeQuotes($actual));
+        $this->assertEquals('test@last', $actual);
     }
 }

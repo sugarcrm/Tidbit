@@ -37,7 +37,7 @@
 
 $GLOBALS['dataTool']['Accounts']['annual_revenue'] = array('range' => array('min' => 10000, 'max' => 500000000));
 $GLOBALS['dataTool']['Accounts']['employees'] = array('range' => array('min' => 3, 'max' => 50000));
-$GLOBALS['dataTool']['Accounts']['website'] = array('value' => "'www.example.com'");
+$GLOBALS['dataTool']['Accounts']['website'] = array('value' => "www.example.com");
 $GLOBALS['dataTool']['Accounts']['name'] = array(
     'list' => 'last_name_array',
     'prefixlist' => array('companyPre'),

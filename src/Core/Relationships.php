@@ -27,7 +27,7 @@ class Relationships
         $this->module = $module;
         $this->dataTool = $dataTool;
         $this->coreIntervals = Factory::getComponent('Intervals');
-        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+        $this->currentDateTime = date('Y-m-d H:i:s');
     }
 
     /**
@@ -41,7 +41,7 @@ class Relationships
             $modules = array_flip(array_keys($GLOBALS['modules']));
         }
 
-        $bin = $suffix = \pack(
+        $suffix = \pack(
             "CLCLCC",
             $modules[$this->module],
             $count,
@@ -98,9 +98,9 @@ class Relationships
 
                     $relID = $this->generateRelID($n, $relModule, $youN, $j, $multiply);
                     $installData = [
-                        'id'                  => "'" . $relID . "'",
-                        $relationship['self'] => "'" . $baseID . "'",
-                        $relationship['you']  => "'" . $youID . "'",
+                        'id'                  => $relID,
+                        $relationship['self'] => $baseID,
+                        $relationship['you']  => $youID,
                         'deleted'             => 0,
                         'date_modified'       => $this->currentDateTime,
                     ];

@@ -47,7 +47,7 @@ $GLOBALS['dataTool']['default']['decimal2'] = array('range' => array('min' => 0,
 $GLOBALS['dataTool']['default']['short'] = array('range' => array('min' => 0, 'max' => 10));
 $GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
 // $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
-$GLOBALS['dataTool']['default']['text'] = ['value' => "''"];
+$GLOBALS['dataTool']['default']['text'] = ['value' => ""];
 $GLOBALS['dataTool']['default']['date'] = [
     'range' => ['min' => -30, 'max' => 30],
     'type' => 'date',
@@ -92,11 +92,11 @@ $GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
 $GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
 $GLOBALS['dataTool']['default']['id'] = [];
 $GLOBALS['dataTool']['default']['deleted'] = ['value' => 0];
-$GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];
+$GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => ""];
 $GLOBALS['dataTool']['default']['_erased_fields'] = ['probability' => 3];
 $GLOBALS['dataTool']['default']['subscriptions'] = ['probability' => 2];
 $GLOBALS['dataTool']['default']['favorites'] = ['probability' => 3];
-$GLOBALS['dataTool']['default']['billing_address_country'] = $GLOBALS['dataTool']['default']['shipping_address_country'] = ['value' => "'USA'"];
+$GLOBALS['dataTool']['default']['billing_address_country'] = $GLOBALS['dataTool']['default']['shipping_address_country'] = ['value' => "USA"];
 $GLOBALS['dataTool']['default']['billing_address_street'] = $GLOBALS['dataTool']['default']['shipping_address_street'] = [
     'range' => ['min' => 1, 'max' => 1500],
     'suffixlist' => ['last_name_array', 'streetTypes'],

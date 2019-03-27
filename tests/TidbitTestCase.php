@@ -2,19 +2,17 @@
 
 namespace Sugarcrm\Tidbit\Tests;
 
-use Sugarcrm\Tidbit\PHPUnit\IsQuotedValueConstraint;
-
 class TidbitTestCase extends \PHPUnit_Framework_TestCase
 {
     /** @var array */
     protected $globals;
-    
+
     public function setUp()
     {
         parent::setUp();
         $this->globals = $GLOBALS;
     }
-    
+
     public function tearDown()
     {
         $GLOBALS = $this->globals;
@@ -52,37 +50,5 @@ class TidbitTestCase extends \PHPUnit_Framework_TestCase
         $property = $class->getProperty($propertyName);
         $property->setAccessible(true);
         return $property->getValue($classObject);
-    }
-
-    /**
-     * Custom assertion that value is quoted
-     *
-     * @param $value
-     * @param string $message
-     */
-    public static function assertIsQuoted($value, $message = '')
-    {
-        self::assertThat($value, self::isQuotedValue(), $message);
-    }
-
-    /**
-     * Instance of IsQuotedValueConstraint class
-     *
-     * @return IsQuotedValueConstraint
-     */
-    public static function isQuotedValue()
-    {
-        return new IsQuotedValueConstraint();
-    }
-
-    /**
-     * Helper function to remove quotes from string
-     *
-     * @param string $value
-     * @return string
-     */
-    public function removeQuotes($value)
-    {
-        return trim($value, "'");
     }
 }

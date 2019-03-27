@@ -227,6 +227,7 @@ if (file_exists(SUGAR_PATH . '/custom/application/Ext/Include/modules.ext.php'))
 if (file_exists(SUGAR_PATH . '/include/modules_override.php')) {
     require_once(SUGAR_PATH . '/include/modules_override.php');
 }
+$GLOBALS['sugar_config']['external_cache_disabled'] = true;
 
 if (file_exists(dirname(__FILE__) . '/../ini_setup.php')) {
     require_once dirname(__FILE__) . '/../ini_setup.php';

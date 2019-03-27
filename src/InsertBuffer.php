@@ -54,7 +54,6 @@ class InsertBuffer
      */
     protected $installData = array();
 
-
     /**
      * @var Common
      */
@@ -85,6 +84,7 @@ class InsertBuffer
         }
         $this->flush();
     }
+
     /**
      * @param array $installData
      */

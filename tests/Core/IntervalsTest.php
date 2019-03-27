@@ -74,24 +74,17 @@ class IntervalsTest extends TidbitTestCase
      *
      * @param string $module
      * @param int $id
-     * @param bool $quoted
      * @param string $expected
      * @param array $cache
      */
-    public function testAssembleId($module, $id, $quoted, $expected, $cache = array())
+    public function testAssembleId($module, $id, $expected, $cache = array())
     {
         $GLOBALS['baseTime'] = '1000';
 
         $instance = new Intervals($this->getConfig());
         $instance->assembleIdCache = $cache;
 
-        $actual = $instance->assembleId($module, $id, $quoted);
-
-        if ($quoted) {
-            $this->assertIsQuoted($actual);
-            $actual = $this->removeQuotes($actual);
-        }
-
+        $actual = $instance->assembleId($module, $id);
         $this->assertEquals($expected, $actual);
     }
 
@@ -105,111 +98,29 @@ class IntervalsTest extends TidbitTestCase
             array( // generic module case
                 'Contacts',
                 10,
-                false,
                 'seed-Contacts100010'
             ),
             array( // Users cases
                 'Users',
                 10,
-                false,
                 'seed-Users10'
             ),
             array( // Teams cases
                 'Teams',
                 100,
-                false,
                 'seed-Teams100'
             ),
             array( // Cached case
                 'Leads',
                 100,
-                false,
                 'seed-LeadsBLABLA100',
                 array('Leads' => 'seed-LeadsBLABLA')
             ),
             array( // Cached case
                 'Leads',
                 100,
-                true,
                 'seed-LeadsBLABLA100',
                 array('Leads' => 'seed-LeadsBLABLA')
-            ),
-        );
-    }
-
-    /**
-     * @see testGetRelatedIdRelAndBaseAreTheSame
-     * @return array
-     */
-    public function dataTestGetRelatedIdProvider()
-    {
-        return array(
-            array( // Initial values
-                0,
-                array('ContactsAccounts' => 0),
-                'Contacts',
-                'Accounts',
-                0
-            ),
-            array( // Less than Contacts/Accounts, 5th Contact should be linked on 1st Account
-                4,
-                array('ContactsAccounts' => 4),
-                'Contacts',
-                'Accounts',
-                0
-            ),
-            array( // Already generated 10 records, for each 10 Contacts there should be one Account
-                10,
-                array('ContactsAccounts' => 10),
-                'Contacts',
-                'Accounts',
-                1
-            ),
-            array( // 95th contact should be linked to 10th account
-                95,
-                array('ContactsAccounts' => 95),
-                'Contacts',
-                'Accounts',
-                9
-            ),
-        );
-    }
-
-    /**
-     * @see testGenerateRelatedTidbitID
-     */
-    public function dataTestGenerateRelatedTidbitIDProvider()
-    {
-        return array(
-            array(
-                0,
-                'Contacts',
-                'Accounts',
-                'seed-Accounts10000'
-            ),
-            array(
-                105, // (100 / 400) * 105
-                'Contacts',
-                'Accounts',
-                'seed-Accounts100026'
-            ),
-            array(
-                105, // (20 / 400) * 105
-                'Contacts',
-                'Users',
-                'seed-Users5'
-            ),
-            array(
-                105, // (40 / 400) * 105
-                'Contacts',
-                'Teams',
-                'seed-Teams10'
-            ),
-            array(
-                90, // (1000 / 100) * 90
-                'Accounts',
-                'LongNameModule',
-                'seed-LongNodule1000900'
             ),
         );
     }

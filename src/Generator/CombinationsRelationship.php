@@ -53,7 +53,7 @@ class CombinationsRelationship extends Decorator
         parent::__construct($g);
         $this->idGenerator = Factory::getComponent('intervals');
         $this->config = $config;
-        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+        $this->currentDateTime = date('Y-m-d H:i:s');
 
         $selfModule = $this->bean()->getModuleName();
         $youModule = $this->config['you_module'];
@@ -100,7 +100,7 @@ class CombinationsRelationship extends Decorator
         $table = $this->config['table'];
         foreach ($relatedNs as $relatedN) {
             $data['data'][$table][] = [
-                'id' => "'" . $this->relsGen()->generateRelID($n, $youModule, $relatedN, 0, 0) . "'",
+                'id' => $this->relsGen()->generateRelID($n, $youModule, $relatedN, 0, 0),
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
                 'deleted' => 0,

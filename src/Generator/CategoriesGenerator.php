@@ -65,9 +65,9 @@ class CategoriesGenerator extends ModuleGenerator
         $right = $left + ((1 - pow(self::CHILDREN, $deltaLevel + 1)) / (1 - self::CHILDREN)) * 2 - 1;
 
         $data = parent::generateRecord($n);
-        $data['data'][$this->bean()->getTableName()][0]['lft'] = "'".$left."'";
-        $data['data'][$this->bean()->getTableName()][0]['rgt'] = "'".$right."'";
-        $data['data'][$this->bean()->getTableName()][0]['lvl'] = "'".$level."'";
+        $data['data'][$this->bean()->getTableName()][0]['lft'] = $left;
+        $data['data'][$this->bean()->getTableName()][0]['rgt'] = $right;
+        $data['data'][$this->bean()->getTableName()][0]['lvl'] = $level;
         $data['data'][$this->bean()->getTableName()][0]['root'] = $this->rootID;
         return $data;
     }

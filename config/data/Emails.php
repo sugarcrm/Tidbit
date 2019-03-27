@@ -36,19 +36,19 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Emails']['parent_id'] = array('related' => array('module' => 'Accounts'));
-$GLOBALS['dataTool']['Emails']['parent_type'] = array('value' => "'Accounts'");
-$GLOBALS['dataTool']['Emails']['to_addrs'] = array('value' => "'test@example.com; test2@example.com'");
-$GLOBALS['dataTool']['Emails']['cc_addrs'] = array('value' => "'test3@example.com'");
-$GLOBALS['dataTool']['Emails']['bcc_addrs'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['to_addrs_ids'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['to_addrs_names'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['to_addrs_emails'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['cc_addrs_ids'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['cc_addrs_names'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['cc_addrs_emails'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['bcc_addrs_ids'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['bcc_addrs_names'] = array('value' => "''");
-$GLOBALS['dataTool']['Emails']['bcc_addrs_emails'] = array('value' => "''");
+$GLOBALS['dataTool']['Emails']['parent_type'] = array('value' => "Accounts");
+$GLOBALS['dataTool']['Emails']['to_addrs'] = array('value' => "test@example.com; test2@example.com");
+$GLOBALS['dataTool']['Emails']['cc_addrs'] = array('value' => "test3@example.com");
+$GLOBALS['dataTool']['Emails']['bcc_addrs'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['to_addrs_ids'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['to_addrs_names'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['to_addrs_emails'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['cc_addrs_ids'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['cc_addrs_names'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['cc_addrs_emails'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['bcc_addrs_ids'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['bcc_addrs_names'] = array('value' => "");
+$GLOBALS['dataTool']['Emails']['bcc_addrs_emails'] = array('value' => "");
 $GLOBALS['dataTool']['Emails']['description_html'] = array('same' => 'description');
 $GLOBALS['dataTool']['Emails']['subscriptions'] = ['probability' => 30];
 

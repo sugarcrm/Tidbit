@@ -183,7 +183,7 @@ class HandleBasicTest extends TidbitTestCase
         $type = array('getmodule' => true);
 
         $actual = $this->dataTool->handleType($type, '', '', true);
-        $this->assertEquals("'Contacts'", $actual);
+        $this->assertEquals("Contacts", $actual);
     }
 
     /**
@@ -197,7 +197,6 @@ class HandleBasicTest extends TidbitTestCase
 
         // actual will be text with 10 words separated by space char
         $this->assertCount(10, explode(' ', $actual));
-        $this->assertIsQuoted($actual);
     }
 
     /**
@@ -210,10 +209,8 @@ class HandleBasicTest extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, '', '', true);
 
-        $this->assertIsQuoted($actual);
-
-        // 20 is a limit + 2 chars for quotes
-        $this->assertTrue(strlen($actual) == 20 + 2);
+        // 20 is a limit
+        $this->assertTrue(strlen($actual) == 20);
     }
 
     /**
@@ -226,9 +223,7 @@ class HandleBasicTest extends TidbitTestCase
 
         $actual = $this->dataTool->handleType($type, '', '', true);
 
-        $this->assertIsQuoted($actual);
-
-        // 10 is a limit + 2 chars for quotes
-        $this->assertTrue(strlen($actual) == 10 + 2);
+        // 10 is a limit
+        $this->assertTrue(strlen($actual) == 10);
     }
 }

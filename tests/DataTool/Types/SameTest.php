@@ -64,26 +64,6 @@ class SameTest extends TidbitTestCase
     /**
      * @covers ::handleType
      */
-    public function testSameValueTrimType()
-    {
-        $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1'];
-        $GLOBALS['dataTool']['Contacts']['field1'] = [];
-        $this->dataTool->module = 'Contacts';
-        $this->dataTool->setFields([
-            'field2' => ['type' => 'varchar'],
-            'field1' => ['type' => 'varchar'],
-        ]);
-
-        $this->dataTool->installData['field1'] = '   some_test_value   ';
-
-        $this->dataTool->generateData();
-        $actual = $this->dataTool->installData['field2'];
-        $this->assertEquals('some_test_value', $actual);
-    }
-
-    /**
-     * @covers ::handleType
-     */
     public function testSameToUpperType()
     {
         $GLOBALS['dataTool']['Contacts']['field2'] = ['same' => 'field1', 'toUpper' => true];
@@ -137,12 +117,11 @@ class SameTest extends TidbitTestCase
         ]);
 
         $expected = 'field1 value';
-        $this->dataTool->installData['field1'] = "'" . $expected . "'";
+        $this->dataTool->installData['field1'] = $expected;
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'" . md5($expected) . "'", $actual);
+        $this->assertEquals(md5($expected), $actual);
     }
 
     /**
@@ -165,8 +144,7 @@ class SameTest extends TidbitTestCase
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'" . md5($expected) . "'", $actual);
+        $this->assertEquals(md5($expected), $actual);
     }
 
     /**
@@ -181,8 +159,7 @@ class SameTest extends TidbitTestCase
         $expected = 20;
         $actual = $this->dataTool->handleType($type, '', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'" . md5($expected) . "'", $actual);
+        $this->assertEquals(md5($expected), $actual);
     }
 
     /**
@@ -212,7 +189,6 @@ class SameTest extends TidbitTestCase
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals(md5($expected), $this->removeQuotes($actual));
+        $this->assertEquals(md5($expected), $actual);
     }
 }

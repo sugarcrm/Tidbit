@@ -36,5 +36,5 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['quotes_accounts']['account_role'] = [
-    'binary_enum' => [ "'Ship To'", "'Bill To'"]
+    'binary_enum' => [ "Ship To", "Bill To"]
 ];

@@ -44,6 +44,6 @@ $GLOBALS['dataTool']['Quotes']['total_usdollar'] = array(
     'sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar')
 );
 /* Eventually the following should reference Accounts */
-$GLOBALS['dataTool']['Quotes']['quote_stage'] = array('value' => "'Draft'");
+$GLOBALS['dataTool']['Quotes']['quote_stage'] = array('value' => "Draft");
 $GLOBALS['dataTool']['Quotes']['quote_type'] = ['skip' => true];
 $GLOBALS['dataTool']['Quotes']['date_closed_timestamp'] = ['skip' => true];

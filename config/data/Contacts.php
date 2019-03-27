@@ -52,12 +52,12 @@ $GLOBALS['dataTool']['Contacts']['primary_address_postalcode'] = array(
 );
 $GLOBALS['dataTool']['Contacts']['alt_address_postalcode'] =
     $GLOBALS['dataTool']['Contacts']['primary_address_postalcode'];
-$GLOBALS['dataTool']['Contacts']['primary_address_country'] = array('value' => "'USA'");
-$GLOBALS['dataTool']['Contacts']['alt_address_country'] = array('value' => "'USA'");
+$GLOBALS['dataTool']['Contacts']['primary_address_country'] = array('value' => "USA");
+$GLOBALS['dataTool']['Contacts']['alt_address_country'] = array('value' => "USA");
 $GLOBALS['dataTool']['Contacts']['account_id'] = array('related' => array('module' => 'Accounts'));
 $GLOBALS['dataTool']['Contacts']['portal_name'] = array('incname' => 'contact');
 $GLOBALS['dataTool']['Contacts']['portal_password'] = array('same_hash' => 'portal_name');
-$GLOBALS['dataTool']['Contacts']['portal_active'] = array('value' => "'1'");
+$GLOBALS['dataTool']['Contacts']['portal_active'] = array('value' => "1");
 $GLOBALS['dataTool']['Contacts']['phone_fax'] = array('phone' => true);
 $GLOBALS['dataTool']['Contacts']['phone_work'] = array('phone' => true);
 $GLOBALS['dataTool']['Contacts']['phone_other'] = array('phone' => true);

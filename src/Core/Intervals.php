@@ -13,7 +13,7 @@ namespace Sugarcrm\Tidbit\Core;
 class Intervals
 {
     /** default quoted ID size */
-    const TIDBIT_ID_LENGTH = 38;
+    const TIDBIT_ID_LENGTH = 36;
 
     /** tidbit ID prefix */
     const PREFIX = 'seed';
@@ -50,11 +50,11 @@ class Intervals
         $currentModule = $this->getAlias($module);
         $id = $this->assembleId($currentModule, $counter);
 
-        // 36 is max ID length + 2 chars for quotes;
+        // 36 is max ID length
         if (strlen($id) > static::TIDBIT_ID_LENGTH) {
             $moduleLength = strlen($currentModule);
             // example seed-Calls146161708310000
-            $id = sprintf("'%s-%s%s'", static::PREFIX, $currentModule, substr(md5($id), 0, -($moduleLength + 1)));
+            $id = sprintf("%s-%s%s", static::PREFIX, $currentModule, substr(md5($id), 0, -($moduleLength + 1)));
         }
 
         return $id;
@@ -64,7 +64,6 @@ class Intervals
     {
         $module = $this->getAlias($module);
         $this->ensureIdPrefixCache($module);
-        $id = substr($id, 1, -1);
         $prefix = $this->assembleIdCache[$module];
         if (substr($id, 0, strlen($prefix)) != $prefix) {
             throw new \Exception("id $id of module $module doesn't start with $prefix");
@@ -104,21 +103,13 @@ class Intervals
      *
      * @param string $module
      * @param int $id
-     * @param bool $quotes
      *
      * @return string
      */
-    public function assembleId($module, $id, $quotes = true)
+    public function assembleId($module, $id)
     {
         $this->ensureIdPrefixCache($module);
-        $seedId = $this->assembleIdCache[$module] . $id;
-
-        // should return id be quoted or not
-        if ($quotes) {
-            $seedId = "'" . $seedId . "'";
-        }
-
-        return $seedId;
+        return $this->assembleIdCache[$module] . $id;
     }
 
     /**

@@ -84,24 +84,6 @@ class DataTool
     /** @var Intervals  */
     protected $coreIntervals;
 
-    // Skip db_convert for those types for optimization
-    protected static $notConvertedTypes = array(
-        'int',
-        'uint',
-        'double',
-        'float',
-        'decimal',
-        'decimal2',
-        'short',
-        'varchar',
-        'text',
-        'enum',
-        'bool',
-        'phone',
-        'email',
-        'created_by'
-    );
-
     /**
      * DataTool constructor.
      * @param string $storageType
@@ -240,7 +222,7 @@ class DataTool
             $this->installDataCstm['id_c'] = $this->installData['id'];
         }
 
-        return substr($this->installData['id'], 1, -1);
+        return $this->installData['id'];
     }
 
     public function clean()
@@ -292,13 +274,14 @@ class DataTool
          * user1, user2 etc.
          */
         if (!empty($typeData['incname'])) {
-            return "'" . @trim($typeData['incname'] . $this->count) . "'";
+            return $typeData['incname'] . $this->count;
         }
 
         if (!empty($typeData['autoincrement'])) {
             if ($this->storageType == Factory::OUTPUT_TYPE_ORACLE
                 || $this->storageType == Factory::OUTPUT_TYPE_DB2
             ) {
+                // TODO: return something so that oracle and db2 understand it's raw sql
                 return strtoupper($this->table_name . '_' . $field . '_seq.nextval');
             } elseif ($this->storageType == Factory::OUTPUT_TYPE_CSV) {
                 return $this->count + 1;
@@ -350,7 +333,7 @@ class DataTool
                 $rtn = strtolower($rtn);
             }
 
-            return @trim($rtn);
+            return $rtn;
         }
         if (!empty($typeData['same_sugar_hash'])) {
             return $this->getSameSugarHash($typeData['same_sugar_hash']);
@@ -358,12 +341,9 @@ class DataTool
         if (!empty($typeData['same_hash'])) {
             if (is_string($typeData['same_hash']) && !empty($this->fields[$typeData['same_hash']])) {
                 $value = $this->accessLocalField($typeData['same_hash']);
-                if (is_string($value)) {
-                    $value = substr($value, 1, strlen($value) - 2);
-                }
-                return "'" . md5($value) . "'";
+                return md5($value);
             } else {
-                return "'" . md5($typeData['same_hash']) . "'";
+                return md5($typeData['same_hash']);
             }
         }
         if (!empty($typeData['related'])) {
@@ -384,14 +364,14 @@ class DataTool
         }
 
         if (!empty($typeData['gibberish'])) {
-            $baseValue = @trim($this->generateGibberish($typeData['gibberish']));
+            $baseValue = $this->generateGibberish($typeData['gibberish']);
 
             // Check field length and truncate data depends on vardefs length
             if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
                 $baseValue = $this->truncateDataByLength($baseValue, (string)$GLOBALS['fieldData']['len']);
             }
 
-            return "'" . $baseValue . "'";
+            return $baseValue;
         }
 
         if (!empty($typeData['meeting_probability'])) {
@@ -428,14 +408,13 @@ class DataTool
                     }
                 }
             }
-            return "'" . @trim($keys[$selected]) . "'";
+            return $keys[$selected];
         }
 
         if (isset($typeData['phone'])) {
-            return "'" . Phone::getNumber() . "'";
+            return Phone::getNumber();
         }
 
-        $isQuote = true;
         //we have a range then it should either be a number or a date
         $baseValue = '';
         if (!empty($typeData['range'])) {
@@ -446,8 +425,6 @@ class DataTool
             }
             //everything but numbers must have a type so we are just a range
             if (!empty($typeData['type'])) {
-                $isQuote = true;
-
                 $dateTime = new \DateTime();
                 $dateTime->setTimestamp($GLOBALS['baseTime']);
 
@@ -458,8 +435,6 @@ class DataTool
 
                 // Use Sugar class to convert dateTime to $type format for saving TZ settings
                 $baseValue = $GLOBALS['timedate']->asDbType($dateTime, $typeData['type']);
-            } else {
-                $isQuote = false;
             }
         } elseif (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
             $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$typeData['list']]);
@@ -469,7 +444,6 @@ class DataTool
         // Handle date_start/date_end logic there
         if (!empty($typeData['same_datetime']) && !empty($this->fields[$typeData['same_datetime']])) {
             $baseValue = $this->accessLocalField($typeData['same_datetime']);
-            $baseValue = str_replace('\'', '', $baseValue);
 
             // Apply datetime modifications
             // Calculate modifications (e.g hours and minutes) and shift current base value
@@ -513,14 +487,14 @@ class DataTool
                     throw new \Exception("Enum value was not generated for field: $field");
                 }
 
-                return "'$value'";
+                return $value;
             }
         }
 
         // This is used to associate email addresses with rows in
         // Contacts or Leads.  See config/relationships/email_addr_bean_rel.php
         if (!empty($typeData['getmodule'])) {
-            return "'" . $this->module . "'";
+            return $this->module;
         }
         if (!empty($typeData['prefixlist'])) {
             foreach ($typeData['prefixlist'] as $prefixlist) {
@@ -538,17 +512,6 @@ class DataTool
 
         if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
             $baseValue = $this->truncateDataByLength($baseValue, (string)$GLOBALS['fieldData']['len']);
-        }
-
-        if ($isQuote || !empty($typeData['isQuoted'])) {
-            $baseValue = "'" . @trim($baseValue) . "'";
-        }
-
-        // Run db convert only for specific types. see DBManager::convert()
-        if ($this->storageType != Factory::OUTPUT_TYPE_CSV
-             && !in_array($type, self::$notConvertedTypes)
-        ) {
-            $baseValue = $GLOBALS['db']->convert($baseValue, $type);
         }
 
         return $baseValue;
@@ -670,11 +633,11 @@ class DataTool
         }
 
         if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
-            $password = "'" . md5($value) . "'";
+            $password = md5($value);
         } else {
             require_once SUGAR_PATH . '/src/Security/Password/Hash.php';
             $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();
-            $password = "'" . $hash->hash($value) . "'";
+            $password = $hash->hash($value);
         }
 
         return $password;

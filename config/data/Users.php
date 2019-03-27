@@ -36,8 +36,8 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Users']['modified_user_id'] = array('same' => 'id');
-$GLOBALS['dataTool']['Users']['status'] = array('value' => "'Active'");
-$GLOBALS['dataTool']['Users']['employee_status'] = array('value' => "'Active'");
+$GLOBALS['dataTool']['Users']['status'] = array('value' => "Active");
+$GLOBALS['dataTool']['Users']['employee_status'] = array('value' => "Active");
 $GLOBALS['dataTool']['Users']['system_generated_password'] = array('value' => "0");
 $GLOBALS['dataTool']['Users']['pwd_last_changed'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['authenticate_id'] = array('skip' => true);
@@ -52,7 +52,7 @@ $GLOBALS['dataTool']['Users']['user_hash'] = array('same_sugar_hash' => 'user_na
 $GLOBALS['dataTool']['Users']['user_preferences'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['portal_only'] = array('skip' => true);
 $GLOBALS['dataTool']['Users']['is_group'] = array('value' => "0");
-$GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "'en_us'");
+$GLOBALS['dataTool']['Users']['preferred_language'] = array('value' => "en_us");
 $GLOBALS['dataTool']['Users']['phone_fax'] = array('phone' => true);
 $GLOBALS['dataTool']['Users']['phone_work'] = array('phone' => true);
 $GLOBALS['dataTool']['Users']['phone_other'] = array('phone' => true);

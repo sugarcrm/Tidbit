@@ -37,7 +37,7 @@
 
 /* TODO - use two multiplicative-reference operators combined with a sum
  * to evaluate subtotals */
-$GLOBALS['dataTool']['ProductBundles']['bundle_stage'] = array('value' => "'Negotiation'");
+$GLOBALS['dataTool']['ProductBundles']['bundle_stage'] = array('value' => "Negotiation");
 $GLOBALS['dataTool']['ProductBundles']['subtotal_usdollar'] = array('same' => 'subtotal');
 $GLOBALS['dataTool']['ProductBundles']['shipping_usdollar'] = array('same' => 'shipping');
 $GLOBALS['dataTool']['ProductBundles']['tax_usdollar'] = array('same' => 'tax');

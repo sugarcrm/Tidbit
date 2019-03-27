@@ -37,16 +37,16 @@
 
 $GLOBALS['dataTool']['Meetings']['contact_id'] = array('related' => array('module' => 'Contacts'));
 $GLOBALS['dataTool']['Meetings']['parent_id'] = array('related' => array('module' => 'Accounts', 'ratio' => 8));
-$GLOBALS['dataTool']['Meetings']['parent_type'] = array('value' => "'Accounts'");
+$GLOBALS['dataTool']['Meetings']['parent_type'] = array('value' => "Accounts");
 $GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability' => true);
 $GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
 $GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
 
 // For possibility to perform Meetings update
-$GLOBALS['dataTool']['Meetings']['type'] = array('value' => "'Sugar'");
+$GLOBALS['dataTool']['Meetings']['type'] = array('value' => "Sugar");
 
 // Durations in Minutes will be 30 mins, hours from 0 to 12 (selected randomly)
-$GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "'30'");
+$GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "30");
 $GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min' => 0, 'max' => 12));
 /* We want meetings to be in the past 90% of the time. */
 /* Start should be always bigger than end */
@@ -66,3 +66,4 @@ $GLOBALS['dataTool']['Meetings']['date_end'] = array(
 );
 $GLOBALS['dataTool']['Meetings']['displayed_url'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['subscriptions'] = ['probability' => 25];
+$GLOBALS['dataTool']['Meetings']['repeat_dow'] = ['skip' => true];

@@ -51,8 +51,8 @@ $GLOBALS['dataTool']['Leads']['primary_address_postalcode'] = array(
     'isQuoted' => true
 );
 $GLOBALS['dataTool']['Leads']['alt_address_postalcode'] = $GLOBALS['dataTool']['Leads']['primary_address_postalcode'];
-$GLOBALS['dataTool']['Leads']['primary_address_country'] = array('value' => "'USA'");
-$GLOBALS['dataTool']['Leads']['alt_address_country'] = array('value' => "'USA'");
+$GLOBALS['dataTool']['Leads']['primary_address_country'] = array('value' => "USA");
+$GLOBALS['dataTool']['Leads']['alt_address_country'] = array('value' => "USA");
 $GLOBALS['dataTool']['Leads']['account_id'] = array('related' => array('module' => 'Accounts'));
 $GLOBALS['dataTool']['Leads']['contact_id'] = array('related' => array('module' => 'Contacts'));
 // $GLOBALS['dataTool']['Leads']['lead_source_description'] = array('gibberish' => 8);

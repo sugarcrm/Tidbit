@@ -103,8 +103,7 @@ class IncrementTest extends TidbitTestCase
         $this->dataTool->count = 1;
         $actual = $this->dataTool->handleType($type, '', '', true);
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'user1'", $actual);
+        $this->assertEquals("user1", $actual);
     }
 
     /**
@@ -121,8 +120,7 @@ class IncrementTest extends TidbitTestCase
             $this->dataTool->count = $i;
             $actual = $this->dataTool->handleType($type, '', '');
 
-            $this->assertIsQuoted($actual);
-            $this->assertEquals("'teams" . $i . "'", $actual);
+            $this->assertEquals("teams" . $i, $actual);
         }
     }
 
@@ -133,12 +131,11 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementNameTrimType()
     {
-        $type = array('incname' => '  user');
+        $type = array('incname' => 'user');
         $this->dataTool->count = 1;
         $actual = $this->dataTool->handleType($type, '', '');
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("'user1'", $actual);
+        $this->assertEquals("user1", $actual);
     }
 
     /**

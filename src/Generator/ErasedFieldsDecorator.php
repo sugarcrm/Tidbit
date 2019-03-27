@@ -44,8 +44,6 @@ class ErasedFieldsDecorator extends Decorator
 
     protected $config = [];
 
-    protected $tableNameEncoded;
-
     public function __construct(Generator $g)
     {
         parent::__construct($g);
@@ -61,8 +59,7 @@ class ErasedFieldsDecorator extends Decorator
                 $this->piiFields[] = $field;
             }
         }
-        $this->piiFieldsEncoded = "'".json_encode($this->piiFields)."'";
-        $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
+        $this->piiFieldsEncoded = json_encode($this->piiFields);
     }
 
     public function isUsefull()
@@ -83,12 +80,12 @@ class ErasedFieldsDecorator extends Decorator
         $mod = $n % 100;
         if ($mod <= $this->config['probability']) {
             foreach ($this->piiFields as $field) {
-                $data['data'][$this->bean()->getTableName()][0][$field] = 'NULL';
+                $data['data'][$this->bean()->getTableName()][0][$field] = null;
             }
 
             $data['data']['erased_fields'][] = [
-                'bean_id' => "'".$data['id']."'",
-                'table_name' => $this->tableNameEncoded,
+                'bean_id' => $data['id'],
+                'table_name' => $this->bean()->getTableName(),
                 'data' => $this->piiFieldsEncoded,
             ];
         }

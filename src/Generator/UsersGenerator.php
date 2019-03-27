@@ -54,8 +54,8 @@ class UsersGenerator extends ModuleGenerator
             'Home_TEAMNOTICE_ORDER_BY' => 'date_start',
             'userPrivGuid' => 'a4836211-ee89-0714-a4a2-466987c284f4',
         ];
-        $this->defaultPrefs = "'" . base64_encode(serialize($contents)) . "'";
-        $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
+        $this->defaultPrefs = base64_encode(serialize($contents));
+        $this->currentDateTime = date('Y-m-d H:i:s');
         $this->idGenerator = Factory::getComponent('intervals');
         $this->teamSetCore = new TeamSetCore();
     }
@@ -74,23 +74,23 @@ class UsersGenerator extends ModuleGenerator
 
         $userID = $data['id'];
         $data['data']['user_preferences'][] = [
-            'id' => "'" . md5($userID) . "'",
-            'category' => "'global'",
+            'id' => md5($userID),
+            'category' => "global",
             'date_entered' => $this->currentDateTime,
             'date_modified' => $this->currentDateTime,
-            'assigned_user_id' => "'" . $userID . "'",
+            'assigned_user_id' => $userID,
             'contents' => $this->defaultPrefs,
         ];
 
         $privateTeamID = $this->idGenerator->generateTidbitID($n, 'TeamsPr');
         $userData = $data['data']['users'][0];
-        $fullName = sprintf("'%s %s'", trim($userData['first_name'], "'"), trim($userData['last_name'], "'"));
-        $description = sprintf("'Private team for %s'", trim($userData['user_name'], "'"));
+        $fullName = sprintf("%s %s", $userData['first_name'], $userData['last_name']);
+        $description = sprintf("Private team for %s", $userData['user_name']);
 
         $managerID = $this->idGenerator->generateTidbitID(($n - ($n % 10)) + 1, 'Users');
 
         if ($n == 0) {
-            $managerID = "''";
+            $managerID = "";
         }
 
         if ($n % 10 == 1) {
@@ -104,26 +104,26 @@ class UsersGenerator extends ModuleGenerator
             'name' => $fullName,
             'date_entered' => $this->currentDateTime,
             'date_modified' => $this->currentDateTime,
-            'modified_user_id' => "'1'",
-            'created_by' => "'1'",
+            'modified_user_id' => "1",
+            'created_by' => "1",
             'description' => $description,
             'deleted' => 0,
-            'name_2' => "''",
-            'associated_user_id' => "'$userID'",
+            'name_2' => "",
+            'associated_user_id' => $userID,
             'private' => 1,
         ];
 
         $teamMembershipRows = [
             [
                 'id' => $privateTeamID,
-                'user_id' => "'$userID'",
+                'user_id' => $userID,
                 'team_id' => $privateTeamID,
                 'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ],[
                 'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
-                'user_id' => "'$userID'",
-                'team_id' => "'1'",
+                'user_id' => $userID,
+                'team_id' => "1",
                 'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ],
@@ -139,8 +139,8 @@ class UsersGenerator extends ModuleGenerator
         );
         foreach ($teamNs as $teamN) {
             $teamMembershipRows[] = [
-                'id' => "'" . $this->relsGen->generateRelID($n, 'Teams', $teamN, 0, 0) . "'",
-                'user_id' => "'$userID'",
+                'id' => $this->relsGen->generateRelID($n, 'Teams', $teamN, 0, 0),
+                'user_id' => $userID,
                 'team_id' => $this->idGenerator->generateTidbitID($teamN, 'Teams'),
                 'deleted' => 0,
                 'date_modified' => $this->currentDateTime,

@@ -86,8 +86,6 @@ if ($storageType == 'csv') {
     $storage = $GLOBALS['db'];
 }
 
-$relationStorageBuffers = array();
-
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
 
 $mc = count($module_keys);

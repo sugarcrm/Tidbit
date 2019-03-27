@@ -50,12 +50,12 @@ class TeamSetsGenerator extends ModuleGenerator
     {
         $teams = [];
         foreach ($data['data']['team_sets_teams'] as $tst) {
-            $teams[] = preg_replace("~(^')|('$)~", '', $tst['team_id']);
+            $teams[] = $tst['team_id'];
         }
         $stats = $this->teamSetCore->getStatistics($teams);
 
-        $data['data'][$this->bean()->getTableName()][0]['team_md5'] = "'".$stats['team_md5']."'";
-        $data['data'][$this->bean()->getTableName()][0]['name'] = "'".$stats['team_md5']."'";
+        $data['data'][$this->bean()->getTableName()][0]['team_md5'] = $stats['team_md5'];
+        $data['data'][$this->bean()->getTableName()][0]['name'] = $stats['team_md5'];
         $data['data'][$this->bean()->getTableName()][0]['team_count'] = count($data['data']['team_sets_teams']);
 
         return $data;

@@ -37,3 +37,4 @@
 
 $GLOBALS['dataTool']['Reports']['content'] = ['skip' => true];
 $GLOBALS['dataTool']['Reports']['subscriptions'] = ['probability' => 15];
+$GLOBALS['dataTool']['Reports']['schedule_type'] = ['value' => 'pro'];

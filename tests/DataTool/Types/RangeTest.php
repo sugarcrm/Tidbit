@@ -70,8 +70,7 @@ class RangeTest extends TidbitTestCase
         $expected = new \DateTime();
         $expected->modify('5 days');
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals($expected->format('Y-m-d'), $this->removeQuotes($actual));
+        $this->assertEquals($expected->format('Y-m-d'), $actual);
     }
 
     /**
@@ -98,8 +97,7 @@ class RangeTest extends TidbitTestCase
         $expected->modify('5 days');
         $expected = $GLOBALS['timedate']->asDbType($expected, 'datetime');
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals($expected, $this->removeQuotes($actual));
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -126,8 +124,7 @@ class RangeTest extends TidbitTestCase
         $expected->setTimestamp($time);
         $expected->modify('-10 days');
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals($expected->format('Y-m-d H:i:s'), $this->removeQuotes($actual));
+        $this->assertEquals($expected->format('Y-m-d H:i:s'), $actual);
     }
 
     /**
@@ -153,7 +150,7 @@ class RangeTest extends TidbitTestCase
             ],
         ]);
 
-        $expectedDatetime = "'2016-05-20 10:12:13'";
+        $expectedDatetime = "2016-05-20 10:12:13";
         $this->dataTool->installData = [
             'field1' => $expectedDatetime,
         ];
@@ -161,7 +158,6 @@ class RangeTest extends TidbitTestCase
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
         $this->assertEquals($expectedDatetime, $actual);
     }
 
@@ -185,8 +181,7 @@ class RangeTest extends TidbitTestCase
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
-        $this->assertEquals("''", $actual);
+        $this->assertEquals("", $actual);
     }
 
     /**
@@ -225,16 +220,15 @@ class RangeTest extends TidbitTestCase
             ],
         ]);
         $this->dataTool->installData = array(
-            'field1'         => "'2016-05-20 10:12:13'",
+            'field1'         => "2016-05-20 10:12:13",
             'duration_hours' => 2,
         );
 
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
         // Expecting value will be modified by 2 hours and 30 minutes
-        $this->assertEquals("'2016-05-20 12:42:13'", $actual);
+        $this->assertEquals("2016-05-20 12:42:13", $actual);
     }
 
     /**
@@ -266,14 +260,13 @@ class RangeTest extends TidbitTestCase
             ],
         ]);
         $this->dataTool->installData = array(
-            'field1' => "'2016-05-20 10:12:13'",
+            'field1' => "2016-05-20 10:12:13",
         );
 
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
 
-        $this->assertIsQuoted($actual);
         // Expecting value will be modified by 5 hours and 10 minutes
-        $this->assertEquals("'2016-05-20 15:22:13'", $actual);
+        $this->assertEquals("2016-05-20 15:22:13", $actual);
     }
 }

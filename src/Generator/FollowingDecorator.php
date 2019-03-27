@@ -42,7 +42,6 @@ class FollowingDecorator extends Decorator
 {
     protected $config = [];
     protected $fieldName = '';
-    protected $tableNameEncoded;
     protected $idGenerator;
 
     public function __construct(Generator $g)
@@ -53,8 +52,6 @@ class FollowingDecorator extends Decorator
                 $this->config = $GLOBALS['dataTool'][$module]['subscriptions'];
             }
         }
-
-        $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
 
         $this->idGenerator = Factory::getComponent('intervals');
     }
@@ -68,7 +65,7 @@ class FollowingDecorator extends Decorator
     {
         parent::clean();
         $tableName = $this->bean()->getTableName();
-        $GLOBALS['db']->query("DELETE FROM subscriptions 
+        $GLOBALS['db']->query("DELETE FROM subscriptions
           WHERE parent_type = '$tableName' AND parent_id LIKE 'seed-%'");
     }
 
@@ -82,8 +79,8 @@ class FollowingDecorator extends Decorator
                     $n,
                     $this->bean()->getModuleName() . 'Subscription'
                 ),
-                'parent_id' => "'".$data['id']."'",
-                'parent_type' => $this->tableNameEncoded,
+                'parent_id' => $data['id'],
+                'parent_type' => $this->bean()->getTableName(),
                 'date_entered' => $data['data'][$this->bean()->getTableName()][0]['date_entered'],
                 'date_modified' => $data['data'][$this->bean()->getTableName()][0]['date_modified'],
                 'modified_user_id' => $data['data'][$this->bean()->getTableName()][0]['assigned_user_id'],

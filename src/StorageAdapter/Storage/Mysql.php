@@ -46,37 +46,55 @@ class Mysql extends Common
      */
     const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
 
+    private $stmtCache = [];
+
     /**
      * {@inheritdoc}
      *
      */
     public function save($tableName, array $installData)
     {
-        $sql = $this->prepareQuery($tableName, $installData);
-        $this->logQuery($sql);
-        $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+        $columns = array_keys($installData[0]);
+        $rowsPerBatch = floor(5E4 / count($columns));
+        for ($i = 0; $i < ceil(count($installData)/$rowsPerBatch); $i++) {
+            $from = $rowsPerBatch * $i;
+            $to = min($rowsPerBatch * ($i + 1), count($installData));
+            $this->do($tableName, array_slice($installData, $from, $to - $from));
+            echo "$tableName: $from - $to\n";
+        }
     }
 
-    /**
-     * rtfn
-     *
-     * @param string $tableName
-     * @param array $installData
-     * @return string
-     * @throws \Sugarcrm\Tidbit\Exception
-     */
-    protected function prepareQuery($tableName, array $installData)
+    private function do($tableName, array $installData)
     {
         if (!$tableName || !$installData) {
             throw new Exception("Mysql adapter error: wrong data to insert");
         }
 
-        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
+        $stmtCacheKey = $tableName . count($installData);
+        if (!isset($this->stmtCache[$stmtCacheKey])) {
+            $columns = array_keys($installData[0]);
+            $sql = 'INSERT INTO ' . $tableName . ' (' . implode(',', $columns) . ") VALUES \n";
 
-        foreach ($installData as $data) {
-            $sql .= '(' . implode(', ', $data) . "),";
+            $rowPlaceholders = '('.str_repeat('?,', count($columns) - 1).'?'.')';
+            $placeholders = str_repeat($rowPlaceholders.",\n", count($installData) - 1).$rowPlaceholders;
+            $sql .= $placeholders;
+
+            $stmt = $this->storageResource->getConnection()->prepare($sql);
+            $this->stmtCache[$stmtCacheKey] = $stmt;
         }
 
-        return substr($sql, 0, -1) . ';';
+        $stmt = $this->stmtCache[$stmtCacheKey];
+
+        $n = 1;
+        foreach ($installData as $row) {
+            foreach ($row as $value) {
+                $stmt->bindValue($n, $value);
+                $n++;
+            }
+        }
+
+        if (!$stmt->execute()) {
+            throw new \Exception("failed to execute statement");
+        }
     }
 }
