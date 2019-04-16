@@ -167,12 +167,6 @@ $tidbit_relationships['Accounts'] = array(
         'you' => 'case_id',
         'table' => 'accounts_cases'
     ),
-    'Quotes' => array(
-        'self' => 'account_id',
-        'you' => 'quote_id',
-        'table' => 'quotes_accounts',
-        'repeat' => 2,
-    ),
     'Tags' => array(
         'self' => 'bean_id',
         'you' => 'tag_id',
@@ -318,6 +312,13 @@ $tidbit_relationships['Quotes'] = array(
         'you' => 'bundle_id',
         'table' => 'product_bundle_quote'
     ),
+    'Accounts' => [
+        'self' => 'quote_id',
+        'you' => 'account_id',
+        'table' => 'quotes_accounts',
+        'ratio' => 1,
+        'repeat' => 2,
+    ],
 );
 $tidbit_relationships['ProductBundles'] = array(
     'Products' => array(
