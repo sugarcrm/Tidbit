@@ -123,11 +123,6 @@ $tidbit_relationships['Users'] = array(
         'you' => 'call_id',
         'table' => 'calls_users'
     ),
-    'Contacts' => array(
-        'self' => 'user_id',
-        'you' => 'contact_id',
-        'table' => 'contacts_users'
-    ),
     'Meetings' => array(
         'self' => 'user_id',
         'you' => 'meeting_id',
@@ -147,25 +142,10 @@ $tidbit_relationships['Accounts'] = array(
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
     ),
-    'Contacts' => array(
-        'self' => 'account_id',
-        'you' => 'contact_id',
-        'table' => 'accounts_contacts'
-    ),
-    'Opportunities' => array(
-        'self' => 'account_id',
-        'you' => 'opportunity_id',
-        'table' => 'accounts_opportunities'
-    ),
     'Bugs' => array(
         'self' => 'account_id',
         'you' => 'bug_id',
         'table' => 'accounts_bugs'
-    ),
-    'Cases' => array(
-        'self' => 'account_id',
-        'you' => 'case_id',
-        'table' => 'accounts_cases'
     ),
     'Tags' => array(
         'self' => 'bean_id',
@@ -182,6 +162,12 @@ $tidbit_relationships['Accounts'] = array(
     ),
 );
 $tidbit_relationships['Contacts'] = array(
+    'Accounts' => [
+        'self' => 'contact_id',
+        'you' => 'account_id',
+        'table' => 'accounts_contacts',
+        'ratio' => 1,
+    ],
     'EmailAddresses' => array(
         'you' => 'email_address_id',
         'self' => 'bean_id',
@@ -234,6 +220,12 @@ $tidbit_relationships['Contacts'] = array(
 );
 
 $tidbit_relationships['Opportunities'] = array(
+    'Accounts' => [
+        'self' => 'opportunity_id',
+        'you' => 'account_id',
+        'table' => 'accounts_opportunities',
+        'ratio' => 1,
+    ],
     'Quotes' => array(
         'self' => 'opportunity_id',
         'you' => 'quote_id',
@@ -248,6 +240,12 @@ $tidbit_relationships['Opportunities'] = array(
     ),
 );
 $tidbit_relationships['Cases'] = array(
+    'Accounts' => [
+        'self' => 'case_id',
+        'you' => 'account_id',
+        'table' => 'accounts_cases',
+        'ratio' => 1,
+    ],
     'Bugs' => array(
         'self' => 'case_id',
         'you' => 'bug_id',
