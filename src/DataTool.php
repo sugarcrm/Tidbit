@@ -74,6 +74,8 @@ class DataTool
     protected static $datetimeCacheIndex = 0;
     protected static $datetimeIndexMax = 1000;
 
+    protected $passwordHashCache = [];
+
     /**
      * Type of output storage
      *
@@ -353,7 +355,15 @@ class DataTool
             return @trim($rtn);
         }
         if (!empty($typeData['same_sugar_hash'])) {
-            return $this->getSameSugarHash($typeData['same_sugar_hash']);
+            $sameSugarHash = $this->accessLocalField($typeData['same_sugar_hash']);
+            return $this->getSugarHash($sameSugarHash);
+        }
+        if (!empty($typeData['sugar_hash'])) {
+            $sugarHash = $typeData['sugar_hash'];
+            if (!isset($this->passwordHashCache[$sugarHash])) {
+                $this->passwordHashCache[$sugarHash] = $this->getSugarHash($sugarHash);
+            }
+            return $this->passwordHashCache[$sugarHash];
         }
         if (!empty($typeData['same_hash'])) {
             if (is_string($typeData['same_hash']) && !empty($this->fields[$typeData['same_hash']])) {
@@ -659,12 +669,11 @@ class DataTool
      * Get hash from field according current sugar
      * hashing settings
      *
-     * @param $hashFromField
+     * @param $value
      * @return string
      */
-    protected function getSameSugarHash($hashFromField)
+    protected function getSugarHash($value)
     {
-        $value = $this->accessLocalField($hashFromField);
         if (is_string($value)) {
             $value = substr($value, 1, strlen($value) - 2);
         }
