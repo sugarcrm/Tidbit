@@ -66,6 +66,7 @@ class Controller
         $t = microtime(true);
         for ($i = 0; $i < $total; $i++) {
             $data = $this->g->generateRecord($i);
+            $data = $this->g->afterGenerateRecord($i, $data);
 
             $GLOBALS['processedRecords']++;
             foreach ($data['data'] as $table => $rows) {

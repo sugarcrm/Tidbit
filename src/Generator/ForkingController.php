@@ -109,6 +109,7 @@ class ForkingController
         $t = microtime(true);
         for ($i = $from; $i < $to; $i++) {
             $data = $this->g->generateRecord($i);
+            $data = $this->g->afterGenerateRecord($i, $data);
 
             $GLOBALS['processedRecords']++;
             foreach ($data['data'] as $table => $rows) {

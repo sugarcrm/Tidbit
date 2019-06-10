@@ -62,6 +62,11 @@ class Decorator implements Generator
         return $this->parent->generateRecord($n);
     }
 
+    public function afterGenerateRecord($n, $data)
+    {
+        return $this->parent->afterGenerateRecord($n, $data);
+    }
+
     public function bean()
     {
         return $this->parent->bean();
