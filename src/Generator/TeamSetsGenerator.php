@@ -36,6 +36,8 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
+use \Sugarcrm\Tidbit\Core\Factory;
+
 class TeamSetsGenerator extends ModuleGenerator
 {
     protected $teamSetCore;
@@ -44,19 +46,31 @@ class TeamSetsGenerator extends ModuleGenerator
     {
         parent::__construct($bean);
         $this->teamSetCore = new TeamSetCore();
+        $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function afterGenerateRecord($n, $data)
+    public function generateRecord($n)
     {
-        $teams = [];
-        foreach ($data['data']['team_sets_teams'] as $tst) {
-            $teams[] = preg_replace("~(^')|('$)~", '', $tst['team_id']);
-        }
-        $stats = $this->teamSetCore->getStatistics($teams);
+        $data = parent::generateRecord($n);
 
+        $teamSetsTeamsRelConfig = $GLOBALS['tidbit_relationships']['TeamSets']['Teams'];
+        $teamNs = CombinationsHelper::get(
+            $n,
+            $teamSetsTeamsRelConfig['degree'],
+            $GLOBALS['modules']['TeamSets'],
+            $GLOBALS['modules']['Teams']
+        );
+        $teams = [];
+        foreach ($teamNs as $teamN) {
+            $teamID = $this->idGenerator->generateTidbitID($teamN, 'Teams');
+            $teamID = substr($teamID, 1, strlen($teamID) - 2);
+            $teams[] = $teamID;
+        }
+
+        $stats = $this->teamSetCore->getStatistics($teams);
         $data['data'][$this->bean()->getTableName()][0]['team_md5'] = "'".$stats['team_md5']."'";
         $data['data'][$this->bean()->getTableName()][0]['name'] = "'".$stats['team_md5']."'";
-        $data['data'][$this->bean()->getTableName()][0]['team_count'] = count($data['data']['team_sets_teams']);
+        $data['data'][$this->bean()->getTableName()][0]['team_count'] = count($teams);
 
         return $data;
     }

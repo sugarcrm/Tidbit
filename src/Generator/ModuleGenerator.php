@@ -134,11 +134,6 @@ class ModuleGenerator implements Generator
         return $result;
     }
 
-    public function afterGenerateRecord($n, $data)
-    {
-        return $data;
-    }
-
     public function bean()
     {
         return $this->bean;
