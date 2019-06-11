@@ -42,7 +42,6 @@ interface Generator
 {
     public function clean();
     public function generateRecord($n);
-    public function afterGenerateRecord($n, $data);
     public function bean();
     public function relsGen(): Relationships;
 }
