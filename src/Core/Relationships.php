@@ -101,7 +101,6 @@ class Relationships
                         'id'                  => "'" . $relID . "'",
                         $relationship['self'] => "'" . $baseID . "'",
                         $relationship['you']  => "'" . $youID . "'",
-                        'deleted'             => 0,
                         'date_modified'       => $this->currentDateTime,
                     ];
 
