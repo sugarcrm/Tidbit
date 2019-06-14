@@ -36,5 +36,4 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['ProductCategories']['list_order'] = array('value' => 0);
-$GLOBALS['dataTool']['ProductCategories']['description'] = array('value' => '');
 $GLOBALS['dataTool']['ProductCategories']['parent_id'] = array('value' => null);

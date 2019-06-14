@@ -103,7 +103,6 @@ class CombinationsRelationship extends Decorator
                 'id' => "'" . $this->relsGen()->generateRelID($n, $youModule, $relatedN, 0, 0) . "'",
                 $this->config['self'] => $this->idGenerator->generateTidbitID($n, $selfModule),
                 $this->config['you'] => $this->idGenerator->generateTidbitID($relatedN, $youModule),
-                'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ];
         }
