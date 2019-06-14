@@ -45,6 +45,7 @@ $GLOBALS['dataTool']['KBContents']['language'] = array('list' => 'lang_array');
 $GLOBALS['dataTool']['KBContents']['kbdocument_body'] = array('gibberish' => 20);
 $GLOBALS['dataTool']['KBContents']['kbsapprover_id'] = array('related' => array('module' => 'Users'));
 $GLOBALS['dataTool']['KBContents']['kbscase_id'] = array('related' => array('module' => 'Cases'));
+$GLOBALS['dataTool']['KBContents']['description'] = array('value' => '');
 
 $maxVotes = empty($GLOBALS['modules']['Users']) ? 1 : $GLOBALS['modules']['Users'];
 $GLOBALS['dataTool']['KBContents']['useful'] = array('range' => array('min' => 0, 'max' => $maxVotes));

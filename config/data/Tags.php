@@ -36,6 +36,7 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['Tags']['name_lower'] = array('same' => 'name', 'toLower' => true);
+$GLOBALS['dataTool']['Tags']['description'] = array('value' => "null");
 $GLOBALS['dataTool']['Tags']['source_id'] = array('value' => "null");
 $GLOBALS['dataTool']['Tags']['source_type'] = array('value' => "null");
 $GLOBALS['dataTool']['Tags']['source_meta'] = array('value' => "null");

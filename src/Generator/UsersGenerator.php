@@ -107,6 +107,7 @@ class UsersGenerator extends ModuleGenerator
             'modified_user_id' => "'1'",
             'created_by' => "'1'",
             'description' => $description,
+            'deleted' => 0,
             'name_2' => "''",
             'associated_user_id' => "'$userID'",
             'private' => 1,
@@ -117,11 +118,13 @@ class UsersGenerator extends ModuleGenerator
                 'id' => $privateTeamID,
                 'user_id' => "'$userID'",
                 'team_id' => $privateTeamID,
+                'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ],[
                 'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
                 'user_id' => "'$userID'",
                 'team_id' => "'1'",
+                'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ],
         ];
@@ -139,6 +142,7 @@ class UsersGenerator extends ModuleGenerator
                 'id' => "'" . $this->relsGen->generateRelID($n, 'Teams', $teamN, 0, 0) . "'",
                 'user_id' => "'$userID'",
                 'team_id' => $this->idGenerator->generateTidbitID($teamN, 'Teams'),
+                'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
             ];
         }
