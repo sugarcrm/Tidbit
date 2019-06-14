@@ -83,7 +83,9 @@ class ErasedFieldsDecorator extends Decorator
         $mod = $n % 100;
         if ($mod <= $this->config['probability']) {
             foreach ($this->piiFields as $field) {
-                $data['data'][$this->bean()->getTableName()][0][$field] = 'NULL';
+                if (isset($data['data'][$this->bean()->getTableName()][0][$field])) {
+                    $data['data'][$this->bean()->getTableName()][0][$field] = 'NULL';
+                }
             }
 
             $data['data']['erased_fields'][] = [
