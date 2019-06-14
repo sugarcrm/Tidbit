@@ -37,6 +37,7 @@
 
 $GLOBALS['dataTool']['Categories']['name'] = ['incname' => 'Category'];
 $GLOBALS['dataTool']['Categories']['is_external'] = ['value' => 0];
+$GLOBALS['dataTool']['Categories']['description'] = ['value' => null];
 $GLOBALS['dataTool']['Categories']['source_id'] = ['value' => null];
 $GLOBALS['dataTool']['Categories']['source_type'] = ['value' => null];
 $GLOBALS['dataTool']['Categories']['source_meta'] = ['value' => null];
