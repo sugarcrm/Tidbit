@@ -112,7 +112,7 @@ class RevenueLineItemsGenerator extends ModuleGenerator
             'cost_price' => $rliData['cost_price'] ?? "''",
             'discount_price' => $rliData['discount_price'] ?? "''",
             'discount_amount' => $rliData['discount_amount'] ?? "''",
-            'quantity' => $rliData['quantity'] ?? "''",
+            'quantity' => (int)$rliData['quantity'] ?? "''",
             'total_amount' => $rliData['total_amount'] ?? "''",
             'draft' => 1,
         ];
