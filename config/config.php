@@ -340,6 +340,18 @@ $tidbit_relationships['Leads'] = array(
         'self' => 'bean_id',
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
+    ),
+    'Calls' => array(
+        'you' => 'call_id',
+        'self' => 'lead_id',
+        'table' => 'calls_leads',
+        'ratio' => 1,
+    ),
+    'Meetings' => array(
+        'you' => 'meeting_id',
+        'self' => 'lead_id',
+        'table' => 'meetings_leads',
+        'ratio' => 1,
     )
 );
 
