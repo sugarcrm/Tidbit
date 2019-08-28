@@ -50,3 +50,4 @@ $GLOBALS['dataTool']['KBContents']['description'] = array('value' => '');
 $maxVotes = empty($GLOBALS['modules']['Users']) ? 1 : $GLOBALS['modules']['Users'];
 $GLOBALS['dataTool']['KBContents']['useful'] = array('range' => array('min' => 0, 'max' => $maxVotes));
 $GLOBALS['dataTool']['KBContents']['notuseful'] = array('range' => array('min' => 0, 'max' => $maxVotes));
+$GLOBALS['dataTool']['KBContents']['is_external'] = ['value' => 1];

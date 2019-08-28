@@ -38,6 +38,7 @@
 $GLOBALS['dataTool']['default'] = array();
 $GLOBALS['dataTool']['default']['int'] = array('range' => array('min' => 0, 'max' => 100));
 $GLOBALS['dataTool']['default']['uint'] = array('range' => array('min' => 0, 'max' => 100));
+$GLOBALS['dataTool']['default']['tinyint'] = ['range' => ['min' => 0, 'max' => 100]];
 $GLOBALS['dataTool']['default']['long'] = array('range' => array('min' => 0, 'max' => 100));
 $GLOBALS['dataTool']['default']['ulong'] = array('range' => array('min' => 0, 'max' => 100));
 $GLOBALS['dataTool']['default']['double'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 1.7);
