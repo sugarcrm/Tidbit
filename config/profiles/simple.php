@@ -24,6 +24,7 @@ $modules = array(
     'Tasks' => 4000,
     'Notes' => 4000,
     'Documents' => 1000,
+    'DataPrivacy' => 12,
     'Categories' => 600,
     'KBContents' => 1000,
     'KBDocuments' => 300,
