@@ -59,6 +59,7 @@ $modules = array(
     'Tasks' => 400,
     'Notes' => 400,
     'Documents' => 100,
+    'DataPrivacy' => 12,
     'Categories' => 60,
     'KBContents' => 100,
     'KBDocuments' => 30,

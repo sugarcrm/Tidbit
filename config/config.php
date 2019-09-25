@@ -65,6 +65,7 @@ $modules = array(
     'Tasks' => 4000,
     'Notes' => 4000,
     'Documents' => 1000,
+    'DataPrivacy' => 40,
     'Categories' => 600,
     'KBContents' => 1000,
     'Reports' => 1000,
@@ -352,7 +353,27 @@ $tidbit_relationships['Leads'] = array(
         'self' => 'lead_id',
         'table' => 'meetings_leads',
         'ratio' => 1,
-    )
+    ),
+);
+$tidbit_relationships['DataPrivacy'] = array(
+    'Leads' => array(
+        'self' => 'dataprivacy_id',
+        'you' => 'lead_id',
+        'table' => 'leads_dataprivacy',
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+    ),
+    'Accounts' => array(
+        'self' => 'dataprivacy_id',
+        'you' => 'account_id',
+        'table' => 'accounts_dataprivacy',
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+    ),
+    'Contacts' => array(
+        'self' => 'dataprivacy_id',
+        'you' => 'contact_id',
+        'table' => 'contacts_dataprivacy',
+        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+    ),
 );
 
 $notifications_severity_list = array(
