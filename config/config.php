@@ -152,14 +152,14 @@ $tidbit_relationships['Accounts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
     'Emails' => array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
-        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
+        'ratio' => 1,
     ),
 );
 $tidbit_relationships['Contacts'] = array(
@@ -209,14 +209,14 @@ $tidbit_relationships['Contacts'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
     'Emails' => array(
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
-        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance of having Emails Relation
+        'ratio' => 1,
     ),
 );
 
@@ -236,7 +236,7 @@ $tidbit_relationships['Opportunities'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -256,7 +256,7 @@ $tidbit_relationships['Cases'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -265,7 +265,7 @@ $tidbit_relationships['Bugs'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -274,7 +274,7 @@ $tidbit_relationships['Notes'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -283,7 +283,7 @@ $tidbit_relationships['Calls'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -292,7 +292,7 @@ $tidbit_relationships['Tasks'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -301,7 +301,7 @@ $tidbit_relationships['Meetings'] = array(
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
-        'random_ratio' => array('min' => 0, 'max' => 3),
+        'ratio' => 2,
         'random_id' => true,
     ),
 );
@@ -360,19 +360,19 @@ $tidbit_relationships['DataPrivacy'] = array(
         'self' => 'dataprivacy_id',
         'you' => 'lead_id',
         'table' => 'leads_dataprivacy',
-        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+        'ratio' => 1,
     ),
     'Accounts' => array(
         'self' => 'dataprivacy_id',
         'you' => 'account_id',
         'table' => 'accounts_dataprivacy',
-        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+        'ratio' => 1,
     ),
     'Contacts' => array(
         'self' => 'dataprivacy_id',
         'you' => 'contact_id',
         'table' => 'contacts_dataprivacy',
-        'random_ratio' => array('min' => 0, 'max' => 1), // 50% chance
+        'ratio' => 1,
     ),
 );
 
