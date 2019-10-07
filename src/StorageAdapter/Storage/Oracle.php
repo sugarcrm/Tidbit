@@ -146,6 +146,7 @@ class Oracle extends Common
      */
     protected function setNewSequenceValue($sequenceName, $incrementOn)
     {
+        $sequenceName = $this->storageResource->getValidDBName(strtolower($sequenceName), true, 'index');
         // set increment value to our batch_size
         $sql = sprintf("ALTER SEQUENCE %s INCREMENT BY %d", $sequenceName, $incrementOn);
         $this->storageResource->query($sql);
