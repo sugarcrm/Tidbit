@@ -26,6 +26,8 @@ $modules = array(
     'DataPrivacy' => 200,
     'Categories' => 120000,
     'KBContents' => 200000,
+    'KBDocuments' => 60000,
+    'KBArticles' => 60000,
     'Reports' => 10000
 );
 
