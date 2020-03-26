@@ -212,7 +212,9 @@ for ($mn = 1; $mn <= $mc; $mn++) {
 // Update enabled Modules Tabs
 \Sugarcrm\Tidbit\Helper\ModuleTabs::updateEnabledTabs($GLOBALS['db'], $module_keys, $GLOBALS['moduleList']);
 
-if ($storageType != 'csv') {
+$usersCreated = $modules['Users'];
+
+if ($usersCreated > 0 && $storageType != 'csv') {
     echo "Creating implicit team memberships based on the users hierarchy\n";
     \Sugarcrm\Tidbit\Helper\RepairTeams::repair();
 

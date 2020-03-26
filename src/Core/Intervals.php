@@ -134,8 +134,13 @@ class Intervals
     public function getRelatedId($counter, $curModule, $relModule, $shift = 0)
     {
         $modules = $this->config->get('modules');
-        $n = floor($counter * $modules[$relModule] / $modules[$curModule]);
-        $result = ($n + $shift) % $modules[$relModule];
+        $cnt = $modules[$curModule] ?? 1;
+        $cnt = $cnt === 0 ? 1 : $cnt;
+        $n = floor($counter * ($modules[$relModule] ?? 1) / $cnt);
+
+        $cnt = $modules[$relModule] ?? 1;
+        $cnt = $cnt === 0 ? 1 : $cnt;
+        $result = ($n + $shift) % $cnt;
 
         return $result;
     }

@@ -39,12 +39,14 @@ namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 use Sugarcrm\Tidbit\Exception;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
-class Mysql extends Common
+class Mysql extends Common implements InsertIgnoreSupportInterface
 {
     /**
      * @var string
      */
     const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
+
+    private $insertIgnoreEnabled = false;
 
     /**
      * {@inheritdoc}
@@ -55,6 +57,11 @@ class Mysql extends Common
         $sql = $this->prepareQuery($tableName, $installData);
         $this->logQuery($sql);
         $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
+    }
+
+    public function enableIgnoreMode(bool $flag): void
+    {
+        $this->insertIgnoreEnabled = $flag;
     }
 
     /**
@@ -71,7 +78,13 @@ class Mysql extends Common
             throw new Exception("Mysql adapter error: wrong data to insert");
         }
 
-        $sql = 'INSERT INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
+        $insertStatement = "INSERT";
+        if ($this->insertIgnoreEnabled) {
+            $insertStatement = "INSERT IGNORE";
+        }
+
+        $sql = $insertStatement
+            . ' INTO ' . $tableName . ' ( ' . implode(', ', array_keys($installData[0])) . ') VALUES ';
 
         foreach ($installData as $data) {
             $sql .= '(' . implode(', ', $data) . "),";

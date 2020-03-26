@@ -1,5 +1,4 @@
 <?php
-
 /*********************************************************************************
  * Tidbit is a data generation tool for the SugarCRM application developed by
  * SugarCRM, Inc. Copyright (C) 2004-2010 SugarCRM Inc.
@@ -35,73 +34,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-namespace Sugarcrm\Tidbit\StorageAdapter;
+namespace Sugarcrm\Tidbit\StorageAdapter\Storage;
 
-use Sugarcrm\Tidbit\Exception;
-use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
-use Sugarcrm\Tidbit\StorageAdapter\Storage\InsertIgnoreSupportInterface;
-
-class Factory
+interface InsertIgnoreSupportInterface
 {
-    const OUTPUT_TYPE_MYSQL     = 'mysql';
-    const OUTPUT_TYPE_ORACLE    = 'oracle';
-    const OUTPUT_TYPE_CSV       = 'csv';
-    const OUTPUT_TYPE_DB2       = 'db2';
-
     /**
-     * List of storage types
-     *
-     * @var array
+     * Turns on/off IGNORE statement for all insert queries
      */
-    private static $availableTypes = array(
-        self::OUTPUT_TYPE_CSV,
-        self::OUTPUT_TYPE_MYSQL,
-        self::OUTPUT_TYPE_ORACLE,
-        self::OUTPUT_TYPE_DB2,
-    );
-
-    /**
-     * Storage Adapter Creator
-     *
-     * @param string $storageType
-     * @param mixed $storageResource
-     * @param string $logQueryPath
-     *
-     * @throws Exception
-     *
-     * @return \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
-     */
-    public static function getAdapterInstance($storageType, $storageResource, $logQueryPath = '')
-    {
-        if (!in_array($storageType, self::$availableTypes)) {
-            throw new Exception('Unsupported storage type');
-        }
-
-        $storageAdapterName = self::getAdapterClassName($storageType);
-
-        /** @var Common $instance */
-        $instance = new $storageAdapterName($storageResource, $logQueryPath);
-
-        if (!empty($GLOBALS['db_ignore_existing_records'])) {
-            if ($instance instanceof InsertIgnoreSupportInterface) {
-                $instance->enableIgnoreMode(true);
-            } else {
-                throw new Exception('INSERT ignore duplicates mode cannot be turned ON (not implemented)');
-            }
-        }
-
-        return $instance;
-    }
-
-    /**
-     * Determine full storage-adapter name and include it
-     *
-     * @param string $storageType
-     * @return string
-     */
-    private static function getAdapterClassName($storageType)
-    {
-        $adapterSuffixName = ucfirst($storageType);
-        return '\Sugarcrm\Tidbit\StorageAdapter\Storage\\' . $adapterSuffixName;
-    }
+    public function enableIgnoreMode(bool $flag): void;
 }

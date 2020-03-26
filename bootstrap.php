@@ -371,3 +371,5 @@ $GLOBALS['parallel'] = false;
 if (isset($opts['parallel'])) {
     $GLOBALS['parallel'] = (int) $opts['parallel'];
 }
+
+$GLOBALS['db_ignore_existing_records'] = $opts['db_ignore_existing_records'] ?? false;
