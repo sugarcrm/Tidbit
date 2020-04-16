@@ -58,3 +58,4 @@ $GLOBALS['dataTool']['Users']['phone_work'] = array('phone' => true);
 $GLOBALS['dataTool']['Users']['phone_other'] = array('phone' => true);
 $GLOBALS['dataTool']['Users']['phone_mobile'] = array('phone' => true);
 $GLOBALS['dataTool']['Users']['phone_home'] = array('phone' => true);
+$GLOBALS['dataTool']['Users']['cookie_consent'] = array('value' => "1");
