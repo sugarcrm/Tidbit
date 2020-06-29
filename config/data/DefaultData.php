@@ -109,3 +109,6 @@ $GLOBALS['dataTool']['default']['billing_address_postalcode'] = $GLOBALS['dataTo
     'range' => ['min' => 15000, 'max' => 99999],
     'isQuoted' => true
 ];
+
+// skip special fields
+$GLOBALS['dataTool']['default']['sync_key'] = ['skip' => true];
