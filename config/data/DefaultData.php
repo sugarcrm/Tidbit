@@ -59,6 +59,7 @@ $GLOBALS['dataTool']['default']['datetime'] = [
     'type' => 'datetime',
     'units' => 'seconds',
 ];
+$GLOBALS['dataTool']['default']['datetimecombo'] = $GLOBALS['dataTool']['default']['datetime'];
 $GLOBALS['dataTool']['default']['time'] = [
     'range' => ['min' => -12*60*60, 'max' => 12*60*60],
     'type' => 'time',
