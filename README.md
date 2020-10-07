@@ -92,12 +92,23 @@ Usage
 -----
 **NOTES:** 
 
-* Usage of Tidbit could affect your _data_ in DB
+* Usage of Tidbit could affect your _data_ in DB.
 Please make sure you have a backup, before running data Generation commands
 
-* In case of generation csv (--storage csv)
+* In case of generation csv (--storage csv).
 We suppose what csv-dump will be used on empty DB, so for speed up, we'll generate
 values (integer starting with 1) for autoincrement-type fields.
+
+* Following mysql configuration can decrease generation time:
+```conf
+[mysqld]
+innodb_doublewrite = 0
+innodb_support_xa = 0
+innodb_buffer_pool_size = 3G
+innodb_log_file_size = 256M
+innodb_flush_log_at_trx_commit = 0
+max_allowed_packet = 1024M
+```
 
 Tidbit uses a command line interface.  To run it from the Tidbit directory:
 
