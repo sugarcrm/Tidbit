@@ -50,6 +50,12 @@ $GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
 // $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
 $GLOBALS['dataTool']['default']['text'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['longtext'] = $GLOBALS['dataTool']['default']['text'];
+$GLOBALS['dataTool']['default']['url'] = [
+    'list' => 'last_name_array',
+    'prefix' => "http://www.",
+    'suffix' => '.com',
+    'toLower' => true,
+];
 $GLOBALS['dataTool']['default']['date'] = [
     'range' => ['min' => -30, 'max' => 30],
     'type' => 'date',

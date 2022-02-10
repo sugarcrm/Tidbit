@@ -338,22 +338,7 @@ class DataTool
             }
             return $sum;
         }
-        if (!empty($typeData['same'])) {
-            if (is_string($typeData['same']) && !empty($this->fields[$typeData['same']])) {
-                $rtn = $this->accessLocalField($typeData['same']);
-            } else {
-                $rtn = $typeData['same'];
-            }
-            if (!empty($typeData['toUpper'])) {
-                $rtn = strtoupper($rtn);
-            }
 
-            if (!empty($typeData['toLower'])) {
-                $rtn = strtolower($rtn);
-            }
-
-            return @trim($rtn);
-        }
         if (!empty($typeData['same_sugar_hash'])) {
             $sameSugarHash = $this->accessLocalField($typeData['same_sugar_hash']);
             return $this->getSugarHash($sameSugarHash);
@@ -501,6 +486,16 @@ class DataTool
                 $baseValue = date('Y-m-d H:i:s', strtotime($baseValue) + $shift);
             }
         }
+        
+        if (!empty($typeData['same'])) {
+            if (is_string($typeData['same']) && !empty($this->fields[$typeData['same']])) {
+                $rtn = $this->accessLocalField($typeData['same']);
+            } else {
+                $rtn = $typeData['same'];
+            }
+            $isQuote = false;
+            $baseValue = @trim($rtn);
+        }
 
         if (!empty($typeData['suffixlist'])) {
             foreach ($typeData['suffixlist'] as $suffixlist) {
@@ -537,6 +532,14 @@ class DataTool
                 $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$prefixlist]);
                 $baseValue = $GLOBALS[$prefixlist][$selected] . ' ' . $baseValue;
             }
+        }
+
+        if (!empty($typeData['toUpper'])) {
+            $baseValue = strtoupper($baseValue);
+        }
+
+        if (!empty($typeData['toLower'])) {
+            $baseValue = strtolower($baseValue);
         }
 
         if (!empty($typeData['suffix'])) {
