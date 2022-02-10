@@ -57,7 +57,7 @@ class SameTest extends TidbitTestCase
 
         $expected = 20;
 
-        $actual = $this->dataTool->handleType($type, '', '', true);
+        $actual = $this->dataTool->handleType($type, 'int', '', true);
         $this->assertEquals($expected, $actual);
     }
 
