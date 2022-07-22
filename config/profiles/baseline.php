@@ -33,6 +33,8 @@ $modules = array(
     'ProductCategories' => 1000,
     'ProductTypes' => 1000,
     'ProductTemplates' => 10000,
+    'Purchases' => 140000,
+    'PurchasedLineItems' => 100000,
     'RevenueLineItems' => 1500000,
     'Manufacturers' => 1000,
 );
