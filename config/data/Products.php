@@ -35,6 +35,8 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
+$GLOBALS['aliases']['ProductsFavorites'] = 'ProdFav';
+
 $GLOBALS['dataTool']['Products']['account_id'] = array('related' => array('module' => 'Accounts'));
 $GLOBALS['dataTool']['Products']['contact_id'] = array('related' => array('module' => 'Contacts'));
 $GLOBALS['dataTool']['Products']['quote_id'] = array('skip' => true);
