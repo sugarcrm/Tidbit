@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['aliases']['ProductTemplatesFavorites'] = 'ProdTPLFav';
+
 $GLOBALS['dataTool']['ProductTemplates']['category_id'] = [
     'related' => [
         'module' => 'ProductCategories',

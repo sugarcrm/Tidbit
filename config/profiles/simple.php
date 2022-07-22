@@ -38,11 +38,6 @@ $modules = array(
 );
 $tidbit_relationships['TeamSets']['Teams']['degree'] = 3;
 
-$aliases = [
-    'ProductTemplatesFavorites' => 'ProdTPLFav',
-    'ProductsFavorites' => 'ProdFav',
-];
-
 $profile_opts = array(
 
 );
