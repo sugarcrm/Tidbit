@@ -1,0 +1,16 @@
+name: Pull Request Lint
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  title:
+    name: KICS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: KICS Github Action
+        uses: Checkmarx/kics-github-action@latest
+        with:
+          path: .
