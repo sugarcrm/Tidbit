@@ -58,3 +58,8 @@ $GLOBALS['dataTool']['Tasks']['date_due'] = array(
     )
 );
 $GLOBALS['dataTool']['Tasks']['subscriptions'] = ['probability' => 30];
+$GLOBALS['dataTool']['Tasks']['dri_workflow_id'] = array('value' => null);
+$GLOBALS['dataTool']['Tasks']['dri_workflow_template_id'] = array('value' => null);
+$GLOBALS['dataTool']['Tasks']['dri_subworkflow_id'] = array('value' => null);
+$GLOBALS['dataTool']['Tasks']['dri_subworkflow_template_id'] = array('value' => null);
+$GLOBALS['dataTool']['Tasks']['dri_workflow_task_template_id'] = array('value' => null);
