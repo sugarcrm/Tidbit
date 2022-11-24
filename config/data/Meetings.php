@@ -66,8 +66,8 @@ $GLOBALS['dataTool']['Meetings']['date_end'] = array(
 );
 $GLOBALS['dataTool']['Meetings']['displayed_url'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['subscriptions'] = ['probability' => 25];
-$GLOBALS['dataTool']['Meetings']['dri_workflow_id'] = array('value' => null);
-$GLOBALS['dataTool']['Meetings']['dri_workflow_template_id'] = array('value' => null);
-$GLOBALS['dataTool']['Meetings']['dri_subworkflow_id'] = array('value' => null);
-$GLOBALS['dataTool']['Meetings']['dri_subworkflow_template_id'] = array('value' => null);
-$GLOBALS['dataTool']['Meetings']['dri_workflow_task_template_id'] = array('value' => null);
+$GLOBALS['dataTool']['Meetings']['dri_workflow_id'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['dri_workflow_template_id'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['dri_subworkflow_id'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['dri_subworkflow_template_id'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['dri_workflow_task_template_id'] = ['skip' => true];
