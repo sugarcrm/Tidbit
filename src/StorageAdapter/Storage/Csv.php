@@ -44,7 +44,7 @@ class Csv extends Common
     /**
      * @var string
      */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
 
     protected $filenameSuffix = '';
 
@@ -96,7 +96,6 @@ class Csv extends Common
     /**
      * Remove spaces and wrap to quotes values in the list
      *
-     * @param array $values
      * @param string $quote
      * @return string
      */

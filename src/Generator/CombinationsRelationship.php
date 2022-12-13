@@ -77,7 +77,7 @@ class CombinationsRelationship extends Decorator
          * bucket - all 'self' records that relate to the same 'you' base record
          */
         $maxBucketSize = ceil($selfTotal / $youTotal);
-        $maxPossibleCombinations = pow(2, $this->config['degree'] - 1);
+        $maxPossibleCombinations = 2 ** ($this->config['degree'] - 1);
         if ($maxBucketSize > $maxPossibleCombinations) {
             echo "ERROR: $selfModule <-> $youModule relationship: Either decrese the amount of $selfModule records " .
                 "or increase the amount of $youModule, or increase the degree of this relationship.\n";

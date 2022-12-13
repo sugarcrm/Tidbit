@@ -41,7 +41,7 @@ class CombinationsHelper
 {
     public static function get(int $n, int $degree, int $selfTotal, int $youTotal): array
     {
-        $maxPossibleCombinations = pow(2, $degree - 1);
+        $maxPossibleCombinations = 2 ** ($degree - 1);
         $youBaseN = floor($n * $youTotal / $selfTotal);
         $baseN = floor($youBaseN * $selfTotal / $youTotal);
         $combID = $maxPossibleCombinations - ($n - $baseN) - 1;

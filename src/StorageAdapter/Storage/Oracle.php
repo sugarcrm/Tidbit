@@ -44,7 +44,7 @@ class Oracle extends Common
     /**
      * @var string
      */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
 
     /**
      * {@inheritdoc}
@@ -62,7 +62,6 @@ class Oracle extends Common
      * rtfn
      *
      * @param string $tableName
-     * @param array $installData
      * @return string
      * @throws \Sugarcrm\Tidbit\Exception
      */
@@ -87,8 +86,6 @@ class Oracle extends Common
 
     /**
      * Patch inserted value if it look like sequence
-     *
-     * @param array $installData
      */
     protected function patchSequenceValues(array &$installData)
     {
@@ -108,7 +105,6 @@ class Oracle extends Common
     /**
      * Check array of values on containing sequence value
      *
-     * @param array $values
      * @return array
      */
     protected function getSequenceFromValues(array $values)

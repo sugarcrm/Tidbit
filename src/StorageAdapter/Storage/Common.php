@@ -41,14 +41,7 @@ abstract class Common
     /**
      * @var string
      */
-    const STORE_TYPE = 'abstract';
-
-    /**
-     * Connector to db or dir-path for store data
-     *
-     * @var mixed
-     */
-    protected $storageResource = null;
+    public const STORE_TYPE = 'abstract';
 
     /**
      * Descriptor of file for query logging
@@ -70,9 +63,8 @@ abstract class Common
      * @param mixed $storageResource
      * @param string $logQueryPath
      */
-    public function __construct($storageResource, $logQueryPath = '')
+    public function __construct(protected $storageResource, $logQueryPath = '')
     {
-        $this->storageResource = $storageResource;
         if ($logQueryPath) {
             $this->logQueriesFile = fopen($logQueryPath, 'a');
         }
@@ -83,7 +75,6 @@ abstract class Common
      *  Saves data from tool to storage
      *
      * @param string $tableName
-     * @param array $installData
      */
     abstract public function save($tableName, array $installData);
 

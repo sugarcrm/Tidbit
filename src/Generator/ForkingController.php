@@ -48,19 +48,17 @@ class ForkingController
      */
     protected $g;
 
-    /**
-     * Threads count
-     *
-     * @var int
-     */
-    protected $threads;
-
     protected $progressLogPrefix;
 
-    public function __construct(Generator $g, $threads)
+    /**
+     * @param int $threads
+     */
+    public function __construct(Generator $g, /**
+     * Threads count
+     */
+    protected $threads)
     {
         $this->g = $g;
-        $this->threads = $threads;
     }
 
     public function setProgressLogPrefix($progressLogPrefix)

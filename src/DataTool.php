@@ -76,13 +76,6 @@ class DataTool
 
     protected $passwordHashCache = [];
 
-    /**
-     * Type of output storage
-     *
-     * @var string
-     */
-    protected $storageType;
-
     /** @var Intervals  */
     protected $coreIntervals;
 
@@ -108,9 +101,8 @@ class DataTool
      * DataTool constructor.
      * @param string $storageType
      */
-    public function __construct($storageType)
+    public function __construct(protected $storageType)
     {
-        $this->storageType = $storageType;
         $this->coreIntervals = CoreFactory::getComponent('Intervals');
     }
 
@@ -406,7 +398,7 @@ class DataTool
 
                 $stamp = strtotime(substr($startDate, 1, strlen($startDate) - 2));
                 if ($stamp >= $GLOBALS['baseTime']) {
-                    $rn = mt_rand(0, 9);
+                    $rn = random_int(0, 9);
                     /* 10% chance of being NOT HELD - aka CLOSED */
                     if ($rn > 8) {
                         $selected = 2;
@@ -414,7 +406,7 @@ class DataTool
                         $selected = 0;
                     }
                 } else {
-                    $rn = mt_rand(0, 49);
+                    $rn = random_int(0, 49);
                     /* 2% chance of being HELD - aka OPEN */
                     if ($rn > 48) {
                         $selected = 0;
@@ -434,7 +426,7 @@ class DataTool
         //we have a range then it should either be a number or a date
         $baseValue = '';
         if (!empty($typeData['range'])) {
-            $baseValue = mt_rand($typeData['range']['min'], $typeData['range']['max']);
+            $baseValue = random_int($typeData['range']['min'], $typeData['range']['max']);
 
             if (!empty($typeData['multiply'])) {
                 $baseValue *= $typeData['multiply'];
@@ -457,7 +449,7 @@ class DataTool
                 $isQuote = false;
             }
         } elseif (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
-            $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$typeData['list']]);
+            $selected = ($this->count + random_int(0, 100)) % (is_countable($GLOBALS[$typeData['list']]) ? count($GLOBALS[$typeData['list']]) : 0);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
 
@@ -499,14 +491,14 @@ class DataTool
 
         if (!empty($typeData['suffixlist'])) {
             foreach ($typeData['suffixlist'] as $suffixlist) {
-                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$suffixlist]);
+                $selected = ($this->count + random_int(0, 100)) % (is_countable($GLOBALS[$suffixlist]) ? count($GLOBALS[$suffixlist]) : 0);
                 $baseValue .= ' ' . $GLOBALS[$suffixlist][$selected];
             }
         } elseif ($type == 'enum') {
             if (!empty($GLOBALS['fieldData']['options'])
                 && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
                 $value = null;
-                $rnd = mt_rand(1, 100);
+                $rnd = random_int(1, 100);
                 foreach ($typeData['enum_key_probabilities'] as $probabilityData) {
                     if ($rnd > $probabilityData[0]) {
                         $value = $probabilityData[1];
@@ -529,7 +521,7 @@ class DataTool
         }
         if (!empty($typeData['prefixlist'])) {
             foreach ($typeData['prefixlist'] as $prefixlist) {
-                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$prefixlist]);
+                $selected = ($this->count + random_int(0, 100)) % (is_countable($GLOBALS[$prefixlist]) ? count($GLOBALS[$prefixlist]) : 0);
                 $baseValue = $GLOBALS[$prefixlist][$selected] . ' ' . $baseValue;
             }
         }
@@ -694,9 +686,6 @@ class DataTool
 
     /**
      * Calculate a chance for each possible enum value using field options
-     * @param array $fieldDef
-     * @param array $all
-     * @return array
      */
     private function calcEnumProbabilities(array $fieldDef, array $all): array
     {

@@ -13,13 +13,13 @@ namespace Sugarcrm\Tidbit\Core;
 class Intervals
 {
     /** default quoted ID size */
-    const TIDBIT_ID_LENGTH = 38;
+    public const TIDBIT_ID_LENGTH = 38;
 
     /** tidbit ID prefix */
-    const PREFIX = 'seed';
+    public const PREFIX = 'seed';
 
     /** Indicates how many chars from beginning and end of module name */
-    const MODULE_NAME_PART = 5;
+    public const MODULE_NAME_PART = 5;
 
     /** @var array cache for Rel Modules IDs */
     public $assembleIdCache = array();
@@ -30,8 +30,6 @@ class Intervals
     /**
      * Intervals constructor.
      * Should be called once, when application is initialising
-     *
-     * @param Config $config
      */
     public function __construct(Config $config)
     {

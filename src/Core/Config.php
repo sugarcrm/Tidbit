@@ -29,9 +29,7 @@ class Config
      */
     public function get($item)
     {
-        return (isset($this->config[$item]))
-            ? $this->config[$item]
-            : null;
+        return $this->config[$item] ?? null;
     }
 
     /**

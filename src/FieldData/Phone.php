@@ -40,12 +40,11 @@ namespace Sugarcrm\Tidbit\FieldData;
 class Phone
 {
     /** @var string  */
-    const DEFAULT_PATTERN = '{{areaCode}}-{{exchangeCode}}-####';
+    public const DEFAULT_PATTERN = '{{areaCode}}-{{exchangeCode}}-####';
 
-    private $phonesList = array();
+    private array $phonesList = array();
     
-    /** @var  Phone */
-    private static $instance;
+    private static ?\Sugarcrm\Tidbit\FieldData\Phone $instance = null;
 
     /**
      * Phone constructor.
@@ -79,7 +78,7 @@ class Phone
      */
     public function get()
     {
-        return $this->phonesList[mt_rand(0, count($this->phonesList) - 1)];
+        return $this->phonesList[random_int(0, count($this->phonesList) - 1)];
     }
 
     /**
@@ -121,7 +120,7 @@ class Phone
      */
     protected function areaCode()
     {
-        $digits[] = mt_rand(2, 9);
+        $digits[] = random_int(2, 9);
         $digits[] = $this->getRandomDigit();
         $digits[] = $this->getRandomDigitNot($digits[1]);
 
@@ -137,7 +136,7 @@ class Phone
      */
     protected function exchangeCode()
     {
-        $digits[] = mt_rand(2, 9);
+        $digits[] = random_int(2, 9);
         $digits[] = $this->getRandomDigit();
 
         if ($digits[1] === 1) {
@@ -157,7 +156,7 @@ class Phone
      */
     protected function getRandomDigitNot($except)
     {
-        $result = mt_rand(0, 8);
+        $result = random_int(0, 8);
         if ($result >= $except) {
             $result++;
         }
@@ -171,6 +170,6 @@ class Phone
      */
     protected function getRandomDigit()
     {
-        return mt_rand(0, 9);
+        return random_int(0, 9);
     }
 }

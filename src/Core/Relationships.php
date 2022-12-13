@@ -13,7 +13,7 @@ use Sugarcrm\Tidbit\DataTool;
  */
 class Relationships
 {
-    const PREFIX = 'seed-r';
+    public const PREFIX = 'seed-r';
 
     protected $module;
     protected $dataTool;
@@ -88,7 +88,7 @@ class Relationships
              */
             $thisToRelatedRatio = $this->calculateRatio($relationship, $relModule);
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
-                $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
+                $multiply = $relationship['repeat'] ?? 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
@@ -138,14 +138,13 @@ class Relationships
      * @param $module
      * @param $relationship
      * @param $relModule
-     * @return float|int
      */
-    protected function calculateRatio($relationship, $relModule)
+    protected function calculateRatio($relationship, $relModule): float|int
     {
         if (!empty($relationship['ratio'])) {
             $thisToRelatedRatio = $relationship['ratio'];
         } elseif (!empty($relationship['random_ratio'])) {
-            $thisToRelatedRatio = mt_rand(
+            $thisToRelatedRatio = random_int(
                 $relationship['random_ratio']['min'],
                 $relationship['random_ratio']['max']
             );

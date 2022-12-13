@@ -41,10 +41,10 @@ use Sugarcrm\Tidbit\Exception;
 
 class Factory
 {
-    const OUTPUT_TYPE_MYSQL     = 'mysql';
-    const OUTPUT_TYPE_ORACLE    = 'oracle';
-    const OUTPUT_TYPE_CSV       = 'csv';
-    const OUTPUT_TYPE_DB2       = 'db2';
+    public const OUTPUT_TYPE_MYSQL     = 'mysql';
+    public const OUTPUT_TYPE_ORACLE    = 'oracle';
+    public const OUTPUT_TYPE_CSV       = 'csv';
+    public const OUTPUT_TYPE_DB2       = 'db2';
 
     /**
      * List of storage types
@@ -62,14 +62,12 @@ class Factory
      * Storage Adapter Creator
      *
      * @param string $storageType
-     * @param mixed $storageResource
      * @param string $logQueryPath
      *
      * @throws Exception
-     *
      * @return \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
      */
-    public static function getAdapterInstance($storageType, $storageResource, $logQueryPath = '')
+    public static function getAdapterInstance($storageType, mixed $storageResource, $logQueryPath = '')
     {
         if (!in_array($storageType, self::$availableTypes)) {
             throw new Exception('Unsupported storage type');

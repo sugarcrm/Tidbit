@@ -44,7 +44,7 @@ class Mysql extends Common
     /**
      * @var string
      */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
 
     /**
      * {@inheritdoc}
@@ -61,7 +61,6 @@ class Mysql extends Common
      * rtfn
      *
      * @param string $tableName
-     * @param array $installData
      * @return string
      * @throws \Sugarcrm\Tidbit\Exception
      */

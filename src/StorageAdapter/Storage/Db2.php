@@ -44,7 +44,7 @@ class Db2 extends Common
     /**
      * @var string
      */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_DB2;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_DB2;
 
     /**
      * {@inheritdoc}
@@ -62,7 +62,6 @@ class Db2 extends Common
      * rtfn
      *
      * @param string $tableName
-     * @param array $installData
      * @return string
      * @throws \Sugarcrm\Tidbit\Exception
      */
@@ -76,7 +75,7 @@ class Db2 extends Common
         $sql = 'INSERT INTO ' . $tableName . $columns;
 
         $this->patchSequenceValues($installData);
-        $insertRecords = count($installData);
+        $insertRecords = is_countable($installData) ? count($installData) : 0;
 
         for ($i = 0; $i < $insertRecords; $i++) {
             $sql .= ' VALUES ' . "(" . implode(", ", $installData[$i]) . ")";
@@ -88,8 +87,6 @@ class Db2 extends Common
 
     /**
      * Patch inserted value if it look like sequence
-     *
-     * @param array $installData
      */
     protected function patchSequenceValues(array &$installData)
     {
@@ -110,7 +107,6 @@ class Db2 extends Common
     /**
      * Check array of values on containing sequence value
      *
-     * @param array $values
      * @return array
      */
     protected function getSequenceFromValues(array $values)

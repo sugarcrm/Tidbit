@@ -45,11 +45,6 @@ use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
 class InsertBuffer
 {
     /**
-     * @var string
-     */
-    protected $tableName = '';
-
-    /**
      * @var array
      */
     protected $installData = array();
@@ -64,11 +59,9 @@ class InsertBuffer
      * Constructor
      *
      * @param string $tableName
-     * @param Common $storage
      */
-    public function __construct($tableName, Common $storage)
+    public function __construct(protected $tableName, Common $storage)
     {
-        $this->tableName = $tableName;
         $this->storage = $storage;
     }
 

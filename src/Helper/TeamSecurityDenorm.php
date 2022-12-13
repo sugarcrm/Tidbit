@@ -55,7 +55,7 @@ class TeamSecurityDenorm
         $command = Container::getInstance()->get(StateAwareRebuild::class);
 
         $ignoreUpToDate = true;
-        list($status, $message) = $command($ignoreUpToDate);
+        [$status, $message] = $command($ignoreUpToDate);
         echo $message."\n";
 
         if ($ppbak === false) {
