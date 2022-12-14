@@ -2,28 +2,23 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
- * Class ListSuffixPrefixEnum
+ * Class ListSuffixPrefixEnumTest
  * @package Sugarcrm\Tidbit\Tests\Types
  * @coversDefaultClass Sugarcrm\Tidbit\DataTool
  */
-class ListSuffixPrefixEnum extends TidbitTestCase
+class ListSuffixPrefixEnumTest extends TidbitTestCase
 {
     /** @var DataTool */
     protected $dataTool;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
     }
 
     /**
@@ -31,8 +26,8 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testListType()
     {
-        $GLOBALS['first_name'] = array('test_name');
-        $type = array('list' => 'first_name');
+        $GLOBALS['first_name'] = ['test_name'];
+        $type = ['list' => 'first_name'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -47,7 +42,7 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testListNotDefinedType()
     {
-        $type = array('list' => 'first_name');
+        $type = ['list_undefined' => 'first_name'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -67,11 +62,11 @@ class ListSuffixPrefixEnum extends TidbitTestCase
             ],
         ];
 
-        $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
-        $GLOBALS['app_list_strings'] = array(
-            'LBL_SOME_OPTION' => array(
+        $GLOBALS['fieldData'] = ['options' => 'LBL_SOME_OPTION'];
+        $GLOBALS['app_list_strings'] = [
+            'LBL_SOME_OPTION' => [
                 'OPTION_1' => 'Translation 1',
-            ));
+            ]];
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
@@ -91,11 +86,11 @@ class ListSuffixPrefixEnum extends TidbitTestCase
             ],
         ];
 
-        $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
-        $GLOBALS['app_list_strings'] = array(
-            'LBL_SOME_OPTION' => array(
+        $GLOBALS['fieldData'] = ['options' => 'LBL_SOME_OPTION'];
+        $GLOBALS['app_list_strings'] = [
+            'LBL_SOME_OPTION' => [
                 'OPTION_1   ' => 'Translation 1',
-            ));
+            ]];
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
@@ -117,14 +112,14 @@ class ListSuffixPrefixEnum extends TidbitTestCase
             ],
         ];
 
-        $options = array(
+        $options = [
             'OPTION_1' => 'Translation 1',
             'OPTION_2' => 'Translation 1',
             'OPTION_3' => 'Translation 3',
-        );
+        ];
 
-        $GLOBALS['fieldData'] = array('options' => 'LBL_SOME_OPTION');
-        $GLOBALS['app_list_strings'] = array('LBL_SOME_OPTION' => $options);
+        $GLOBALS['fieldData'] = ['options' => 'LBL_SOME_OPTION'];
+        $GLOBALS['app_list_strings'] = ['LBL_SOME_OPTION' => $options];
 
         $actual = $this->dataTool->handleType($type, 'enum', '', true);
 
@@ -137,10 +132,10 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testSuffixListType()
     {
-        $type = array('suffixlist' => array('suf1', 'suf2'));
+        $type = ['suffixlist' => ['suf1', 'suf2']];
 
-        $GLOBALS['suf1'] = array('suf1value');
-        $GLOBALS['suf2'] = array('suf2value');
+        $GLOBALS['suf1'] = ['suf1value'];
+        $GLOBALS['suf2'] = ['suf2value'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -153,10 +148,10 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testPrefixListType()
     {
-        $type = array('prefixlist' => array('pref1', 'pref2'));
+        $type = ['prefixlist' => ['pref1', 'pref2']];
 
-        $GLOBALS['pref1'] = array('pref1value');
-        $GLOBALS['pref2'] = array('pref2value');
+        $GLOBALS['pref1'] = ['pref1value'];
+        $GLOBALS['pref2'] = ['pref2value'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -169,9 +164,9 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testSuffixType()
     {
-        $type = array('suffix' => '@test', 'list' => 'last_name_array');
+        $type = ['suffix' => '@test', 'list' => 'last_name_array'];
 
-        $GLOBALS['last_name_array'] = array('last_name_value');
+        $GLOBALS['last_name_array'] = ['last_name_value'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -184,9 +179,9 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testPrefixType()
     {
-        $type = array('prefix' => 'test@', 'list' => 'last_name_array');
+        $type = ['prefix' => 'test@', 'list' => 'last_name_array'];
 
-        $GLOBALS['last_name_array'] = array('last_name_value');
+        $GLOBALS['last_name_array'] = ['last_name_value'];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 
@@ -199,10 +194,10 @@ class ListSuffixPrefixEnum extends TidbitTestCase
      */
     public function testPrefixPlusMaxLengthType()
     {
-        $type = array('prefix' => 'test@', 'list' => 'last_name_array');
+        $type = ['prefix' => 'test@', 'list' => 'last_name_array'];
 
-        $GLOBALS['last_name_array'] = array('last_name_value');
-        $GLOBALS['fieldData'] = array('len' => 9);
+        $GLOBALS['last_name_array'] = ['last_name_value'];
+        $GLOBALS['fieldData'] = ['len' => 9];
 
         $actual = $this->dataTool->handleType($type, 'varchar', '', true);
 

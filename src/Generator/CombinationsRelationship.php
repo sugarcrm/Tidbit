@@ -36,17 +36,16 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-// use \Sugarcrm\Tidbit\Core\Intervals;
-use \Sugarcrm\Tidbit\Core\Factory;
-use Sugarcrm\Tidbit\Core\Relationships;
+use Sugarcrm\Tidbit\Core\Factory;
+use Sugarcrm\Tidbit\Core\Intervals;
 
 class CombinationsRelationship extends Decorator
 {
-    protected $config;
+    protected array $config;
 
-    protected $idGenerator;
+    protected Intervals $idGenerator;
 
-    protected $currentDateTime;
+    protected string $currentDateTime;
 
     public function __construct(Generator $g, array $config)
     {
@@ -84,7 +83,7 @@ class CombinationsRelationship extends Decorator
         }
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $data = parent::generateRecord($n);
 

@@ -2,8 +2,8 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
  * Class IncrementTest
@@ -15,7 +15,7 @@ class IncrementTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-    public function setUp()
+   protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
@@ -28,7 +28,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementMinOnlyValueType()
     {
-        $type = array('increment' => array('min' => 0, 'max' => 0));
+        $type = ['increment' => ['min' => 0, 'max' => 0]];
         $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertEquals(0, $actual);
@@ -41,7 +41,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementMinNotZeroValueType()
     {
-        $type = array('increment' => array('min' => 5, 'max' => 0));
+        $type = ['increment' => ['min' => 5, 'max' => 0]];
         $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertEquals(5, $actual);
@@ -54,7 +54,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementMinOnlyMultipleTimesValueType()
     {
-        $type = array('increment' => array('min' => 0, 'max' => 0));
+        $type = ['increment' => ['min' => 0, 'max' => 0]];
 
         for ($i = 0; $i < 5; $i++) {
             // Reset static variables for first time call only
@@ -70,7 +70,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementValueType()
     {
-        $type = array('increment' => array('min' => 0, 'max' => 10));
+        $type = ['increment' => ['min' => 0, 'max' => 10]];
         $actual = $this->dataTool->handleType($type, '', '', true);
 
         $this->assertEquals(0, $actual);
@@ -83,7 +83,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementValueMultipleTimesType()
     {
-        $type = array('increment' => array('min' => 1, 'max' => 4));
+        $type = ['increment' => ['min' => 1, 'max' => 4]];
 
         for ($i = 0; $i < 10; $i++) {
             // Reset static variables for first time call only
@@ -99,7 +99,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementNameType()
     {
-        $type = array('incname' => 'user');
+        $type = ['incname' => 'user'];
         $this->dataTool->count = 1;
         $actual = $this->dataTool->handleType($type, '', '', true);
 
@@ -114,7 +114,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementNameMultipleTimesType()
     {
-        $type = array('incname' => 'teams');
+        $type = ['incname' => 'teams'];
 
         for ($i = 0; $i < 5; $i++) {
             // Reset static variables for first time call only
@@ -133,7 +133,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testIncrementNameTrimType()
     {
-        $type = array('incname' => '  user');
+        $type = ['incname' => '  user'];
         $this->dataTool->count = 1;
         $actual = $this->dataTool->handleType($type, '', '');
 
@@ -148,7 +148,7 @@ class IncrementTest extends TidbitTestCase
      */
     public function testAutoIncrementType()
     {
-        $type = array('autoincrement' => true);
+        $type = ['autoincrement' => true];
         $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals('', $actual);
     }
@@ -163,7 +163,7 @@ class IncrementTest extends TidbitTestCase
         $this->dataTool = new DataTool('oracle');
         $this->dataTool->table_name = 'test';
 
-        $type = array('autoincrement' => true);
+        $type = ['autoincrement' => true];
         $actual = $this->dataTool->handleType($type, '', 'case_num', true);
         $this->assertEquals('TEST_CASE_NUM_SEQ.NEXTVAL', $actual);
     }

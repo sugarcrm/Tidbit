@@ -40,7 +40,7 @@ use Sugarcrm\Tidbit\Core\Factory;
 
 class FollowingDecorator extends Decorator
 {
-    protected $config = [];
+    protected array $config = [];
     protected $fieldName = '';
     protected $tableNameEncoded;
     protected $idGenerator;
@@ -54,17 +54,17 @@ class FollowingDecorator extends Decorator
             }
         }
 
-        $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
+        $this->tableNameEncoded = "'" . $this->bean()->getTableName() . "'";
 
         $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function isUsefull()
+    public function isUsefull(): bool
     {
         return $this->config['probability'] > 0;
     }
 
-    public function clean()
+    public function clean(): void
     {
         parent::clean();
         $tableName = $this->bean()->getTableName();
@@ -72,7 +72,7 @@ class FollowingDecorator extends Decorator
           WHERE parent_type = '$tableName' AND parent_id LIKE 'seed-%'");
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $data = parent::generateRecord($n);
         $mod = $n % 100;
@@ -82,7 +82,7 @@ class FollowingDecorator extends Decorator
                     $n,
                     $this->bean()->getModuleName() . 'Subscription'
                 ),
-                'parent_id' => "'".$data['id']."'",
+                'parent_id' => "'" . $data['id'] . "'",
                 'parent_type' => $this->tableNameEncoded,
                 'date_entered' => $data['data'][$this->bean()->getTableName()][0]['date_entered'],
                 'date_modified' => $data['data'][$this->bean()->getTableName()][0]['date_modified'],

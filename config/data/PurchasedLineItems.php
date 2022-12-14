@@ -18,23 +18,23 @@ $GLOBALS['dataTool']['PurchasedLineItems']['purchase_id'] = [
 ];
 
 // relationships
-$GLOBALS['tidbit_relationships']['PurchasedLineItems'] = array(
-    'Documents' => array(
+$GLOBALS['tidbit_relationships']['PurchasedLineItems'] = [
+    'Documents' => [
         'self' => 'purchasedlineitem_id',
         'you' => 'document_id',
         'table' => 'documents_purchasedlineitems',
-    ),
-    'Emails' => array(
+    ],
+    'Emails' => [
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
         'ratio' => 1,
-    ),
-    'Tags' => array(
+    ],
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
+    ],
+];

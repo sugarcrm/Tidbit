@@ -35,6 +35,6 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['ProductCategories']['list_order'] = array('value' => 0);
-$GLOBALS['dataTool']['ProductCategories']['description'] = array('value' => '');
-$GLOBALS['dataTool']['ProductCategories']['parent_id'] = array('value' => null);
+$GLOBALS['dataTool']['ProductCategories']['list_order'] = ['value' => 0];
+$GLOBALS['dataTool']['ProductCategories']['description'] = ['value' => ''];
+$GLOBALS['dataTool']['ProductCategories']['parent_id'] = ['value' => null];

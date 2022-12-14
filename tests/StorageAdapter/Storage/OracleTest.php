@@ -2,8 +2,8 @@
 
 namespace Sugarcrm\Tidbit\Tests\StorageAdapter\Storage;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
  * Class OracleTest
@@ -28,8 +28,8 @@ class OracleTest extends TidbitTestCase
             'getSequenceFromValues'
         );
 
-        $installData = array();
-        $actual = $method->invokeArgs($storage, array($installData));
+        $installData = [];
+        $actual = $method->invokeArgs($storage, [$installData]);
 
         $this->assertEmpty($actual);
     }
@@ -46,14 +46,14 @@ class OracleTest extends TidbitTestCase
             'getSequenceFromValues'
         );
 
-        $installData = array(
+        $installData = [
             'some_field' => 'some_value',
             'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-        );
+        ];
 
-        $actual = $method->invokeArgs($storage, array($installData));
+        $actual = $method->invokeArgs($storage, [$installData]);
 
-        $this->assertEquals(array('field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ'), $actual);
+        $this->assertEquals(['field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ'], $actual);
     }
 
     /**
@@ -71,15 +71,15 @@ class OracleTest extends TidbitTestCase
             'getSequenceFromValues'
         );
 
-        $installData = array(
+        $installData = [
             'some_field' => 'some_value',
             'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
             'field_name2' => 'CASES_CASE_NUMBER2_SEQ.NEXTVAL',
-        );
+        ];
 
-        $actual = $method->invokeArgs($storage, array($installData));
+        $actual = $method->invokeArgs($storage, [$installData]);
 
-        $this->assertEquals(array('field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ'), $actual);
+        $this->assertEquals(['field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ'], $actual);
     }
 
     /**
@@ -87,7 +87,10 @@ class OracleTest extends TidbitTestCase
      */
     public function testGetCurrentSequenceValue()
     {
-        $mock = $this->getMock('\Sugarcrm\Tidbit\Tests\SugarObject\DBManager', array('query', 'fetchByAssoc'));
+        $mock = $this->getMockBuilder('\Sugarcrm\Tidbit\Tests\SugarObject\DBManager')
+            ->disableOriginalConstructor()
+            ->onlyMethods(['query', 'fetchByAssoc'])
+            ->getMock();
         $expectedValue = 10;
 
         $mock->expects($this->once())
@@ -96,7 +99,7 @@ class OracleTest extends TidbitTestCase
 
         $mock->expects($this->once())
             ->method('fetchByAssoc')
-            ->willReturn(array('current_val' => $expectedValue));
+            ->willReturn(['current_val' => $expectedValue]);
 
         $storage = new Oracle($mock);
         $method = static::accessNonPublicMethod(
@@ -104,7 +107,7 @@ class OracleTest extends TidbitTestCase
             'getCurrentSequenceValue'
         );
 
-        $actual = $method->invokeArgs($storage, array('some_sequence_name'));
+        $actual = $method->invokeArgs($storage, ['some_sequence_name']);
         $this->assertEquals($expectedValue, $actual);
     }
 
@@ -113,28 +116,28 @@ class OracleTest extends TidbitTestCase
      */
     public function testPatchSequenceValuesShouldReturnEmptyStringIfSequenceIsNotFound()
     {
-        $installData = array(
-            array(
+        $installData = [
+            [
                 'some_field' => 'some_value',
-            ),
-        );
+            ],
+        ];
 
         $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
             ->disableOriginalConstructor()
-            ->setMethods(array('getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'))
+            ->onlyMethods(['getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'])
             ->getMock();
 
         $mock->expects($this->once())
             ->method('getSequenceFromValues')
             ->with($installData[0])
-            ->willReturn(array());
+            ->willReturn([]);
 
         $method = static::accessNonPublicMethod(
             '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
             'patchSequenceValues'
         );
 
-        $actual = $method->invokeArgs($mock, array(&$installData));
+        $actual = $method->invokeArgs($mock, [&$installData]);
 
         $this->assertEmpty($actual);
     }
@@ -145,30 +148,30 @@ class OracleTest extends TidbitTestCase
     public function testPatchSequenceValues()
     {
         $currentSequenceValue = 5;
-        $installData = array(
-            array(
+        $installData = [
+            [
                 'some_field' => 'some_value',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-            array(
+            ],
+            [
                 'some_field' => 'some_value2',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-            array(
+            ],
+            [
                 'some_field' => 'some_value2',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-        );
+            ],
+        ];
 
         $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
             ->disableOriginalConstructor()
-            ->setMethods(array('getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'))
+            ->onlyMethods(['getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'])
             ->getMock();
 
         $mock->expects($this->once())
             ->method('getSequenceFromValues')
             ->with($installData[0])
-            ->willReturn(array('field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ'));
+            ->willReturn(['field' => 'field_name', 'name' => 'CASES_CASE_NUMBER_SEQ']);
 
         $mock->expects($this->once())
             ->method('getCurrentSequenceValue')
@@ -185,7 +188,7 @@ class OracleTest extends TidbitTestCase
             'patchSequenceValues'
         );
 
-        $method->invokeArgs($mock, array(&$installData));
+        $method->invokeArgs($mock, [&$installData]);
 
         // Assert that values were changed to current sequence value + iteration number
         for ($i = 0; $i < count($installData); $i++) {
@@ -196,45 +199,45 @@ class OracleTest extends TidbitTestCase
     /**
      * @covers ::prepareQuery
      * @dataProvider dataTestPrepareQueryExceptionProvider
-     * @expectedException \Sugarcrm\Tidbit\Exception
      *
      * @param string $tableName
      * @param mixed $installData
      */
     public function testPrepareQueryException($tableName, $installData)
     {
+        $this->expectException(\Sugarcrm\Tidbit\Exception::class);
         $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
             ->disableOriginalConstructor()
-            ->setMethods(array('patchSequenceValues'))
+            ->onlyMethods(['patchSequenceValues'])
             ->getMock();
 
         $mock->expects($this->never())
             ->method('patchSequenceValues');
 
         $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle', 'prepareQuery');
-        $method->invokeArgs($mock, array($tableName, $installData));
+        $method->invokeArgs($mock, [$tableName, $installData]);
     }
 
     /**
-     * @see testPrepareQueryException
      * @return array
+     * @see testPrepareQueryException
      */
     public function dataTestPrepareQueryExceptionProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '',
-                array(),
-            ),
-            array(
+                [],
+            ],
+            [
                 'some_table',
-                array(),
-            ),
-            array(
+                [],
+            ],
+            [
                 '',
-                array('1', '2', '3'),
-            )
-        );
+                ['1', '2', '3'],
+            ]
+        ];
     }
 
     /**
@@ -242,24 +245,24 @@ class OracleTest extends TidbitTestCase
      */
     public function testPrepareQuery()
     {
-        $installData = array(
-            array(
+        $installData = [
+            [
                 'some_field' => 'some_value',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-            array(
+            ],
+            [
                 'some_field' => 'some_value2',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-            array(
+            ],
+            [
                 'some_field' => 'some_value2',
                 'field_name' => 'CASES_CASE_NUMBER_SEQ.NEXTVAL',
-            ),
-        );
+            ],
+        ];
 
         $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
             ->disableOriginalConstructor()
-            ->setMethods(array('patchSequenceValues'))
+            ->onlyMethods(['patchSequenceValues'])
             ->getMock();
 
         $mock->expects($this->once())
@@ -267,10 +270,10 @@ class OracleTest extends TidbitTestCase
             ->with($installData);
 
         $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle', 'prepareQuery');
-        $actual = $method->invokeArgs($mock, array('some_table', $installData));
-        
-        $this->assertContains('INSERT /*+APPEND*/ ALL', $actual);
+        $actual = $method->invokeArgs($mock, ['some_table', $installData]);
+
+        $this->assertStringContainsString('INSERT /*+APPEND*/ ALL', $actual);
         $this->assertEquals(3, substr_count($actual, 'VALUES ('));
-        $this->assertContains('SELECT * FROM dual', $actual);
+        $this->assertStringContainsString('SELECT * FROM dual', $actual);
     }
 }

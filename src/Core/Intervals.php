@@ -13,39 +13,29 @@ namespace Sugarcrm\Tidbit\Core;
 class Intervals
 {
     /** default quoted ID size */
-    const TIDBIT_ID_LENGTH = 38;
+    public const TIDBIT_ID_LENGTH = 38;
 
     /** tidbit ID prefix */
-    const PREFIX = 'seed';
+    public const PREFIX = 'seed';
 
     /** Indicates how many chars from beginning and end of module name */
-    const MODULE_NAME_PART = 5;
+    public const MODULE_NAME_PART = 5;
 
     /** @var array cache for Rel Modules IDs */
-    public $assembleIdCache = array();
-
-    /** @var Config */
-    protected $config;
+    public array $assembleIdCache = [];
 
     /**
      * Intervals constructor.
      * Should be called once, when application is initialising
-     *
-     * @param Config $config
      */
-    public function __construct(Config $config)
+    public function __construct(protected Config $config)
     {
-        $this->config = $config;
     }
 
     /**
      * Generate Tidbit like ID for record bean
-     *
-     * @param integer $counter
-     * @param string $module
-     * @return string
      */
-    public function generateTidbitID($counter, $module)
+    public function generateTidbitID(int $counter, string $module): string
     {
         $currentModule = $this->getAlias($module);
         $id = $this->assembleId($currentModule, $counter);
@@ -60,7 +50,7 @@ class Intervals
         return $id;
     }
 
-    public function decodeTidbitID($id, $module)
+    public function decodeTidbitID(string $id, string $module): int
     {
         $module = $this->getAlias($module);
         $this->ensureIdPrefixCache($module);
@@ -81,16 +71,14 @@ class Intervals
      * @param string $relModule
      * @return string
      */
-    public function generateRelatedTidbitID($counter, $curModule, $relModule)
+    public function generateRelatedTidbitID(int $counter, string $curModule, string $relModule): string
     {
-        $relUpID   = $this->getRelatedId($counter, $curModule, $relModule);
+        $relUpID = $this->getRelatedId($counter, $curModule, $relModule);
         $relModule = $this->getAlias($relModule);
-        $relatedId = $this->assembleId($relModule, $relUpID);
-
-        return $relatedId;
+        return $this->assembleId($relModule, $relUpID);
     }
 
-    private function ensureIdPrefixCache($module)
+    private function ensureIdPrefixCache(string $module): void
     {
         if (empty($this->assembleIdCache[$module])) {
             $this->assembleIdCache[$module] = (($module == 'Users') || ($module == 'Teams'))
@@ -101,14 +89,8 @@ class Intervals
 
     /**
      * Assemble Bean id string by module and related/count IDs
-     *
-     * @param string $module
-     * @param int $id
-     * @param bool $quotes
-     *
-     * @return string
      */
-    public function assembleId($module, $id, $quotes = true)
+    public function assembleId(string $module, string $id, bool $quotes = true): string
     {
         $this->ensureIdPrefixCache($module);
         $seedId = $this->assembleIdCache[$module] . $id;
@@ -123,15 +105,8 @@ class Intervals
 
     /**
      * Calculate a 'related' id
-     *
-     * @param int $counter
-     * @param string $curModule
-     * @param string $relModule
-     * @param int $shift
-     *
-     * @return integer
      */
-    public function getRelatedId($counter, $curModule, $relModule, $shift = 0)
+    public function getRelatedId(int $counter, string $curModule, string $relModule, int $shift = 0): int
     {
         $modules = $this->config->get('modules');
         $n = floor($counter * $modules[$relModule] / $modules[$curModule]);
@@ -145,11 +120,8 @@ class Intervals
      * configured alias if one exists, otherwise for longer module names (over
      * 10 chars), use the first and last 5 characters of the passed-in name
      * (even if they overlap).
-     *
-     * @param string $moduleName
-     * @return string
      */
-    public function getAlias($moduleName)
+    public function getAlias(string $moduleName): string
     {
         $aliases = $this->config->get('aliases');
 

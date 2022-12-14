@@ -2,9 +2,9 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Tests\SugarObject\TimeDate;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
  * Class RangeTest
@@ -16,13 +16,13 @@ class RangeTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-    public function setUp()
+   protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         unset($GLOBALS['dataTool']);
@@ -33,7 +33,7 @@ class RangeTest extends TidbitTestCase
      */
     public function testRangeDefault()
     {
-        $type = array('range' => array('min' => 5, 'max' => 10));
+        $type = ['range' => ['min' => 5, 'max' => 10]];
 
         $actual = $this->dataTool->handleType($type, 'decimal', '', true);
 
@@ -46,7 +46,7 @@ class RangeTest extends TidbitTestCase
      */
     public function testRangeMultiplier()
     {
-        $type = array('range' => array('min' => 5, 'max' => 5), 'multiply' => '3.7');
+        $type = ['range' => ['min' => 5, 'max' => 5], 'multiply' => '3.7'];
 
         $actual = $this->dataTool->handleType($type, 'decimal', '', true);
 
@@ -61,6 +61,7 @@ class RangeTest extends TidbitTestCase
      */
     public function testRangeDateType()
     {
+        $GLOBALS['baseTime'] = time();
         $GLOBALS['timedate'] = TimeDate::getInstance();
         $type = ['range' => ['min' => 5, 'max' => 5], 'type' => 'date', 'units' => 'days'];
 
@@ -224,10 +225,10 @@ class RangeTest extends TidbitTestCase
                 'type' => 'int',
             ],
         ]);
-        $this->dataTool->installData = array(
-            'field1'         => "'2016-05-20 10:12:13'",
+        $this->dataTool->installData = [
+            'field1' => "'2016-05-20 10:12:13'",
             'duration_hours' => 2,
-        );
+        ];
 
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];
@@ -265,9 +266,9 @@ class RangeTest extends TidbitTestCase
                 'dbType' => 'varchar',
             ],
         ]);
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'field1' => "'2016-05-20 10:12:13'",
-        );
+        ];
 
         $this->dataTool->generateData();
         $actual = $this->dataTool->installData['field2'];

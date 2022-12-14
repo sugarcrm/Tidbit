@@ -38,11 +38,11 @@ namespace Sugarcrm\Tidbit\Generator;
 
 class ErasedFieldsDecorator extends Decorator
 {
-    protected $piiFields = [];
+    protected array $piiFields = [];
 
     protected $piiFieldsEncoded;
 
-    protected $config = [];
+    protected array $config = [];
 
     protected $tableNameEncoded;
 
@@ -61,23 +61,23 @@ class ErasedFieldsDecorator extends Decorator
                 $this->piiFields[] = $field;
             }
         }
-        $this->piiFieldsEncoded = "'".json_encode($this->piiFields)."'";
-        $this->tableNameEncoded = "'".$this->bean()->getTableName()."'";
+        $this->piiFieldsEncoded = "'" . json_encode($this->piiFields) . "'";
+        $this->tableNameEncoded = "'" . $this->bean()->getTableName() . "'";
     }
 
-    public function isUsefull()
+    public function isUsefull(): bool
     {
         return $this->config['probability'] > 0 && count($this->piiFields) > 0;
     }
 
-    public function clean()
+    public function clean(): void
     {
         parent::clean();
         $tableName = $this->bean()->getTableName();
         $GLOBALS['db']->query("DELETE FROM erased_fields WHERE table_name = '$tableName' AND bean_id LIKE 'seed-%'");
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $data = parent::generateRecord($n);
         $mod = $n % 100;
@@ -89,7 +89,7 @@ class ErasedFieldsDecorator extends Decorator
             }
 
             $data['data']['erased_fields'][] = [
-                'bean_id' => "'".$data['id']."'",
+                'bean_id' => "'" . $data['id'] . "'",
                 'table_name' => $this->tableNameEncoded,
                 'data' => $this->piiFieldsEncoded,
             ];

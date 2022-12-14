@@ -35,5 +35,5 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['email_addr_bean_rel']['bean_module'] = array('getmodule' => true);
-$GLOBALS['dataTool']['email_addr_bean_rel']['primary_address'] = array('value' => 1);
+$GLOBALS['dataTool']['email_addr_bean_rel']['bean_module'] = ['getmodule' => true];
+$GLOBALS['dataTool']['email_addr_bean_rel']['primary_address'] = ['value' => 1];

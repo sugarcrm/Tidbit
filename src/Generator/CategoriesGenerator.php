@@ -37,13 +37,13 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-use \Sugarcrm\Tidbit\Core\Factory;
+use Sugarcrm\Tidbit\Core\Factory;
 
 class CategoriesGenerator extends ModuleGenerator
 {
-    const CHILDREN = 5;
+    public const CHILDREN = 5;
 
-    private $cache = [];
+    private array $cache = [];
     private $rootID;
 
     public function __construct(\SugarBean $bean)
@@ -53,7 +53,7 @@ class CategoriesGenerator extends ModuleGenerator
         $this->rootID = $idGenerator->generateTidbitID(0, $this->bean()->getModuleName());
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $total = $GLOBALS['modules'][$this->bean()->getModuleName()];
         $level = $this->level($n);
@@ -65,10 +65,11 @@ class CategoriesGenerator extends ModuleGenerator
         $right = $left + ((1 - pow(self::CHILDREN, $deltaLevel + 1)) / (1 - self::CHILDREN)) * 2 - 1;
 
         $data = parent::generateRecord($n);
-        $data['data'][$this->bean()->getTableName()][0]['lft'] = "'".$left."'";
-        $data['data'][$this->bean()->getTableName()][0]['rgt'] = "'".$right."'";
-        $data['data'][$this->bean()->getTableName()][0]['lvl'] = "'".$level."'";
+        $data['data'][$this->bean()->getTableName()][0]['lft'] = "'" . $left . "'";
+        $data['data'][$this->bean()->getTableName()][0]['rgt'] = "'" . $right . "'";
+        $data['data'][$this->bean()->getTableName()][0]['lvl'] = "'" . $level . "'";
         $data['data'][$this->bean()->getTableName()][0]['root'] = $this->rootID;
+
         return $data;
     }
 
@@ -98,6 +99,7 @@ class CategoriesGenerator extends ModuleGenerator
         $result += $this->leftSubtreeNodeCount($parent);
 
         $this->cache[$n] = $result;
+
         return $result;
     }
 }

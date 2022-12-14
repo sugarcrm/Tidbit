@@ -2,9 +2,9 @@
 
 namespace Sugarcrm\Tidbit\Tests\Core;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
-use Sugarcrm\Tidbit\Core\Intervals;
 use Sugarcrm\Tidbit\Core\Config;
+use Sugarcrm\Tidbit\Core\Intervals;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
  * Class IntervalsTest
@@ -22,7 +22,7 @@ class IntervalsTest extends TidbitTestCase
     }
 
     /**
-     * @covers Sugarcrm\Tidbit\Core\Intervals::getAlias
+     * @covers       Sugarcrm\Tidbit\Core\Intervals::getAlias
      * @dataProvider dataGetAliasProvider
      *
      * @param string $module
@@ -30,11 +30,11 @@ class IntervalsTest extends TidbitTestCase
      */
     public function testGetAlias($module, $expected)
     {
-        $GLOBALS['aliases'] = array(
+        $GLOBALS['aliases'] = [
             'EmailAddresses' => 'Emadd',
             'ProductBundles' => 'Prodb',
-            'Opportunities'  => 'Oppty',
-        );
+            'Opportunities' => 'Oppty',
+        ];
 
         $instance = new Intervals($this->getConfig());
 
@@ -43,33 +43,33 @@ class IntervalsTest extends TidbitTestCase
     }
 
     /**
-     * @see testGetAlias
      * @return array
+     * @see testGetAlias
      */
     public function dataGetAliasProvider()
     {
-        return array(
-            array( // Generic module, length is less than 10
+        return [
+            [ // Generic module, length is less than 10
                 'Contacts',
                 'Contacts'
-            ),
-            array( // Module in aliases list
+            ],
+            [ // Module in aliases list
                 'EmailAddresses',
                 'Emadd'
-            ),
-            array( // Long name module, not listed in aliases
+            ],
+            [ // Long name module, not listed in aliases
                 'SugarFavorites',
                 'Sugarrites'
-            ),
-            array( // 10 length name should not be truncated
+            ],
+            [ // 10 length name should not be truncated
                 'Sugar12345',
                 'Sugar12345'
-            ),
-        );
+            ],
+        ];
     }
 
     /**
-     * @covers Sugarcrm\Tidbit\Core\Intervals::assembleId
+     * @covers       Sugarcrm\Tidbit\Core\Intervals::assembleId
      * @dataProvider dataTestAssembleIdProvider
      *
      * @param string $module
@@ -78,7 +78,7 @@ class IntervalsTest extends TidbitTestCase
      * @param string $expected
      * @param array $cache
      */
-    public function testAssembleId($module, $id, $quoted, $expected, $cache = array())
+    public function testAssembleId($module, $id, $quoted, $expected, $cache = [])
     {
         $GLOBALS['baseTime'] = '1000';
 
@@ -96,83 +96,83 @@ class IntervalsTest extends TidbitTestCase
     }
 
     /**
-     * @see testAssembleId
      * @return array
+     * @see testAssembleId
      */
     public function dataTestAssembleIdProvider()
     {
-        return array(
-            array( // generic module case
+        return [
+            [ // generic module case
                 'Contacts',
                 10,
                 false,
                 'seed-Contacts100010'
-            ),
-            array( // Users cases
+            ],
+            [ // Users cases
                 'Users',
                 10,
                 false,
                 'seed-Users10'
-            ),
-            array( // Teams cases
+            ],
+            [ // Teams cases
                 'Teams',
                 100,
                 false,
                 'seed-Teams100'
-            ),
-            array( // Cached case
+            ],
+            [ // Cached case
                 'Leads',
                 100,
                 false,
                 'seed-LeadsBLABLA100',
-                array('Leads' => 'seed-LeadsBLABLA')
-            ),
-            array( // Cached case
+                ['Leads' => 'seed-LeadsBLABLA']
+            ],
+            [ // Cached case
                 'Leads',
                 100,
                 true,
                 'seed-LeadsBLABLA100',
-                array('Leads' => 'seed-LeadsBLABLA')
-            ),
-        );
+                ['Leads' => 'seed-LeadsBLABLA']
+            ],
+        ];
     }
 
     /**
-     * @see testGetRelatedIdRelAndBaseAreTheSame
      * @return array
+     * @see testGetRelatedIdRelAndBaseAreTheSame
      */
     public function dataTestGetRelatedIdProvider()
     {
-        return array(
-            array( // Initial values
+        return [
+            [ // Initial values
                 0,
-                array('ContactsAccounts' => 0),
+                ['ContactsAccounts' => 0],
                 'Contacts',
                 'Accounts',
                 0
-            ),
-            array( // Less than Contacts/Accounts, 5th Contact should be linked on 1st Account
+            ],
+            [ // Less than Contacts/Accounts, 5th Contact should be linked on 1st Account
                 4,
-                array('ContactsAccounts' => 4),
+                ['ContactsAccounts' => 4],
                 'Contacts',
                 'Accounts',
                 0
-            ),
-            array( // Already generated 10 records, for each 10 Contacts there should be one Account
+            ],
+            [ // Already generated 10 records, for each 10 Contacts there should be one Account
                 10,
-                array('ContactsAccounts' => 10),
+                ['ContactsAccounts' => 10],
                 'Contacts',
                 'Accounts',
                 1
-            ),
-            array( // 95th contact should be linked to 10th account
+            ],
+            [ // 95th contact should be linked to 10th account
                 95,
-                array('ContactsAccounts' => 95),
+                ['ContactsAccounts' => 95],
                 'Contacts',
                 'Accounts',
                 9
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -180,37 +180,37 @@ class IntervalsTest extends TidbitTestCase
      */
     public function dataTestGenerateRelatedTidbitIDProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 0,
                 'Contacts',
                 'Accounts',
                 'seed-Accounts10000'
-            ),
-            array(
+            ],
+            [
                 105, // (100 / 400) * 105
                 'Contacts',
                 'Accounts',
                 'seed-Accounts100026'
-            ),
-            array(
+            ],
+            [
                 105, // (20 / 400) * 105
                 'Contacts',
                 'Users',
                 'seed-Users5'
-            ),
-            array(
+            ],
+            [
                 105, // (40 / 400) * 105
                 'Contacts',
                 'Teams',
                 'seed-Teams10'
-            ),
-            array(
+            ],
+            [
                 90, // (1000 / 100) * 90
                 'Accounts',
                 'LongNameModule',
                 'seed-LongNodule1000900'
-            ),
-        );
+            ],
+        ];
     }
 }
