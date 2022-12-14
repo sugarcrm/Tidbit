@@ -35,12 +35,12 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['EmailText']['email_id'] = array('related' => array('module' => 'Emails'));
-$GLOBALS['dataTool']['EmailText']['from_addr'] = array('list' => 'last_name_array', 'suffix' => "@example.com");
-$GLOBALS['dataTool']['EmailText']['reply_to_addr'] = array('value' => null);
-$GLOBALS['dataTool']['EmailText']['to_addrs'] = array('list' => 'last_name_array', 'suffix' => "@example.com");
-$GLOBALS['dataTool']['EmailText']['cc_addrs'] = array('value' => null);
-$GLOBALS['dataTool']['EmailText']['bcc_addrs'] = array('value' => null);
-$GLOBALS['dataTool']['EmailText']['description'] = array('gibberish' => -1);
-$GLOBALS['dataTool']['EmailText']['description_html'] = array('value' => null);
-$GLOBALS['dataTool']['EmailText']['raw_source'] = array('value' => null);
+$GLOBALS['dataTool']['EmailText']['email_id'] = ['related' => ['module' => 'Emails']];
+$GLOBALS['dataTool']['EmailText']['from_addr'] = ['list' => 'last_name_array', 'suffix' => "@example.com"];
+$GLOBALS['dataTool']['EmailText']['reply_to_addr'] = ['value' => null];
+$GLOBALS['dataTool']['EmailText']['to_addrs'] = ['list' => 'last_name_array', 'suffix' => "@example.com"];
+$GLOBALS['dataTool']['EmailText']['cc_addrs'] = ['value' => null];
+$GLOBALS['dataTool']['EmailText']['bcc_addrs'] = ['value' => null];
+$GLOBALS['dataTool']['EmailText']['description'] = ['gibberish' => -1];
+$GLOBALS['dataTool']['EmailText']['description_html'] = ['value' => null];
+$GLOBALS['dataTool']['EmailText']['raw_source'] = ['value' => null];

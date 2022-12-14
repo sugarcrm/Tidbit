@@ -15,8 +15,7 @@ use Sugarcrm\Tidbit\Exception;
  */
 class Factory
 {
-    /** @var array */
-    protected static $instances = array();
+    protected static array $instances = [];
 
     public static function getComponent($component)
     {
@@ -35,7 +34,7 @@ class Factory
     /**
      * Configure Core Config class
      */
-    protected static function configureConfig()
+    protected static function configureConfig(): Config
     {
         return new Config();
     }
@@ -43,7 +42,7 @@ class Factory
     /**
      * Configure Core Intervals class
      */
-    protected static function configureIntervals()
+    protected static function configureIntervals(): Intervals
     {
         /** @var Config $config */
         $config = Factory::getComponent('Config');

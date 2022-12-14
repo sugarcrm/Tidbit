@@ -37,5 +37,5 @@
 
 // "primary_account" was introduced only in 7.0.0 version of Sugar
 if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.0.0', '>=')) {
-    $GLOBALS['dataTool']['accounts_contacts']['primary_account'] = array('value' => 1);
+    $GLOBALS['dataTool']['accounts_contacts']['primary_account'] = ['value' => 1];
 }

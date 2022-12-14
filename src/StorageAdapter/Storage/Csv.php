@@ -41,12 +41,9 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
 class Csv extends Common
 {
-    /**
-     * @var string
-     */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_CSV;
 
-    protected $filenameSuffix = '';
+    protected string $filenameSuffix = '';
 
     public function __construct($storageResource, $logQueryPath = '')
     {
@@ -61,16 +58,15 @@ class Csv extends Common
         }
     }
 
-    public function setFilenameSuffix($suffix)
+    public function setFilenameSuffix(string $suffix)
     {
         $this->filenameSuffix = $suffix;
     }
 
     /**
      * {@inheritdoc}
-     *
      */
-    public function save($tableName, array $installData)
+    public function save(string $tableName, array $installData)
     {
         if (!$tableName || !$installData) {
             throw new Exception("Csv adapter error: wrong data to save");
@@ -96,7 +92,6 @@ class Csv extends Common
     /**
      * Remove spaces and wrap to quotes values in the list
      *
-     * @param array $values
      * @param string $quote
      * @return string
      */
@@ -114,12 +109,8 @@ class Csv extends Common
 
     /**
      * Return full path to file for data storing
-     *
-     * @param string $tableName
-     * @return string
-     * @throws \Sugarcrm\Tidbit\Exception
      */
-    protected function getFileName($tableName)
+    protected function getFileName(string $tableName): string
     {
         return $this->storageResource . '/' . $tableName . $this->filenameSuffix . '.csv';
     }

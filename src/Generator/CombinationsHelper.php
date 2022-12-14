@@ -46,7 +46,7 @@ class CombinationsHelper
         $baseN = floor($youBaseN * $selfTotal / $youTotal);
         $combID = $maxPossibleCombinations - ($n - $baseN) - 1;
 
-        $relatedNs = [ $youBaseN ];
+        $relatedNs = [$youBaseN];
         for ($i = 0; $i < $degree - 1; $i++) {
             $mask = 1 << $i;
             if ($combID & $mask) {

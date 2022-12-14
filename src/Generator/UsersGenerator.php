@@ -36,14 +36,14 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-use \Sugarcrm\Tidbit\Core\Factory;
+use Sugarcrm\Tidbit\Core\Factory;
 
 class UsersGenerator extends ModuleGenerator
 {
-    protected $defaultPrefs;
-    protected $currentDateTime;
+    protected string $defaultPrefs;
+    protected string $currentDateTime;
     protected $idGenerator;
-    protected $teamSetCore;
+    protected TeamSetCore $teamSetCore;
 
     public function __construct(\SugarBean $bean)
     {
@@ -60,7 +60,7 @@ class UsersGenerator extends ModuleGenerator
         $this->teamSetCore = new TeamSetCore();
     }
 
-    public function clean()
+    public function clean(): void
     {
         parent::clean();
         $GLOBALS['db']->query("DELETE FROM user_preferences WHERE assigned_user_id LIKE 'seed-%'", true);
@@ -68,7 +68,7 @@ class UsersGenerator extends ModuleGenerator
         $GLOBALS['db']->query("DELETE FROM team_memberships WHERE id LIKE 'seed-%'", true);
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $data = parent::generateRecord($n);
 
@@ -120,7 +120,7 @@ class UsersGenerator extends ModuleGenerator
                 'team_id' => $privateTeamID,
                 'deleted' => 0,
                 'date_modified' => $this->currentDateTime,
-            ],[
+            ], [
                 'id' => $this->idGenerator->generateTidbitID($n, 'TeamsGl'),
                 'user_id' => "'$userID'",
                 'team_id' => "'1'",
