@@ -35,18 +35,18 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['default'] = array();
-$GLOBALS['dataTool']['default']['int'] = array('range' => array('min' => 0, 'max' => 100));
-$GLOBALS['dataTool']['default']['uint'] = array('range' => array('min' => 0, 'max' => 100));
+$GLOBALS['dataTool']['default'] = [];
+$GLOBALS['dataTool']['default']['int'] = ['range' => ['min' => 0, 'max' => 100]];
+$GLOBALS['dataTool']['default']['uint'] = ['range' => ['min' => 0, 'max' => 100]];
 $GLOBALS['dataTool']['default']['tinyint'] = ['range' => ['min' => 0, 'max' => 100]];
-$GLOBALS['dataTool']['default']['long'] = array('range' => array('min' => 0, 'max' => 100));
-$GLOBALS['dataTool']['default']['ulong'] = array('range' => array('min' => 0, 'max' => 100));
-$GLOBALS['dataTool']['default']['double'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 1.7);
-$GLOBALS['dataTool']['default']['float'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 2.3);
-$GLOBALS['dataTool']['default']['decimal'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 3.2);
-$GLOBALS['dataTool']['default']['decimal2'] = array('range' => array('min' => 0, 'max' => 1000), 'multiply' => 4.3);
-$GLOBALS['dataTool']['default']['short'] = array('range' => array('min' => 0, 'max' => 10));
-$GLOBALS['dataTool']['default']['varchar'] = array('list' => 'last_name_array');
+$GLOBALS['dataTool']['default']['long'] = ['range' => ['min' => 0, 'max' => 100]];
+$GLOBALS['dataTool']['default']['ulong'] = ['range' => ['min' => 0, 'max' => 100]];
+$GLOBALS['dataTool']['default']['double'] = ['range' => ['min' => 0, 'max' => 1000], 'multiply' => 1.7];
+$GLOBALS['dataTool']['default']['float'] = ['range' => ['min' => 0, 'max' => 1000], 'multiply' => 2.3];
+$GLOBALS['dataTool']['default']['decimal'] = ['range' => ['min' => 0, 'max' => 1000], 'multiply' => 3.2];
+$GLOBALS['dataTool']['default']['decimal2'] = ['range' => ['min' => 0, 'max' => 1000], 'multiply' => 4.3];
+$GLOBALS['dataTool']['default']['short'] = ['range' => ['min' => 0, 'max' => 10]];
+$GLOBALS['dataTool']['default']['varchar'] = ['list' => 'last_name_array'];
 // $GLOBALS['dataTool']['default']['text'] = array('gibberish' => -1);
 $GLOBALS['dataTool']['default']['text'] = ['value' => "''"];
 $GLOBALS['dataTool']['default']['longtext'] = $GLOBALS['dataTool']['default']['text'];
@@ -62,43 +62,43 @@ $GLOBALS['dataTool']['default']['date'] = [
     'units' => 'days',
 ];
 $GLOBALS['dataTool']['default']['datetime'] = [
-    'range' => ['min' => -30*24*60*60, 'max' => 30*24*60*60],
+    'range' => ['min' => -30 * 24 * 60 * 60, 'max' => 30 * 24 * 60 * 60],
     'type' => 'datetime',
     'units' => 'seconds',
 ];
 $GLOBALS['dataTool']['default']['datetimecombo'] = $GLOBALS['dataTool']['default']['datetime'];
 $GLOBALS['dataTool']['default']['time'] = [
-    'range' => ['min' => -12*60*60, 'max' => 12*60*60],
+    'range' => ['min' => -12 * 60 * 60, 'max' => 12 * 60 * 60],
     'type' => 'time',
     'units' => 'seconds',
 ];
 $GLOBALS['dataTool']['default']['date_entered'] = [
-    'range' => ['min' => -90*24*60*60, 'max' => 0],
+    'range' => ['min' => -90 * 24 * 60 * 60, 'max' => 0],
     'type' => 'datetime',
     'units' => 'seconds',
 ];
 $GLOBALS['dataTool']['default']['date_modified'] = [
-    'range' => ['min' => -90*24*60*60, 'max' => 0],
+    'range' => ['min' => -90 * 24 * 60 * 60, 'max' => 0],
     'type' => 'datetime',
     'units' => 'seconds',
 ];
 //NEEDS THE DROPDOWN LIST TO GET THE PROPER VALUE
-$GLOBALS['dataTool']['default']['enum'] = array('set' => false);
-$GLOBALS['dataTool']['default']['multienum'] = array('set' => false);
-$GLOBALS['dataTool']['default']['bool'] = array('range' => array('min' => 0, 'max' => 1));
-$GLOBALS['dataTool']['default']['email'] = array('list' => 'last_name_array', 'suffix' => '@example.com');
-$GLOBALS['dataTool']['default']['phone'] = array('phone' => true);
-$GLOBALS['dataTool']['default']['meeting_probability'] = array('set' => false);
+$GLOBALS['dataTool']['default']['enum'] = ['set' => false];
+$GLOBALS['dataTool']['default']['multienum'] = ['set' => false];
+$GLOBALS['dataTool']['default']['bool'] = ['range' => ['min' => 0, 'max' => 1]];
+$GLOBALS['dataTool']['default']['email'] = ['list' => 'last_name_array', 'suffix' => '@example.com'];
+$GLOBALS['dataTool']['default']['phone'] = ['phone' => true];
+$GLOBALS['dataTool']['default']['meeting_probability'] = ['set' => false];
 $GLOBALS['dataTool']['default']['team_id'] = ['related' => ['module' => ['Users', 'Teams']]];
 $GLOBALS['dataTool']['default']['team_set_id'] = ['related' => ['module' => ['Users', 'TeamSets']]];
-$GLOBALS['dataTool']['default']['created_by'] = array('related' => array('module' => 'Users'));
-$GLOBALS['dataTool']['default']['assigned_user_id'] = array('related' => array('module' => 'Users'));
-$GLOBALS['dataTool']['default']['modified_user_id'] = array('related' => array('module' => 'Users'));
-$GLOBALS['dataTool']['default']['currency'] = array('range' => array('min' => 0, 'max' => 100000), 'multiply' => 0.01);
+$GLOBALS['dataTool']['default']['created_by'] = ['related' => ['module' => 'Users']];
+$GLOBALS['dataTool']['default']['assigned_user_id'] = ['related' => ['module' => 'Users']];
+$GLOBALS['dataTool']['default']['modified_user_id'] = ['related' => ['module' => 'Users']];
+$GLOBALS['dataTool']['default']['currency'] = ['range' => ['min' => 0, 'max' => 100000], 'multiply' => 0.01];
 
 // Tags generation, cause it fills to many data
-$GLOBALS['dataTool']['default']['tag'] = array('list' => 'last_name_array');
-$GLOBALS['dataTool']['default']['tag_lower'] = array('same' => 'tag', 'toLower' => true);
+$GLOBALS['dataTool']['default']['tag'] = ['list' => 'last_name_array'];
+$GLOBALS['dataTool']['default']['tag_lower'] = ['same' => 'tag', 'toLower' => true];
 $GLOBALS['dataTool']['default']['id'] = [];
 $GLOBALS['dataTool']['default']['deleted'] = ['value' => 0];
 $GLOBALS['dataTool']['default']['dp_business_purpose'] = ['value' => "''"];

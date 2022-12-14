@@ -42,7 +42,7 @@ $tidbitCsvDir = 'csv';
 // Default Sugar location path, could be overridden by "--sugar_path" argument
 $sugarPath = __DIR__ . '/../..';
 
-$modules = array(
+$modules = [
     'Tags' => 100,
     'EmailAddresses' => 12000,
     'ACLRoles' => 10,
@@ -70,7 +70,7 @@ $modules = array(
     'KBContents' => 1000,
     'Reports' => 1000,
     'ProductCategories' => 1000,
-);
+];
 
 /*
  * The number of product templates per level. The total number is the number of categories
@@ -93,11 +93,11 @@ $all_modules_default_count = 5000;
  * module names over 10 characters have a shorter alias to ensure that unique
  * GUIDs can be created.
  */
-$aliases = array(
+$aliases = [
     'EmailAddresses' => 'Emadd',
     'ProductBundles' => 'Prodb',
     'Opportunities' => 'Oppty'
-);
+];
 
 $tidbit_relationships['TeamSets'] = [
     'Teams' => [
@@ -110,207 +110,207 @@ $tidbit_relationships['TeamSets'] = [
     ],
 ];
 
-$tidbit_relationships['ACLRoles'] = array(
-    'Users' => array(
+$tidbit_relationships['ACLRoles'] = [
+    'Users' => [
         'self' => 'role_id',
         'you' => 'user_id',
         'table' => 'acl_roles_users'
-    ),
-);
+    ],
+];
 
-$tidbit_relationships['Users'] = array(
-    'Calls' => array(
+$tidbit_relationships['Users'] = [
+    'Calls' => [
         'self' => 'user_id',
         'you' => 'call_id',
         'table' => 'calls_users'
-    ),
-    'Meetings' => array(
+    ],
+    'Meetings' => [
         'self' => 'user_id',
         'you' => 'meeting_id',
         'table' => 'meetings_users'
-    ),
-    'EmailAddresses' => array(
-        'self'  => 'bean_id',
-        'you'   => 'email_address_id',
+    ],
+    'EmailAddresses' => [
+        'self' => 'bean_id',
+        'you' => 'email_address_id',
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
-    ),
-);
-$tidbit_relationships['Accounts'] = array(
-    'EmailAddresses' => array(
+    ],
+];
+$tidbit_relationships['Accounts'] = [
+    'EmailAddresses' => [
         'you' => 'email_address_id',
         'self' => 'bean_id',
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
-    ),
-    'Bugs' => array(
+    ],
+    'Bugs' => [
         'self' => 'account_id',
         'you' => 'bug_id',
         'table' => 'accounts_bugs'
-    ),
-    'Tags' => array(
+    ],
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-    'Emails' => array(
+    ],
+    'Emails' => [
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
         'ratio' => 1,
-    ),
-);
-$tidbit_relationships['Contacts'] = array(
+    ],
+];
+$tidbit_relationships['Contacts'] = [
     'Accounts' => [
         'self' => 'contact_id',
         'you' => 'account_id',
         'table' => 'accounts_contacts',
         'ratio' => 1,
     ],
-    'EmailAddresses' => array(
+    'EmailAddresses' => [
         'you' => 'email_address_id',
         'self' => 'bean_id',
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
-    ),
-    'Opportunities' => array(
+    ],
+    'Opportunities' => [
         'self' => 'contact_id',
         'you' => 'opportunity_id',
         'table' => 'opportunities_contacts'
-    ),
-    'Cases' => array(
+    ],
+    'Cases' => [
         'self' => 'contact_id',
         'you' => 'case_id',
         'table' => 'contacts_cases'
-    ),
-    'Bugs' => array(
+    ],
+    'Bugs' => [
         'self' => 'contact_id',
         'you' => 'bug_id',
         'table' => 'contacts_bugs'
-    ),
-    'Meetings' => array(
+    ],
+    'Meetings' => [
         'self' => 'contact_id',
         'you' => 'meeting_id',
         'table' => 'meetings_contacts'
-    ),
-    'Calls' => array(
+    ],
+    'Calls' => [
         'self' => 'contact_id',
         'you' => 'call_id',
         'table' => 'calls_contacts'
-    ),
-    'Quotes' => array(
+    ],
+    'Quotes' => [
         'self' => 'contact_id',
         'you' => 'quote_id',
         'table' => 'quotes_contacts'
-    ),
-    'Tags' => array(
+    ],
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-    'Emails' => array(
+    ],
+    'Emails' => [
         'self' => 'bean_id',
         'you' => 'email_id',
         'table' => 'emails_beans',
         'ratio' => 1,
-    ),
-);
+    ],
+];
 
-$tidbit_relationships['Opportunities'] = array(
+$tidbit_relationships['Opportunities'] = [
     'Accounts' => [
         'self' => 'opportunity_id',
         'you' => 'account_id',
         'table' => 'accounts_opportunities',
         'ratio' => 1,
     ],
-    'Quotes' => array(
+    'Quotes' => [
         'self' => 'opportunity_id',
         'you' => 'quote_id',
         'table' => 'quotes_opportunities'
-    ),
-    'Tags' => array(
+    ],
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Cases'] = array(
+    ],
+];
+$tidbit_relationships['Cases'] = [
     'Accounts' => [
         'self' => 'case_id',
         'you' => 'account_id',
         'table' => 'accounts_cases',
         'ratio' => 1,
     ],
-    'Bugs' => array(
+    'Bugs' => [
         'self' => 'case_id',
         'you' => 'bug_id',
         'table' => 'cases_bugs'
-    ),
-    'Tags' => array(
+    ],
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Bugs'] = array(
-    'Tags' => array(
+    ],
+];
+$tidbit_relationships['Bugs'] = [
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Notes'] = array(
-    'Tags' => array(
+    ],
+];
+$tidbit_relationships['Notes'] = [
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Calls'] = array(
-    'Tags' => array(
+    ],
+];
+$tidbit_relationships['Calls'] = [
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Tasks'] = array(
-    'Tags' => array(
+    ],
+];
+$tidbit_relationships['Tasks'] = [
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Meetings'] = array(
-    'Tags' => array(
+    ],
+];
+$tidbit_relationships['Meetings'] = [
+    'Tags' => [
         'self' => 'bean_id',
         'you' => 'tag_id',
         'table' => 'tag_bean_rel',
         'ratio' => 2,
         'random_id' => true,
-    ),
-);
-$tidbit_relationships['Quotes'] = array(
-    'ProductBundles' => array(
+    ],
+];
+$tidbit_relationships['Quotes'] = [
+    'ProductBundles' => [
         'self' => 'quote_id',
         'you' => 'bundle_id',
         'table' => 'product_bundle_quote'
-    ),
+    ],
     'Accounts' => [
         'self' => 'quote_id',
         'you' => 'account_id',
@@ -318,68 +318,68 @@ $tidbit_relationships['Quotes'] = array(
         'ratio' => 1,
         'repeat' => 2,
     ],
-);
-$tidbit_relationships['ProductBundles'] = array(
-    'Products' => array(
+];
+$tidbit_relationships['ProductBundles'] = [
+    'Products' => [
         'self' => 'bundle_id',
         'you' => 'product_id',
         'table' => 'product_bundle_product'
-    ),
-);
-$tidbit_relationships['Products'] = array(
+    ],
+];
+$tidbit_relationships['Products'] = [
     /* Ratio MUST be set for this to not point at itself. */
-    'Products' => array(
+    'Products' => [
         'self' => 'parent_id',
         'you' => 'child_id',
         'table' => 'product_product',
         'ratio' => 4
-    ),
-);
-$tidbit_relationships['Leads'] = array(
-    'EmailAddresses' => array(
+    ],
+];
+$tidbit_relationships['Leads'] = [
+    'EmailAddresses' => [
         'you' => 'email_address_id',
         'self' => 'bean_id',
         'table' => 'email_addr_bean_rel',
         'ratio' => 1,
-    ),
-    'Calls' => array(
+    ],
+    'Calls' => [
         'you' => 'call_id',
         'self' => 'lead_id',
         'table' => 'calls_leads',
         'ratio' => 1,
-    ),
-    'Meetings' => array(
+    ],
+    'Meetings' => [
         'you' => 'meeting_id',
         'self' => 'lead_id',
         'table' => 'meetings_leads',
         'ratio' => 1,
-    ),
-);
-$tidbit_relationships['DataPrivacy'] = array(
-    'Leads' => array(
+    ],
+];
+$tidbit_relationships['DataPrivacy'] = [
+    'Leads' => [
         'self' => 'dataprivacy_id',
         'you' => 'lead_id',
         'table' => 'leads_dataprivacy',
         'ratio' => 1,
-    ),
-    'Accounts' => array(
+    ],
+    'Accounts' => [
         'self' => 'dataprivacy_id',
         'you' => 'account_id',
         'table' => 'accounts_dataprivacy',
         'ratio' => 1,
-    ),
-    'Contacts' => array(
+    ],
+    'Contacts' => [
         'self' => 'dataprivacy_id',
         'you' => 'contact_id',
         'table' => 'contacts_dataprivacy',
         'ratio' => 1,
-    ),
-);
+    ],
+];
 
-$notifications_severity_list = array(
+$notifications_severity_list = [
     'alert',
     'information',
     'other',
     'success',
     'warning',
-);
+];

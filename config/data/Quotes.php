@@ -35,15 +35,15 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Quotes']['quote_num'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Quotes']['subtotal_usdollar'] = array('same' => 'subtotal');
-$GLOBALS['dataTool']['Quotes']['shipping_usdollar'] = array('same' => 'shipping');
-$GLOBALS['dataTool']['Quotes']['tax_usdollar'] = array('same' => 'tax');
-$GLOBALS['dataTool']['Quotes']['total'] = array('sum' => array('subtotal', 'shipping', 'tax'));
-$GLOBALS['dataTool']['Quotes']['total_usdollar'] = array(
-    'sum' => array('subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar')
-);
+$GLOBALS['dataTool']['Quotes']['quote_num'] = ['autoincrement' => true];
+$GLOBALS['dataTool']['Quotes']['subtotal_usdollar'] = ['same' => 'subtotal'];
+$GLOBALS['dataTool']['Quotes']['shipping_usdollar'] = ['same' => 'shipping'];
+$GLOBALS['dataTool']['Quotes']['tax_usdollar'] = ['same' => 'tax'];
+$GLOBALS['dataTool']['Quotes']['total'] = ['sum' => ['subtotal', 'shipping', 'tax']];
+$GLOBALS['dataTool']['Quotes']['total_usdollar'] = [
+    'sum' => ['subtotal_usdollar', 'shipping_usdollar', 'tax_usdollar']
+];
 /* Eventually the following should reference Accounts */
-$GLOBALS['dataTool']['Quotes']['quote_stage'] = array('value' => "'Draft'");
+$GLOBALS['dataTool']['Quotes']['quote_stage'] = ['value' => "'Draft'"];
 $GLOBALS['dataTool']['Quotes']['quote_type'] = ['skip' => true];
 $GLOBALS['dataTool']['Quotes']['date_closed_timestamp'] = ['skip' => true];

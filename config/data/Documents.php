@@ -35,5 +35,5 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
- // TR-21091
-$GLOBALS['dataTool']['Documents']['doc_type'] = array('value' => "'Google'");
+// TR-21091
+$GLOBALS['dataTool']['Documents']['doc_type'] = ['value' => "'Google'"];

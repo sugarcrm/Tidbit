@@ -35,8 +35,8 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Tags']['name_lower'] = array('same' => 'name', 'toLower' => true);
-$GLOBALS['dataTool']['Tags']['description'] = array('value' => "null");
-$GLOBALS['dataTool']['Tags']['source_id'] = array('value' => "null");
-$GLOBALS['dataTool']['Tags']['source_type'] = array('value' => "null");
-$GLOBALS['dataTool']['Tags']['source_meta'] = array('value' => "null");
+$GLOBALS['dataTool']['Tags']['name_lower'] = ['same' => 'name', 'toLower' => true];
+$GLOBALS['dataTool']['Tags']['description'] = ['value' => "null"];
+$GLOBALS['dataTool']['Tags']['source_id'] = ['value' => "null"];
+$GLOBALS['dataTool']['Tags']['source_type'] = ['value' => "null"];
+$GLOBALS['dataTool']['Tags']['source_meta'] = ['value' => "null"];

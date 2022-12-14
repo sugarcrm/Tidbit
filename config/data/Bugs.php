@@ -35,5 +35,5 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Bugs']['bug_number'] = array('autoincrement' => true);
-$GLOBALS['dataTool']['Bugs']['account_id'] = array('related' => array('module' => 'Accounts'));
+$GLOBALS['dataTool']['Bugs']['bug_number'] = ['autoincrement' => true];
+$GLOBALS['dataTool']['Bugs']['account_id'] = ['related' => ['module' => 'Accounts']];

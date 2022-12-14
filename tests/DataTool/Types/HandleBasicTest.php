@@ -2,8 +2,8 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
-use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 use Sugarcrm\Tidbit\DataTool;
+use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 /**
  * Class HandleTypeTest
@@ -15,13 +15,13 @@ class HandleBasicTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-    public function setUp()
+   protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         unset($GLOBALS['dataTool']);
@@ -32,7 +32,7 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testSkippedType()
     {
-        $type = array('skip' => true);
+        $type = ['skip' => true];
         $actual = $this->dataTool->handleType($type, '', '');
 
         $this->assertEquals('', $actual, '"skip" flag should return empty value');
@@ -47,24 +47,24 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testValueType($value, $expected)
     {
-        $type = array('value' => $value);
+        $type = ['value' => $value];
         $actual = $this->dataTool->handleType($type, '', '');
 
         $this->assertEquals($expected, $actual, '"value" flag should return value if it is not empty or "0" value');
     }
 
     /**
-     * @see testValueType
      * @return array
+     * @see testValueType
      */
     public function dataTestValueType()
     {
-        return array(
-            array(5, 5),
-            array("5", "5"),
-            array(0, 0),
-            array("0", "0"),
-        );
+        return [
+            [5, 5],
+            ["5", "5"],
+            [0, 0],
+            ["0", "0"],
+        ];
     }
 
     /**
@@ -72,8 +72,8 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testBinaryEnumType()
     {
-        $binaryValues = array('First', 'Second');
-        $type = array('binary_enum' => $binaryValues);
+        $binaryValues = ['First', 'Second'];
+        $type = ['binary_enum' => $binaryValues];
 
         $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals('First', $actual);
@@ -84,8 +84,8 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testBinaryEnumMultipleTimesType()
     {
-        $binaryValues = array('First', 'Second');
-        $type = array('binary_enum' => $binaryValues);
+        $binaryValues = ['First', 'Second'];
+        $type = ['binary_enum' => $binaryValues];
 
         for ($i = 0; $i < 5; $i++) {
             // Reset static variables for first time call only
@@ -115,7 +115,7 @@ class HandleBasicTest extends TidbitTestCase
         $this->dataTool->installData = [
             'subtotal' => 10,
             'shipping' => 20,
-            'tax'      => 33,
+            'tax' => 33,
         ];
 
         $this->dataTool->generateData();
@@ -139,11 +139,11 @@ class HandleBasicTest extends TidbitTestCase
             'tax' => ['name' => 'tax', 'type' => 'currency'],
         ]);
 
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'subtotal' => 10,
             'shipping' => 'some_string',
-            'tax'      => 33,
-        );
+            'tax' => 33,
+        ];
 
         $this->dataTool->generateData();
         $this->assertEquals(43, $this->dataTool->installData['total']);
@@ -165,10 +165,10 @@ class HandleBasicTest extends TidbitTestCase
             'tax' => ['name' => 'tax', 'type' => 'currency'],
         ]);
 
-        $this->dataTool->installData = array(
+        $this->dataTool->installData = [
             'subtotal' => 10,
-            'tax'      => 33,
-        );
+            'tax' => 33,
+        ];
 
         $this->dataTool->generateData();
         $this->assertEquals(63, $this->dataTool->installData['total']);
@@ -180,7 +180,7 @@ class HandleBasicTest extends TidbitTestCase
     public function testGetModuleType()
     {
         $this->dataTool->module = 'Contacts';
-        $type = array('getmodule' => true);
+        $type = ['getmodule' => true];
 
         $actual = $this->dataTool->handleType($type, '', '', true);
         $this->assertEquals("'Contacts'", $actual);
@@ -191,7 +191,7 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testGibberishType()
     {
-        $type = array('gibberish' => 10);
+        $type = ['gibberish' => 10];
 
         $actual = $this->dataTool->handleType($type, '', '', true);
 
@@ -205,8 +205,8 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testGibberishLengthLimitType()
     {
-        $type = array('gibberish' => 100);
-        $GLOBALS['fieldData'] = array('len' => 20);
+        $type = ['gibberish' => 100];
+        $GLOBALS['fieldData'] = ['len' => 20];
 
         $actual = $this->dataTool->handleType($type, '', '', true);
 
@@ -221,8 +221,8 @@ class HandleBasicTest extends TidbitTestCase
      */
     public function testGibberishDecimalLengthType()
     {
-        $type = array('gibberish' => 100);
-        $GLOBALS['fieldData'] = array('len' => '10,2');
+        $type = ['gibberish' => 100];
+        $GLOBALS['fieldData'] = ['len' => '10,2'];
 
         $actual = $this->dataTool->handleType($type, '', '', true);
 
