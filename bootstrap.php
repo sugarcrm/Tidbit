@@ -278,7 +278,7 @@ $GLOBALS['startTime'] = microtime();
 
 $insertBatchSize = 20;
 if (!empty($opts['insert_batch_size']) && $opts['insert_batch_size'] > 0) {
-    $insertBatchSize = ((int)$opts['insert_batch_size']);
+    $insertBatchSize = ((int) $opts['insert_batch_size']);
 }
 
 if (isset($opts['l']) && !isset($opts['profile'])) {

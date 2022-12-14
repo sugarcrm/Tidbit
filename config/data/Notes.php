@@ -35,10 +35,10 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Notes']['contact_id'] = array('related' => array('module' => 'Contacts', 'ratio' => 1));
-$GLOBALS['dataTool']['Notes']['parent_id'] = array('related' => array('module' => 'Accounts', 'ratio' => 4));
-$GLOBALS['dataTool']['Notes']['parent_type'] = array('value' => "'Accounts'");
-$GLOBALS['dataTool']['Notes']['filename'] = array('skip' => true);
-$GLOBALS['dataTool']['Notes']['file_mime_type'] = array('skip' => true);
-$GLOBALS['dataTool']['Notes']['contact_phone'] = array('phone' => true);
+$GLOBALS['dataTool']['Notes']['contact_id'] = ['related' => ['module' => 'Contacts', 'ratio' => 1]];
+$GLOBALS['dataTool']['Notes']['parent_id'] = ['related' => ['module' => 'Accounts', 'ratio' => 4]];
+$GLOBALS['dataTool']['Notes']['parent_type'] = ['value' => "'Accounts'"];
+$GLOBALS['dataTool']['Notes']['filename'] = ['skip' => true];
+$GLOBALS['dataTool']['Notes']['file_mime_type'] = ['skip' => true];
+$GLOBALS['dataTool']['Notes']['contact_phone'] = ['phone' => true];
 $GLOBALS['dataTool']['Notes']['subscriptions'] = ['probability' => 90];

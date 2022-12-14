@@ -35,10 +35,10 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Notifications']['name'] = array(
+$GLOBALS['dataTool']['Notifications']['name'] = [
     'list' => 'last_name_array',
     'prefix' => '[Tidbit] '
-);
-$GLOBALS['dataTool']['Notifications']['is_read'] = array('range' => array('min' => 0, 'max' => 1));
-$GLOBALS['dataTool']['Notifications']['severity'] = array('list' => 'notifications_severity_list');
-$GLOBALS['dataTool']['Notifications']['parent_type'] = array('value' => 'null');
+];
+$GLOBALS['dataTool']['Notifications']['is_read'] = ['range' => ['min' => 0, 'max' => 1]];
+$GLOBALS['dataTool']['Notifications']['severity'] = ['list' => 'notifications_severity_list'];
+$GLOBALS['dataTool']['Notifications']['parent_type'] = ['value' => 'null'];

@@ -36,18 +36,11 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Core\Relationships;
+use Sugarcrm\Tidbit\DataTool;
 
 class ModuleGenerator implements Generator
 {
-    /**
-     * Sugar Bean
-     *
-     * @var \SugarBean
-     */
-    protected $bean;
-
     /**
      * @var \Sugarcrm\Tidbit\Core\Relationships
      */
@@ -60,9 +53,8 @@ class ModuleGenerator implements Generator
      */
     protected $dTool;
 
-    public function __construct(\SugarBean $bean)
+    public function __construct(protected \SugarBean $bean)
     {
-        $this->bean = $bean;
         $dTool = new DataTool($GLOBALS['storageType']);
         $dTool->table_name = $bean->getTableName();
         $dTool->module = $bean->getModuleName();
@@ -71,7 +63,7 @@ class ModuleGenerator implements Generator
         $this->relsGen = new Relationships($bean->getModuleName(), $dTool);
     }
 
-    public function clean()
+    public function clean(): void
     {
         $bean = $this->bean;
         $module = $bean->getModuleName();
@@ -104,7 +96,7 @@ class ModuleGenerator implements Generator
         }
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $dTool = $this->dTool;
         $dTool->clean();

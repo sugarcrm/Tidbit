@@ -2,27 +2,27 @@
          colors="true"
          convertErrorsToExceptions="true"
          forceCoversAnnotation="false"
+         backupGlobals="true"
 >
     <testsuites>
         <testsuite name="Tidbit test suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <blacklist>
+    <coverage processUncoveredFiles="true">
+        <exclude>
             <directory suffix=".php">vendor</directory>
             <directory suffix=".php">csv</directory>
             <directory suffix=".php">config</directory>
             <directory suffix=".php">custom</directory>
-        </blacklist>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
             <!-- exclude classes that need to be extended from Sugar classes directly -->
-            <exclude>
-                <!-- TeamSets generator extends from Sugar class directly, so code coverage fails for this class -->
-                <file>src/Generator/TeamSetCore.php</file>
-                <file>src/FakeLogger.php</file>
-            </exclude>
-        </whitelist>
-    </filter>
+            <!-- TeamSets generator extends from Sugar class directly, so code coverage fails for this class -->
+            <file>src/Generator/TeamSetCore.php</file>
+            <file>src/FakeLogger.php</file>
+        </exclude>
+        <include>
+            <directory suffix=".php">src</directory>
+
+        </include>
+    </coverage>
 </phpunit>

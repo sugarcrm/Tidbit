@@ -35,35 +35,35 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Meetings']['contact_id'] = array('related' => array('module' => 'Contacts'));
-$GLOBALS['dataTool']['Meetings']['parent_id'] = array('related' => array('module' => 'Accounts', 'ratio' => 8));
-$GLOBALS['dataTool']['Meetings']['parent_type'] = array('value' => "'Accounts'");
-$GLOBALS['dataTool']['Meetings']['status'] = array('meeting_probability' => true);
-$GLOBALS['dataTool']['Meetings']['reminder_time'] = array('value' => -1);
-$GLOBALS['dataTool']['Meetings']['email_reminder_time'] = array('value' => -1);
+$GLOBALS['dataTool']['Meetings']['contact_id'] = ['related' => ['module' => 'Contacts']];
+$GLOBALS['dataTool']['Meetings']['parent_id'] = ['related' => ['module' => 'Accounts', 'ratio' => 8]];
+$GLOBALS['dataTool']['Meetings']['parent_type'] = ['value' => "'Accounts'"];
+$GLOBALS['dataTool']['Meetings']['status'] = ['meeting_probability' => true];
+$GLOBALS['dataTool']['Meetings']['reminder_time'] = ['value' => -1];
+$GLOBALS['dataTool']['Meetings']['email_reminder_time'] = ['value' => -1];
 
 // For possibility to perform Meetings update
-$GLOBALS['dataTool']['Meetings']['type'] = array('value' => "'Sugar'");
+$GLOBALS['dataTool']['Meetings']['type'] = ['value' => "'Sugar'"];
 
 // Durations in Minutes will be 30 mins, hours from 0 to 12 (selected randomly)
-$GLOBALS['dataTool']['Meetings']['duration_minutes'] = array('value' => "'30'");
-$GLOBALS['dataTool']['Meetings']['duration_hours'] = array('range' => array('min' => 0, 'max' => 12));
+$GLOBALS['dataTool']['Meetings']['duration_minutes'] = ['value' => "'30'"];
+$GLOBALS['dataTool']['Meetings']['duration_hours'] = ['range' => ['min' => 0, 'max' => 12]];
 /* We want meetings to be in the past 90% of the time. */
 /* Start should be always bigger than end */
-$GLOBALS['dataTool']['Meetings']['date_start'] = array(
-    'range'    => array('min' => -400, 'max' => 36),
-    'type'     => 'datetime',
+$GLOBALS['dataTool']['Meetings']['date_start'] = [
+    'range' => ['min' => -400, 'max' => 36],
+    'type' => 'datetime',
     'units' => 'days',
-);
-$GLOBALS['dataTool']['Meetings']['date_end'] = array(
+];
+$GLOBALS['dataTool']['Meetings']['date_end'] = [
     'same_datetime' => 'date_start',
-    'modify' => array(
-        'hours' => array(
+    'modify' => [
+        'hours' => [
             'field' => 'duration_hours'
-        ),
+        ],
         'minutes' => '30'
-    )
-);
+    ]
+];
 $GLOBALS['dataTool']['Meetings']['displayed_url'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['subscriptions'] = ['probability' => 25];
 $GLOBALS['dataTool']['Meetings']['dri_workflow_id'] = ['skip' => true];

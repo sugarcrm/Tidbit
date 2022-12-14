@@ -35,4 +35,4 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['tag_bean_rel']['bean_module'] = array('getmodule' => true);
+$GLOBALS['dataTool']['tag_bean_rel']['bean_module'] = ['getmodule' => true];
