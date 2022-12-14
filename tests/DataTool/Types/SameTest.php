@@ -2,8 +2,8 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
-use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Tests\TidbitTestCase;
+use Sugarcrm\Tidbit\DataTool;
 
 /**
  * Class SameTest
@@ -15,13 +15,13 @@ class SameTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-   protected function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
     }
 
-    protected function tearDown(): void
+    public function tearDown()
     {
         parent::tearDown();
         unset($GLOBALS['dataTool']);
@@ -53,7 +53,7 @@ class SameTest extends TidbitTestCase
      */
     public function testSameNotStringType()
     {
-        $type = ['same' => 20];
+        $type = array('same' => 20);
 
         $expected = 20;
 
@@ -176,7 +176,7 @@ class SameTest extends TidbitTestCase
      */
     public function testSameHashIntegerValueType()
     {
-        $type = ['same_hash' => 20];
+        $type = array('same_hash' => 20);
 
         $expected = 20;
         $actual = $this->dataTool->handleType($type, '', '', true);
@@ -202,7 +202,7 @@ class SameTest extends TidbitTestCase
             'field1' => ['type' => 'varchar'],
         ]);
 
-        $GLOBALS['sugar_config'] = ['sugar_version' => '7.6.2'];
+        $GLOBALS['sugar_config'] = array('sugar_version' => '7.6.2');
 
         $expected = 'not_hashed_value';
 

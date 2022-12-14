@@ -35,4 +35,4 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['DataPrivacy']['dataprivacy_number'] = ['autoincrement' => true];
+$GLOBALS['dataTool']['DataPrivacy']['dataprivacy_number'] = array('autoincrement' => true);

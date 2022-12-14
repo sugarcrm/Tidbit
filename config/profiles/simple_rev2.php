@@ -1,6 +1,6 @@
 <?php
 
-$modules = [
+$modules = array(
     'Tags' => 500,
     'EmailAddresses' => 60000,
     'ACLRoles' => 50,
@@ -30,8 +30,8 @@ $modules = [
     'KBDocuments' => 1500,
     'KBArticles' => 1500,
     'Reports' => 1000
-];
+);
 
-$profile_opts = [
+$profile_opts = array(
 
-];
+);

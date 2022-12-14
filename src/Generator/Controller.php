@@ -40,18 +40,26 @@ use Sugarcrm\Tidbit\InsertBuffer;
 
 class Controller
 {
-    protected string $progressLogPrefix = '';
+    /**
+     * Generatro
+     *
+     * @var Generator
+     */
+    protected $g;
 
-    public function __construct(protected Generator $g)
+    protected $progressLogPrefix;
+
+    public function __construct(Generator $g)
     {
+        $this->g = $g;
     }
 
-    public function setProgressLogPrefix(string $progressLogPrefix): void
+    public function setProgressLogPrefix($progressLogPrefix)
     {
         $this->progressLogPrefix = $progressLogPrefix;
     }
 
-    public function generate(int $total): void
+    public function generate($total)
     {
         $buffers = [];
         showProgress($this->progressLogPrefix, 0, $total);

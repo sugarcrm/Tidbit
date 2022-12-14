@@ -55,8 +55,8 @@ class TeamSecurityDenorm
         $command = Container::getInstance()->get(StateAwareRebuild::class);
 
         $ignoreUpToDate = true;
-        [$status, $message] = $command($ignoreUpToDate);
-        echo $message . "\n";
+        list($status, $message) = $command($ignoreUpToDate);
+        echo $message."\n";
 
         if ($ppbak === false) {
             unset($GLOBALS['sugar_config']['perfProfile']);

@@ -41,10 +41,10 @@
  * @param array $tidbit_relationships exiting relationship configuration
  * @return array
  */
-function generate_m2m_relationship_list($tidbit_relationships = [])
+function generate_m2m_relationship_list($tidbit_relationships = array())
 {
 
-    $skips = [];
+    $skips = array();
 
     global $dictionary;
     foreach ($dictionary as $module => $field_and_rel_data) {
@@ -64,7 +64,7 @@ function generate_m2m_relationship_list($tidbit_relationships = [])
             $table = $rel_data['join_table'];
 
             if (!isset($tidbit_relationships[$parent_module])) {
-                $tidbit_relationships[$parent_module] = [];
+                $tidbit_relationships[$parent_module] = array();
             }
 
             /*
@@ -74,11 +74,11 @@ function generate_m2m_relationship_list($tidbit_relationships = [])
                 continue;
             }
 
-            $tidbit_relationships[$parent_module][$second_module] = [
-                'self' => $self,
-                'you' => $you,
-                'table' => $table,
-            ];
+            $tidbit_relationships[$parent_module][$second_module] = array(
+              'self' => $self,
+              'you' => $you,
+              'table' => $table,
+            );
         }
     }
 
@@ -129,18 +129,18 @@ function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
  */
 function showProgress($prefix, $done, $total, $size = 40)
 {
-    $perc = (double) ($done / $total);
-    $bar = floor($perc * $size);
+    $perc = (double)($done/$total);
+    $bar = floor($perc*$size);
     $progress = str_repeat("=", $bar);
     $arrow = "";
     $empty = "";
     if ($bar < $size) {
         $arrow = ">";
-        $empty = str_repeat(" ", $size - $bar);
+        $empty = str_repeat(" ", $size-$bar);
     } else {
         $arrow = "=";
     }
-    $disp = number_format($perc * 100, 0);
+    $disp = number_format($perc*100, 0);
     $status_bar = "\t$prefix [" . $progress . $arrow . $empty . "] $disp%  $done/$total\n";
     echo "$status_bar";
 }

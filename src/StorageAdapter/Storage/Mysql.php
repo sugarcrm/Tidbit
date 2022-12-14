@@ -44,20 +44,28 @@ class Mysql extends Common
     /**
      * @var string
      */
-    public const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
+    const STORE_TYPE = Factory::OUTPUT_TYPE_MYSQL;
 
     /**
      * {@inheritdoc}
      *
      */
-    public function save(string $tableName, array $installData)
+    public function save($tableName, array $installData)
     {
         $sql = $this->prepareQuery($tableName, $installData);
         $this->logQuery($sql);
         $this->storageResource->query($sql, true, "INSERT QUERY FAILED");
     }
 
-    protected function prepareQuery(string $tableName, array $installData): string
+    /**
+     * rtfn
+     *
+     * @param string $tableName
+     * @param array $installData
+     * @return string
+     * @throws \Sugarcrm\Tidbit\Exception
+     */
+    protected function prepareQuery($tableName, array $installData)
     {
         if (!$tableName || !$installData) {
             throw new Exception("Mysql adapter error: wrong data to insert");

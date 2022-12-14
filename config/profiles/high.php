@@ -1,5 +1,5 @@
 <?php
-$modules = [
+$modules = array(
     'Tags' => 10000,
     'EmailAddresses' => 2400000,
     'ACLRoles' => 2000,
@@ -29,8 +29,8 @@ $modules = [
     'KBDocuments' => 60000,
     'KBArticles' => 60000,
     'Reports' => 10000
-];
+);
 
-$profile_opts = [
+$profile_opts = array(
 
-];
+);

@@ -39,11 +39,13 @@ namespace Sugarcrm\Tidbit\FieldData;
 
 class Phone
 {
-    public const DEFAULT_PATTERN = '{{areaCode}}-{{exchangeCode}}-####';
+    /** @var string  */
+    const DEFAULT_PATTERN = '{{areaCode}}-{{exchangeCode}}-####';
 
-    private array $phonesList = [];
-
-    private static ?Phone $instance = null;
+    private $phonesList = array();
+    
+    /** @var  Phone */
+    private static $instance;
 
     /**
      * Phone constructor.
@@ -58,30 +60,37 @@ class Phone
 
     /**
      * Get phone from single instance of class.
+     *
+     * @return string
      */
-    public static function getNumber(): string
+    public static function getNumber()
     {
         if (!self::$instance) {
             self::$instance = new Phone();
         }
-
+        
         return self::$instance->get();
     }
 
     /**
      * Returns one from generated phones.
+     *
+     * @return string
      */
-    public function get(): string
+    public function get()
     {
-        return $this->phonesList[random_int(0, count($this->phonesList) - 1)];
+        return $this->phonesList[mt_rand(0, count($this->phonesList) - 1)];
     }
 
     /**
      * Fill phones list
+     *
+     * @param int $count
+     * @param string $pattern
      */
-    protected function generatePhones(int $count, string $pattern): void
+    protected function generatePhones($count, $pattern)
     {
-        for ($i = 0; $i < $count; $i++) {
+        for ($i=0; $i<$count; $i++) {
             $this->phonesList[] = $this->generatePhone($pattern);
         }
     }
@@ -90,7 +99,7 @@ class Phone
      * @param $pattern string
      * @return string
      */
-    protected function generatePhone(string $pattern): string
+    protected function generatePhone($pattern)
     {
         $result = str_replace('{{areaCode}}', $this->areaCode(), $pattern);
         $result = str_replace('{{exchangeCode}}', $this->exchangeCode(), $result);
@@ -107,10 +116,12 @@ class Phone
      * NPA-format area code.
      *
      * @see https://en.wikipedia.org/wiki/North_American_Numbering_Plan#Numbering_system
+     *
+     * @return string
      */
-    protected function areaCode(): string
+    protected function areaCode()
     {
-        $digits[] = random_int(2, 9);
+        $digits[] = mt_rand(2, 9);
         $digits[] = $this->getRandomDigit();
         $digits[] = $this->getRandomDigitNot($digits[1]);
 
@@ -121,10 +132,12 @@ class Phone
      * NXX-format central office exchange code
      *
      * @see https://en.wikipedia.org/wiki/North_American_Numbering_Plan#Numbering_system
+     *
+     * @return string
      */
-    protected function exchangeCode(): string
+    protected function exchangeCode()
     {
-        $digits[] = random_int(2, 9);
+        $digits[] = mt_rand(2, 9);
         $digits[] = $this->getRandomDigit();
 
         if ($digits[1] === 1) {
@@ -138,10 +151,13 @@ class Phone
 
     /**
      * Generates a random digit, which cannot be $except.
+     *
+     * @param int $except
+     * @return int
      */
-    protected function getRandomDigitNot(int $except): int
+    protected function getRandomDigitNot($except)
     {
-        $result = random_int(0, 8);
+        $result = mt_rand(0, 8);
         if ($result >= $except) {
             $result++;
         }
@@ -150,9 +166,11 @@ class Phone
 
     /**
      * Generates a random digit
+     *
+     * @return int
      */
-    protected function getRandomDigit(): int
+    protected function getRandomDigit()
     {
-        return random_int(0, 9);
+        return mt_rand(0, 9);
     }
 }

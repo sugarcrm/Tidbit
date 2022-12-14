@@ -38,7 +38,7 @@ namespace Sugarcrm\Tidbit\Generator;
 
 class TeamsGenerator extends ModuleGenerator
 {
-    public function clean(): void
+    public function clean()
     {
         parent::clean();
         $GLOBALS['db']->query("DELETE FROM team_sets_teams WHERE id LIKE 'seed-%'");

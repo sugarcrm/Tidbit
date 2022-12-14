@@ -37,10 +37,10 @@
 
 $GLOBALS['aliases']['ProductsFavorites'] = 'ProdFav';
 
-$GLOBALS['dataTool']['Products']['account_id'] = ['related' => ['module' => 'Accounts']];
-$GLOBALS['dataTool']['Products']['contact_id'] = ['related' => ['module' => 'Contacts']];
-$GLOBALS['dataTool']['Products']['quote_id'] = ['skip' => true];
-$GLOBALS['dataTool']['Products']['tax_class'] = ['skip' => true];
-$GLOBALS['dataTool']['Products']['support_term'] = ['skip' => true];
-$GLOBALS['dataTool']['Products']['product_url'] = ['value' => "'www.example.com'"];
+$GLOBALS['dataTool']['Products']['account_id'] = array('related' => array('module' => 'Accounts'));
+$GLOBALS['dataTool']['Products']['contact_id'] = array('related' => array('module' => 'Contacts'));
+$GLOBALS['dataTool']['Products']['quote_id'] = array('skip' => true);
+$GLOBALS['dataTool']['Products']['tax_class'] = array('skip' => true);
+$GLOBALS['dataTool']['Products']['support_term'] = array('skip' => true);
+$GLOBALS['dataTool']['Products']['product_url'] = array('value' => "'www.example.com'");
 $GLOBALS['dataTool']['Products']['date_closed_timestamp'] = ['skip' => true];

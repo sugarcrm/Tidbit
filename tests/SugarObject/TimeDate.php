@@ -48,7 +48,7 @@ class TimeDate extends \DateTime
 
         return static::$timedate;
     }
-
+    
     /**
      * Format date as DB-formatted field type
      * @param \DateTime $date
@@ -58,7 +58,7 @@ class TimeDate extends \DateTime
      */
     public function asDbType(\DateTime $date, $type, $setGMT = null)
     {
-        $args = [$date];
+        $args = array($date);
         // because asDbDate and asDb have different default value for $setGMT
         // (true and false) we have to use NULL as default value for this method
         if (!is_null($setGMT)) {
@@ -67,7 +67,7 @@ class TimeDate extends \DateTime
 
         switch ($type) {
             case "date":
-                return call_user_func_array([$this, 'asDbDate'], $args);
+                return call_user_func_array(array($this, 'asDbDate'), $args);
                 break;
             case 'time':
                 return $this->asDbTime($date);
@@ -75,7 +75,7 @@ class TimeDate extends \DateTime
             case 'datetime':
             case 'datetimecombo':
             default:
-                return call_user_func_array([$this, 'asDb'], $args);
+                return call_user_func_array(array($this, 'asDb'), $args);
         }
     }
 

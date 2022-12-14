@@ -4,17 +4,18 @@ namespace Sugarcrm\Tidbit\Tests;
 
 use Sugarcrm\Tidbit\PHPUnit\IsQuotedValueConstraint;
 
-class TidbitTestCase extends \PHPUnit\Framework\TestCase
+class TidbitTestCase extends \PHPUnit_Framework_TestCase
 {
-    protected array $globals;
-
-    protected function setUp(): void
+    /** @var array */
+    protected $globals;
+    
+    public function setUp()
     {
         parent::setUp();
         $this->globals = $GLOBALS;
     }
-
-    protected function tearDown(): void
+    
+    public function tearDown()
     {
         $GLOBALS = $this->globals;
         parent::tearDown();

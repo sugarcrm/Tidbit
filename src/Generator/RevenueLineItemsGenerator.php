@@ -36,15 +36,15 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-use Sugarcrm\Tidbit\Core\Factory;
+use \Sugarcrm\Tidbit\Core\Factory;
 
 class RevenueLineItemsGenerator extends ModuleGenerator
 {
     protected $idGenerator;
-    protected string $currentDateTime;
-    protected array $timestampCache = [];
+    protected $currentDateTime;
+    protected $timestampCache = [];
 
-    private string $dateClosedFormat = 'Y-m-d';
+    private $dateClosedFormat = 'Y-m-d';
 
     public function __construct(\SugarBean $bean)
     {
@@ -53,20 +53,20 @@ class RevenueLineItemsGenerator extends ModuleGenerator
         $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function clean(): void
+    public function clean()
     {
         parent::clean();
         $GLOBALS['db']->query("DELETE FROM forecast_worksheets WHERE id LIKE 'seed-%'", true);
     }
 
-    public function generateRecord($n): array
+    public function generateRecord($n)
     {
         $data = parent::generateRecord($n);
         $rliData = $data['data']['revenue_line_items'][0];
         $rliData['date_closed_timestamp'] = "'" . $this->getTimestampFromDateByFormat(
-                trim($rliData['date_closed'], "'to_date()YMD- ,"),
-                $this->dateClosedFormat
-            ) . "'";
+            trim($rliData['date_closed'], "'to_date()YMD- ,"),
+            $this->dateClosedFormat
+        ) . "'";
         $data['data']['revenue_line_items'][0]['date_closed_timestamp'] =
             $rliData['date_closed_timestamp'];
 
@@ -74,6 +74,7 @@ class RevenueLineItemsGenerator extends ModuleGenerator
             'id' => $this->idGenerator->generateTidbitID($n, 'ForWS'),
             'parent_id' => $rliData['id'],
             'parent_type' => "'RevenueLineItems'",
+            'deleted' => 0,
             'date_modified' => $rliData['date_modified'] ?? "'$this->currentDateTime'",
             'modified_user_id' => $rliData['created_by'] ?? "''",
             'account_id' => $rliData['account_id'] ?? "''",
@@ -111,7 +112,7 @@ class RevenueLineItemsGenerator extends ModuleGenerator
             'cost_price' => $rliData['cost_price'] ?? "''",
             'discount_price' => $rliData['discount_price'] ?? "''",
             'discount_amount' => $rliData['discount_amount'] ?? "''",
-            'quantity' => (int) $rliData['quantity'] ?? "''",
+            'quantity' => (int)$rliData['quantity'] ?? "''",
             'total_amount' => $rliData['total_amount'] ?? "''",
             'draft' => 1,
         ];
@@ -119,12 +120,12 @@ class RevenueLineItemsGenerator extends ModuleGenerator
         return $data;
     }
 
-    protected function getDateTimeByFormat($date, $format): \DateTime
+    protected function getDateTimeByFormat($date, $format)
     {
         return \DateTime::createFromFormat($format, $date);
     }
 
-    protected function getTimestampFromDateByFormat($date, $format): int
+    protected function getTimestampFromDateByFormat($date, $format)
     {
         return $this->getDateTimeByFormat($date, $format)->getTimestamp();
     }

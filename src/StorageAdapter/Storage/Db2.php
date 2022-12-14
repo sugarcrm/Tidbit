@@ -41,12 +41,16 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
 class Db2 extends Common
 {
-    public const STORE_TYPE = Factory::OUTPUT_TYPE_DB2;
+    /**
+     * @var string
+     */
+    const STORE_TYPE = Factory::OUTPUT_TYPE_DB2;
 
     /**
      * {@inheritdoc}
+     *
      */
-    public function save(string $tableName, array $installData)
+    public function save($tableName, array $installData)
     {
         $sql = $this->prepareQuery($tableName, $installData);
         $this->logQuery($sql);
@@ -54,7 +58,15 @@ class Db2 extends Common
         $this->commitQuery();
     }
 
-    protected function prepareQuery(string $tableName, array $installData): string
+    /**
+     * rtfn
+     *
+     * @param string $tableName
+     * @param array $installData
+     * @return string
+     * @throws \Sugarcrm\Tidbit\Exception
+     */
+    protected function prepareQuery($tableName, array $installData)
     {
         if (!$tableName || !$installData) {
             throw new Exception("DB2 adapter error: wrong data to insert");
@@ -76,6 +88,8 @@ class Db2 extends Common
 
     /**
      * Patch inserted value if it look like sequence
+     *
+     * @param array $installData
      */
     protected function patchSequenceValues(array &$installData)
     {
@@ -86,7 +100,7 @@ class Db2 extends Common
         $installDataCount = count($installData);
         $currentValue = $this->getCurrentSequenceValue($sequence['name']);
 
-        for ($i = 0; $i < $installDataCount; $i++) {
+        for ($i=0; $i <$installDataCount; $i++) {
             $installData[$i][$sequence['field']] = ++$currentValue;
         }
 
@@ -95,15 +109,18 @@ class Db2 extends Common
 
     /**
      * Check array of values on containing sequence value
+     *
+     * @param array $values
+     * @return array
      */
-    protected function getSequenceFromValues(array $values): array
+    protected function getSequenceFromValues(array $values)
     {
         foreach ($values as $k => $v) {
             if (substr($v, -12) == '_SEQ.NEXTVAL') {
-                return ['field' => $k, 'name' => substr($v, 0, -8)];
+                return array('field' => $k, 'name' => substr($v, 0, -8));
             }
         }
-        return [];
+        return array();
     }
 
     /**
@@ -112,13 +129,13 @@ class Db2 extends Common
      * @param string $sequenceName
      * @return int
      */
-    protected function getCurrentSequenceValue($sequenceName): int
+    protected function getCurrentSequenceValue($sequenceName)
     {
         $sql = sprintf(
             "SELECT lastassignedval AS current_val FROM SYSIBM.SYSSEQUENCES WHERE seqname = '%s'",
             $sequenceName
         );
-
+        
         $result = $this->storageResource->query($sql);
         $row = $this->storageResource->fetchByAssoc($result);
 

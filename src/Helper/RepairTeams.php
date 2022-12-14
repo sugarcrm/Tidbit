@@ -47,7 +47,7 @@ class RepairTeams
     /**
      * Repair
      */
-    public static function repair(): void
+    public static function repair()
     {
         $_REQUEST['silent'] = 1;
         $_POST['process'] = true;

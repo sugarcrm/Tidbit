@@ -9,7 +9,7 @@ namespace Sugarcrm\Tidbit\Core;
 class Config
 {
     /** @var array */
-    protected $config = [];
+    protected $config = array();
 
     public function __construct()
     {
@@ -23,17 +23,25 @@ class Config
 
     /**
      * Get config item
+     *
+     * @param string $item
+     * @return mixed|null
      */
-    public function get(string $item): mixed
+    public function get($item)
     {
-        return $this->config[$item] ?? null;
+        return (isset($this->config[$item]))
+            ? $this->config[$item]
+            : null;
     }
 
     /**
      * For some generators we need to dynamically set number of
      * Records that will be generated for Module
+     *
+     * @param string $module
+     * @param int $count
      */
-    public function setModuleCount(string $module, int $count): void
+    public function setModuleCount($module, $count)
     {
         global $modules;
 

@@ -1,19 +1,18 @@
-Tidbit v3.0 (bleeding edge) -- [Tidbit v2.0 (stable)](https://github.com/sugarcrm/Tidbit/tree/v2.0.0)
+Tidbit v3.0 (bleeding edge) -- [Tidbit v2.0 (stable)](https://github.com/sugarcrm/Tidbit/tree/v2.0.0) 
 ===========
 
-|                       [Master][Master]                       |                       [Develop][Develop]                       |
-|:------------------------------------------------------------:|:--------------------------------------------------------------:|
-|           [![Build status][Master image]][Master]            |           [![Build status][Develop image]][Develop]            |
+| [Master][Master] | [Develop][Develop] |
+|:----------------:|:----------:|
+| [![Build status][Master image]][Master] | [![Build status][Develop image]][Develop] |
 | [![Coverage Status][Master coverage image]][Master coverage] | [![Coverage Status][Develop coverage image]][Develop coverage] |
 
-Tidbit is random data generator for Sugar versions 7.8 and later. By optimizing
+Tidbit is random data generator for Sugar versions 7.8 and later.  By optimizing
 the communications with the database, large amounts of data can be inserted
 into the system for testing without manual intervention.
 
 Documentation in [the wiki](https://github.com/sugarcrm/Tidbit/wiki)!
 ------------------
-**Please visit [the wiki](https://github.com/sugarcrm/Tidbit/wiki) for detailed documentation on using and configuring
-Tidbit.**
+**Please visit [the wiki](https://github.com/sugarcrm/Tidbit/wiki) for detailed documentation on using and configuring Tidbit.**
 
 Requirements
 ------------
@@ -26,13 +25,11 @@ To install Tidbit, unpack the Tidbit-v###.tar.bz2 file, and place the Tidbit/
 directory within your SugarCRM installation (Tidbit Directory need to be created inside SugarCRM Installation folder).
 
 Download composer
-
 ```
 curl -sS https://getcomposer.org/installer | php
 ```
 
 Install composer dependencies inside Tidbit directory
-
 ```
 ./composer.phar install
 ```
@@ -48,40 +45,39 @@ Installation of Vagrant Stack (Example):
     $ vagrant ssh
     ```
 
-2. Navigate to Sugar directory.
+2. Navigate to Sugar directory. 
     ```
     $ cd /
     $ cd var/www/html/ (sugar instance).
     ```
-
+    
 3. Download zip file from repo (master.zip) into the sugar instance. e.g. /SugarEnt-Full-7.6.0.0/.
     ```
     $ wget (url to zip file)
     ```
-
+    
 4. Unzip file (master.zip). Directory created by zip file is called Tidbit-master.
     ```
     $ unzip master.zip
     ```
-
+    
 5. Change Directory to /Tidbit e.g., mv /Tidbit-master /Tidbit.
     ```
     $ mv /Tidbit-master /Tidbit
     ```
-
+    
 6. Navigate to /Tidbit and follow instructions under usage, below, from within /Tidbit directory.
     ```
     $ cd /Tidbit
     ```
-
+    
 7. Install Composer dependencies
     ```
     $ ./composer.phar install
     ```
-
+    
 Configuration
 -------------
-
     Tidbit has default config files in tidbit_root/config/ folder.
     Here:
         - config.php          -- main config file
@@ -94,17 +90,16 @@ Configuration
 
 Usage
 -----
-**NOTES:**
+**NOTES:** 
 
 * Usage of Tidbit could affect your _data_ in DB.
-  Please make sure you have a backup, before running data Generation commands
+Please make sure you have a backup, before running data Generation commands
 
 * In case of generation csv (--storage csv).
-  We suppose what csv-dump will be used on empty DB, so for speed up, we'll generate
-  values (integer starting with 1) for autoincrement-type fields.
+We suppose what csv-dump will be used on empty DB, so for speed up, we'll generate
+values (integer starting with 1) for autoincrement-type fields.
 
 * Following mysql configuration can decrease generation time:
-
 ```conf
 [mysqld]
 innodb_doublewrite = 0
@@ -115,7 +110,7 @@ innodb_flush_log_at_trx_commit = 0
 max_allowed_packet = 1024M
 ```
 
-Tidbit uses a command line interface. To run it from the Tidbit directory:
+Tidbit uses a command line interface.  To run it from the Tidbit directory:
 
     $ ./bin/tidbit (or ./vendor/bin/tidbit for package dependency installation)
 
@@ -171,30 +166,23 @@ To run quick code check use
 or call PHP CS directly
 
     $ ./vendor/bin/phpcs --standard=./ruleset.xml
-
+    
 to run PHPUnit tests locally please use
 
     $ ./composer.phar tests
-
+    
 or call PHPUnit directly
 
     $ ./vendor/bin/phpunit -c ./phpunit.xml.dist
-
+    
 There are automated PR checks enabled on TravisCI (https://travis-ci.org/sugarcrm/Tidbit)
 For each PR code-style and phpunit tests will be executed for verification
 
-[Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
-
-[Master]: https://travis-ci.org/sugarcrm/Tidbit
-
-[Master coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=master
-
-[Master coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=master
-
-[Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
-
-[Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
-
-[Develop coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=develop
-
-[Develop coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=develop
+  [Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
+  [Master]: https://travis-ci.org/sugarcrm/Tidbit
+  [Master coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=master
+  [Master coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=master
+  [Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
+  [Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
+  [Develop coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=develop
+  [Develop coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=develop

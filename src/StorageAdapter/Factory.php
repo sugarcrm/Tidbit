@@ -38,38 +38,38 @@
 namespace Sugarcrm\Tidbit\StorageAdapter;
 
 use Sugarcrm\Tidbit\Exception;
-use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
 
 class Factory
 {
-    public const OUTPUT_TYPE_MYSQL = 'mysql';
-    public const OUTPUT_TYPE_ORACLE = 'oracle';
-    public const OUTPUT_TYPE_CSV = 'csv';
-    public const OUTPUT_TYPE_DB2 = 'db2';
+    const OUTPUT_TYPE_MYSQL     = 'mysql';
+    const OUTPUT_TYPE_ORACLE    = 'oracle';
+    const OUTPUT_TYPE_CSV       = 'csv';
+    const OUTPUT_TYPE_DB2       = 'db2';
 
     /**
      * List of storage types
      *
      * @var array
      */
-    private static $availableTypes = [
+    private static $availableTypes = array(
         self::OUTPUT_TYPE_CSV,
         self::OUTPUT_TYPE_MYSQL,
         self::OUTPUT_TYPE_ORACLE,
         self::OUTPUT_TYPE_DB2,
-    ];
+    );
 
     /**
      * Storage Adapter Creator
      *
+     * @param string $storageType
+     * @param mixed $storageResource
+     * @param string $logQueryPath
+     *
      * @throws Exception
      *
+     * @return \Sugarcrm\Tidbit\StorageAdapter\Storage\Common
      */
-    public static function getAdapterInstance(
-        string $storageType,
-        mixed  $storageResource,
-        string $logQueryPath = ''
-    ): Common
+    public static function getAdapterInstance($storageType, $storageResource, $logQueryPath = '')
     {
         if (!in_array($storageType, self::$availableTypes)) {
             throw new Exception('Unsupported storage type');
@@ -81,8 +81,11 @@ class Factory
 
     /**
      * Determine full storage-adapter name and include it
+     *
+     * @param string $storageType
+     * @return string
      */
-    private static function getAdapterClassName(string $storageType): string
+    private static function getAdapterClassName($storageType)
     {
         $adapterSuffixName = ucfirst($storageType);
         return '\Sugarcrm\Tidbit\StorageAdapter\Storage\\' . $adapterSuffixName;

@@ -45,41 +45,49 @@
 
 namespace Sugarcrm\Tidbit;
 
-use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 use Sugarcrm\Tidbit\Core\Intervals;
 use Sugarcrm\Tidbit\FieldData\Phone;
 use Sugarcrm\Tidbit\StorageAdapter\Factory;
+use Sugarcrm\Tidbit\Core\Factory as CoreFactory;
 
 class DataTool
 {
-    /** stores data to insert into %module% table */
-    public array $installData = [];
+    /** @var array stores data to insert into %module% table */
+    public $installData = array();
 
-    /** stores data to insert into %module_cstm% table */
-    public array $installDataCstm = [];
+    /** @var array stores data to insert into %module_cstm% table */
+    public $installDataCstm = array();
 
-    /** fields and its values from vardefs.php for every module */
-    protected array $fields = [];
+    /** @var array stores fields and its values from vardefs.php for every module */
+    protected $fields = array();
 
-    /** stores field rules */
-    protected array $fieldRules = [];
+    /** @var array stores field rules */
+    protected $fieldRules = [];
 
-    public string $table_name = '';
-    public string $module = '';
-    public int $count = 0;
+    public $table_name = '';
+    public $module = '';
+    public $count = 0;
 
     // based on xhprof, db_convert for datetime and time generation, consume a lot of time.
     // getConvertDatetime() function re-generate time only when this index reach max number
     // so we will re-generate time only for self::$datetimeIndexMax record
-    protected static int $datetimeCacheIndex = 0;
-    protected static int $datetimeIndexMax = 1000;
+    protected static $datetimeCacheIndex = 0;
+    protected static $datetimeIndexMax = 1000;
 
-    protected array $passwordHashCache = [];
+    protected $passwordHashCache = [];
 
-    protected Intervals $coreIntervals;
+    /**
+     * Type of output storage
+     *
+     * @var string
+     */
+    protected $storageType;
+
+    /** @var Intervals  */
+    protected $coreIntervals;
 
     // Skip db_convert for those types for optimization
-    protected static array $notConvertedTypes = [
+    protected static $notConvertedTypes = array(
         'int',
         'uint',
         'double',
@@ -94,20 +102,24 @@ class DataTool
         'phone',
         'email',
         'created_by'
-    ];
+    );
 
     /**
      * DataTool constructor.
+     * @param string $storageType
      */
-    public function __construct(protected $storageType)
+    public function __construct($storageType)
     {
+        $this->storageType = $storageType;
         $this->coreIntervals = CoreFactory::getComponent('Intervals');
     }
 
     /**
      * Getter for filtered fields data from vardef.php
+     *
+     * @return array
      */
-    public function getFields(): array
+    public function getFields()
     {
         return $this->fields;
     }
@@ -123,7 +135,7 @@ class DataTool
      *
      * @param $fieldDefs array - Value of 'fields' key from vardef.php for a module.
      */
-    public function setFields(array $fieldDefs): void
+    public function setFields($fieldDefs)
     {
         $this->fieldRules = [];
         $this->fields = [];
@@ -179,7 +191,7 @@ class DataTool
      * Generate data and store it in the installData array.
      * This is done for each field.
      */
-    public function generateData(): void
+    public function generateData()
     {
         foreach ($this->fields as $field => $data) {
             if (isset($this->installData[$field])) {
@@ -194,7 +206,7 @@ class DataTool
      *
      * @param $field string - field name
      */
-    protected function generateFieldData(string $field): void
+    protected function generateFieldData($field)
     {
         $type = (!empty($this->fields[$field]['dbType']))
             ? $this->fields[$field]['dbType']
@@ -214,8 +226,11 @@ class DataTool
     /**
      * Generate a unique ID based on the module name, system time, and count (defined
      * in configs for each module), and save the ID in the installData array.
+     *
+     * @param bool $includeCustomId
+     * @return string
      */
-    public function generateId(bool $includeCustomId = false): string
+    public function generateId($includeCustomId = false)
     {
         if (!isset($this->fields['id'])) {
             return '';
@@ -230,10 +245,10 @@ class DataTool
         return substr($this->installData['id'], 1, -1);
     }
 
-    public function clean(): void
+    public function clean()
     {
-        $this->installData = [];
-        $this->installDataCstm = [];
+        $this->installData = array();
+        $this->installDataCstm = array();
         $this->count = 0;
     }
 
@@ -246,9 +261,12 @@ class DataTool
      * @param $field - The name of the current field
      *
      * // DEV TESTING ONLY
+     * @param bool $resetStatic
+     *
+     * @return string
      * @throws \Exception
      */
-    public function handleType($typeData, $type, $field, bool $resetStatic = false): string
+    public function handleType($typeData, $type, $field, $resetStatic = false)
     {
         if (!empty($typeData['skip'])) {
             return '';
@@ -267,7 +285,7 @@ class DataTool
             $inc++;
             if ($typeData['increment']['max']) {
                 return $typeData['increment']['min'] +
-                    ($inc % ($typeData['increment']['max'] - $typeData['increment']['min']));
+                ($inc % ($typeData['increment']['max'] - $typeData['increment']['min']));
             } else {
                 return $typeData['increment']['min'] + $inc;
             }
@@ -365,7 +383,7 @@ class DataTool
 
             // Check field length and truncate data depends on vardefs length
             if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
-                $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
+                $baseValue = $this->truncateDataByLength($baseValue, (string)$GLOBALS['fieldData']['len']);
             }
 
             return "'" . $baseValue . "'";
@@ -388,7 +406,7 @@ class DataTool
 
                 $stamp = strtotime(substr($startDate, 1, strlen($startDate) - 2));
                 if ($stamp >= $GLOBALS['baseTime']) {
-                    $rn = random_int(0, 9);
+                    $rn = mt_rand(0, 9);
                     /* 10% chance of being NOT HELD - aka CLOSED */
                     if ($rn > 8) {
                         $selected = 2;
@@ -396,7 +414,7 @@ class DataTool
                         $selected = 0;
                     }
                 } else {
-                    $rn = random_int(0, 49);
+                    $rn = mt_rand(0, 49);
                     /* 2% chance of being HELD - aka OPEN */
                     if ($rn > 48) {
                         $selected = 0;
@@ -416,7 +434,7 @@ class DataTool
         //we have a range then it should either be a number or a date
         $baseValue = '';
         if (!empty($typeData['range'])) {
-            $baseValue = random_int($typeData['range']['min'], $typeData['range']['max']);
+            $baseValue = mt_rand($typeData['range']['min'], $typeData['range']['max']);
 
             if (!empty($typeData['multiply'])) {
                 $baseValue *= $typeData['multiply'];
@@ -439,8 +457,7 @@ class DataTool
                 $isQuote = false;
             }
         } elseif (!empty($typeData['list']) && !empty($GLOBALS[$typeData['list']])) {
-            $selected = ($this->count + random_int(0, 100))
-                % (is_countable($GLOBALS[$typeData['list']]) ? count($GLOBALS[$typeData['list']]) : 0);
+            $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$typeData['list']]);
             $baseValue = $GLOBALS[$typeData['list']][$selected];
         }
 
@@ -469,7 +486,7 @@ class DataTool
                 $baseValue = date('Y-m-d H:i:s', strtotime($baseValue) + $shift);
             }
         }
-
+        
         if (!empty($typeData['same'])) {
             if (is_string($typeData['same']) && !empty($this->fields[$typeData['same']])) {
                 $rtn = $this->accessLocalField($typeData['same']);
@@ -482,15 +499,14 @@ class DataTool
 
         if (!empty($typeData['suffixlist'])) {
             foreach ($typeData['suffixlist'] as $suffixlist) {
-                $selected = ($this->count + random_int(0, 100))
-                    % (is_countable($GLOBALS[$suffixlist]) ? count($GLOBALS[$suffixlist]) : 0);
+                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$suffixlist]);
                 $baseValue .= ' ' . $GLOBALS[$suffixlist][$selected];
             }
         } elseif ($type == 'enum') {
             if (!empty($GLOBALS['fieldData']['options'])
                 && !empty($GLOBALS['app_list_strings'][$GLOBALS['fieldData']['options']])) {
                 $value = null;
-                $rnd = random_int(1, 100);
+                $rnd = mt_rand(1, 100);
                 foreach ($typeData['enum_key_probabilities'] as $probabilityData) {
                     if ($rnd > $probabilityData[0]) {
                         $value = $probabilityData[1];
@@ -513,8 +529,7 @@ class DataTool
         }
         if (!empty($typeData['prefixlist'])) {
             foreach ($typeData['prefixlist'] as $prefixlist) {
-                $selected = ($this->count + random_int(0, 100))
-                    % (is_countable($GLOBALS[$prefixlist]) ? count($GLOBALS[$prefixlist]) : 0);
+                $selected = ($this->count + mt_rand(0, 100)) % count($GLOBALS[$prefixlist]);
                 $baseValue = $GLOBALS[$prefixlist][$selected] . ' ' . $baseValue;
             }
         }
@@ -535,7 +550,7 @@ class DataTool
         }
 
         if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
-            $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
+            $baseValue = $this->truncateDataByLength($baseValue, (string)$GLOBALS['fieldData']['len']);
         }
 
         if ($isQuote || !empty($typeData['isQuoted'])) {
@@ -544,12 +559,10 @@ class DataTool
 
         // Run db convert only for specific types. see DBManager::convert()
         if ($this->storageType != Factory::OUTPUT_TYPE_CSV
-            && !in_array($type, self::$notConvertedTypes)
+             && !in_array($type, self::$notConvertedTypes)
         ) {
             $baseValue = $GLOBALS['db']->convert($baseValue, $type);
         }
-
-
 
         return $baseValue;
     }
@@ -561,11 +574,11 @@ class DataTool
      * @param $length - could be "integer" or float length value, f.e. "5,2"
      * @return string
      */
-    protected function truncateDataByLength(mixed $value, string $length): string
+    protected function truncateDataByLength($value, $length)
     {
-        [$baseLength] = explode(",", $length, 2);
-
-        return substr($value, 0, (int) $baseLength);
+        $arr = explode(",", $length, 2);
+        $baseLength = $arr[0];
+        return substr($value, 0, $baseLength);
     }
 
     /**
@@ -577,7 +590,7 @@ class DataTool
      *
      * @return string
      */
-    public function accessLocalField(string $fieldName)
+    public function accessLocalField($fieldName)
     {
         /* We will only deal with fields defined in the
          * vardefs.
@@ -595,10 +608,13 @@ class DataTool
     /**
      * Returns a gibberish string based on a reordering of the base text
      * (Lorem ipsum dolor sit amet, ....)
+     *
+     * @param $wordCount
+     * @return string
      */
-    public function generateGibberish(int $wordCount = 1): string
+    public function generateGibberish($wordCount = 1)
     {
-        static $words = [];
+        static $words = array();
 
         if (empty($words)) {
             $baseText = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nunc pulvinar tellus et arcu. " .
@@ -632,7 +648,7 @@ class DataTool
      * @param $value
      * @return int
      */
-    public function applyDatetimeModifications($type, $value): int
+    public function applyDatetimeModifications($type, $value)
     {
         // default shift is one minute
         $shift = 60;
@@ -655,8 +671,11 @@ class DataTool
     /**
      * Get hash from field according current sugar
      * hashing settings
+     *
+     * @param $value
+     * @return string
      */
-    protected function getSugarHash(mixed $value): string
+    protected function getSugarHash($value)
     {
         if (is_string($value)) {
             $value = substr($value, 1, strlen($value) - 2);
@@ -675,6 +694,9 @@ class DataTool
 
     /**
      * Calculate a chance for each possible enum value using field options
+     * @param array $fieldDef
+     * @param array $all
+     * @return array
      */
     private function calcEnumProbabilities(array $fieldDef, array $all): array
     {
