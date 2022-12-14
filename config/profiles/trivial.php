@@ -35,7 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$modules = array(
+$modules = [
     'Tags' => 100,
     'EmailAddresses' => 120,
     'ACLRoles' => 10,
@@ -72,9 +72,9 @@ $modules = array(
     'PurchasedLineItems' => 100,
     'RevenueLineItems' => 1400,
     'Manufacturers' => 10,
-);
+];
 $tidbit_relationships['TeamSets']['Teams']['degree'] = 3;
 
-$profile_opts = array(
+$profile_opts = [
 
-);
+];

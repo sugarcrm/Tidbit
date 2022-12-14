@@ -41,16 +41,12 @@ use Sugarcrm\Tidbit\StorageAdapter\Factory;
 
 class Oracle extends Common
 {
-    /**
-     * @var string
-     */
-    const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
+    public const STORE_TYPE = Factory::OUTPUT_TYPE_ORACLE;
 
     /**
      * {@inheritdoc}
-     *
      */
-    public function save($tableName, array $installData)
+    public function save(string $tableName, array $installData)
     {
         $sql = $this->prepareQuery($tableName, $installData);
         $this->logQuery($sql);
@@ -58,15 +54,7 @@ class Oracle extends Common
         $this->commitQuery();
     }
 
-    /**
-     * rtfn
-     *
-     * @param string $tableName
-     * @param array $installData
-     * @return string
-     * @throws \Sugarcrm\Tidbit\Exception
-     */
-    protected function prepareQuery($tableName, array $installData)
+    protected function prepareQuery(string $tableName, array $installData): string
     {
         if (!$tableName || !$installData) {
             throw new Exception("Oracle adapter error: wrong data to insert");
@@ -87,8 +75,6 @@ class Oracle extends Common
 
     /**
      * Patch inserted value if it look like sequence
-     *
-     * @param array $installData
      */
     protected function patchSequenceValues(array &$installData)
     {
@@ -98,7 +84,7 @@ class Oracle extends Common
 
         $currentValue = $this->getCurrentSequenceValue($sequence['name']);
         $installDataCount = count($installData);
-        for ($i=0; $i <$installDataCount; $i++) {
+        for ($i = 0; $i < $installDataCount; $i++) {
             $installData[$i][$sequence['field']] = ++$currentValue;
         }
 
@@ -107,27 +93,18 @@ class Oracle extends Common
 
     /**
      * Check array of values on containing sequence value
-     *
-     * @param array $values
-     * @return array
      */
-    protected function getSequenceFromValues(array $values)
+    protected function getSequenceFromValues(array $values): array
     {
         foreach ($values as $k => $v) {
             if (substr($v, -12) == '_SEQ.NEXTVAL') {
-                return array('field' => $k, 'name' => substr($v, 0, -8));
+                return ['field' => $k, 'name' => substr($v, 0, -8)];
             }
         }
-        return array();
+        return [];
     }
 
-    /**
-     * rtfn
-     *
-     * @param string $sequenceName
-     * @return int
-     */
-    protected function getCurrentSequenceValue($sequenceName)
+    protected function getCurrentSequenceValue(string $sequenceName): int
     {
         $sql = sprintf(
             "SELECT last_number as current_val FROM user_sequences WHERE sequence_name='%s'",

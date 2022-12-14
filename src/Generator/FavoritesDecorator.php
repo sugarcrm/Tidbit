@@ -40,7 +40,7 @@ use Sugarcrm\Tidbit\Core\Factory;
 
 class FavoritesDecorator extends Decorator
 {
-    protected $config = [];
+    protected array $config = [];
     protected $idGenerator;
 
     public function __construct(Generator $g)
@@ -55,12 +55,12 @@ class FavoritesDecorator extends Decorator
         $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function isUsefull()
+    public function isUsefull(): bool
     {
         return $this->config['probability'] > 0;
     }
 
-    public function clean()
+    public function clean(): void
     {
         parent::clean();
         $moduleName = $this->bean()->getModuleName();
@@ -68,7 +68,7 @@ class FavoritesDecorator extends Decorator
           WHERE module = '$moduleName' AND record_id LIKE 'seed-%'");
     }
 
-    public function generateRecord($n)
+    public function generateRecord($n): array
     {
         $data = parent::generateRecord($n);
         $mod = $n % 100;
@@ -81,11 +81,11 @@ class FavoritesDecorator extends Decorator
                 ),
                 'date_entered' => $data['data'][$this->bean()->getTableName()][0]['date_entered'],
                 'date_modified' => $data['data'][$this->bean()->getTableName()][0]['date_modified'],
-                'name'             => "''",
-                'module'           => "'" . $this->bean()->getModuleName() .  "'",
-                'record_id'        => $this->idGenerator->generateTidbitID($n, $this->bean()->getModuleName()),
+                'name' => "''",
+                'module' => "'" . $this->bean()->getModuleName() . "'",
+                'record_id' => $this->idGenerator->generateTidbitID($n, $this->bean()->getModuleName()),
                 'assigned_user_id' => $userID,
-                'created_by'       => $userID,
+                'created_by' => $userID,
                 'modified_user_id' => $userID,
             ];
         }

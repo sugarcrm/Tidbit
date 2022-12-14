@@ -35,7 +35,7 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$last_name_array = array(
+$last_name_array = [
     "Smith",
     "Johnson",
     "Williams",
@@ -18876,9 +18876,9 @@ $last_name_array = array(
     "Allbright",
     "Aikin",
     "Acres"
-);
+];
 
-$first_name_array = array(
+$first_name_array = [
     "Mary",
     "Patricia",
     "Linda",
@@ -21153,9 +21153,9 @@ $first_name_array = array(
     "Darell",
     "Broderick",
     "Alonso"
-);
+];
 
-$company_name_array = array(
+$company_name_array = [
     "24/7 Couriers",
     "2 Big Consolidation Corp",
     "2 Tall Stores",
@@ -21254,9 +21254,9 @@ $company_name_array = array(
     "White Cross Co",
     "X-SELL HOLDINGS",
     "XY&Z Funding Inc",
-);
+];
 
-$street_address_array = array(
+$street_address_array = [
     "123 Anywhere Street",
     "345 Sugar Blvd.",
     "1715 Scott Dr",
@@ -21267,9 +21267,9 @@ $street_address_array = array(
     "9 IBM Path",
     "111 Silicon Valley Road",
     "321 University Ave.",
-);
+];
 
-$city_array = array(
+$city_array = [
     "San Jose",
     "San Francisco",
     "Sunnyvale",
@@ -21285,11 +21285,11 @@ $city_array = array(
     "Persistance",
     "Alabama",
     "Kansas City",
-);
+];
 
-$streetTypes = array('blvd', 'Road', 'Street', 'CT', 'Ave', 'Pkwy', 'dr');
+$streetTypes = ['blvd', 'Road', 'Street', 'CT', 'Ave', 'Pkwy', 'dr'];
 
-$companyExt = array(
+$companyExt = [
     'Holdings',
     'inc',
     'co',
@@ -21308,64 +21308,64 @@ $companyExt = array(
     '1654',
     '123',
     '654'
-);
+];
 
-$state_array = array(
-"Alabama",
-"Alaska",
-"Arizona",
-"Arkansas",
-"California",
-"Colorado",
-"Connecticut",
-"Delaware",
-"Florida",
-"Georgia",
-"Hawaii",
-"Idaho",
-"Illinois",
-"Indiana",
-"Iowa",
-"Kansas",
-"Kentucky",
-"Louisiana",
-"Maine",
-"Maryland",
-"Massachusetts",
-"Michigan",
-"Minnesota",
-"Mississippi",
-"Missouri",
-"Montana",
-"Nebraska",
-"Nevada",
-"New Hampshire",
-"New Jersey",
-"New Mexico",
-"New York",
-"North Carolina",
-"North Dakota",
-"Ohio",
-"Oklahoma",
-"Oregon",
-"Pennsylvania",
-"Rhode Island",
-"South Carolina",
-"South Dakota",
-"Tennessee",
-"Texas",
-"Utah",
-"Vermont",
-"Virginia",
-"Washington",
-"West Virginia",
-"Wisconsin",
-"Wyoming",
-);
+$state_array = [
+    "Alabama",
+    "Alaska",
+    "Arizona",
+    "Arkansas",
+    "California",
+    "Colorado",
+    "Connecticut",
+    "Delaware",
+    "Florida",
+    "Georgia",
+    "Hawaii",
+    "Idaho",
+    "Illinois",
+    "Indiana",
+    "Iowa",
+    "Kansas",
+    "Kentucky",
+    "Louisiana",
+    "Maine",
+    "Maryland",
+    "Massachusetts",
+    "Michigan",
+    "Minnesota",
+    "Mississippi",
+    "Missouri",
+    "Montana",
+    "Nebraska",
+    "Nevada",
+    "New Hampshire",
+    "New Jersey",
+    "New Mexico",
+    "New York",
+    "North Carolina",
+    "North Dakota",
+    "Ohio",
+    "Oklahoma",
+    "Oregon",
+    "Pennsylvania",
+    "Rhode Island",
+    "South Carolina",
+    "South Dakota",
+    "Tennessee",
+    "Texas",
+    "Utah",
+    "Vermont",
+    "Virginia",
+    "Washington",
+    "West Virginia",
+    "Wisconsin",
+    "Wyoming",
+];
 
-$companyPre = array('X/Z', 'Sugar', 'World', 'International', '', '', '', '', '194', '786', '3492',);
+$companyPre = ['X/Z', 'Sugar', 'World', 'International', '', '', '', '', '194', '786', '3492',];
 
-$lang_array = array('en');
+$lang_array = ['en'];
 
 $last_name_count = count($last_name_array);
 $first_name_count = count($first_name_array);

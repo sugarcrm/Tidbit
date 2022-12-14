@@ -35,31 +35,31 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Leads']['first_name'] = array('list' => 'first_name_array');
-$GLOBALS['dataTool']['Leads']['primary_address_street'] = array(
-    'range'      => array('min' => 1, 'max' => 1500),
-    'suffixlist' => array('last_name_array', 'streetTypes'),
-    'isQuoted'   => true
-);
-$GLOBALS['dataTool']['Leads']['alt_address_street'] = $GLOBALS['dataTool']['Leads']['primary_address_street'];
-$GLOBALS['dataTool']['Leads']['primary_address_city'] = array('list' => 'city_array');
-$GLOBALS['dataTool']['Leads']['alt_address_city'] = $GLOBALS['dataTool']['Leads']['primary_address_city'];
-$GLOBALS['dataTool']['Leads']['primary_address_state'] = array('list' => 'state_array');
-$GLOBALS['dataTool']['Leads']['alt_address_state'] = $GLOBALS['dataTool']['Leads']['primary_address_state'];
-$GLOBALS['dataTool']['Leads']['primary_address_postalcode'] = array(
-    'range' => array('min' => 15000, 'max' => 99999),
+$GLOBALS['dataTool']['Leads']['first_name'] = ['list' => 'first_name_array'];
+$GLOBALS['dataTool']['Leads']['primary_address_street'] = [
+    'range' => ['min' => 1, 'max' => 1500],
+    'suffixlist' => ['last_name_array', 'streetTypes'],
     'isQuoted' => true
-);
+];
+$GLOBALS['dataTool']['Leads']['alt_address_street'] = $GLOBALS['dataTool']['Leads']['primary_address_street'];
+$GLOBALS['dataTool']['Leads']['primary_address_city'] = ['list' => 'city_array'];
+$GLOBALS['dataTool']['Leads']['alt_address_city'] = $GLOBALS['dataTool']['Leads']['primary_address_city'];
+$GLOBALS['dataTool']['Leads']['primary_address_state'] = ['list' => 'state_array'];
+$GLOBALS['dataTool']['Leads']['alt_address_state'] = $GLOBALS['dataTool']['Leads']['primary_address_state'];
+$GLOBALS['dataTool']['Leads']['primary_address_postalcode'] = [
+    'range' => ['min' => 15000, 'max' => 99999],
+    'isQuoted' => true
+];
 $GLOBALS['dataTool']['Leads']['alt_address_postalcode'] = $GLOBALS['dataTool']['Leads']['primary_address_postalcode'];
-$GLOBALS['dataTool']['Leads']['primary_address_country'] = array('value' => "'USA'");
-$GLOBALS['dataTool']['Leads']['alt_address_country'] = array('value' => "'USA'");
-$GLOBALS['dataTool']['Leads']['account_id'] = array('related' => array('module' => 'Accounts'));
-$GLOBALS['dataTool']['Leads']['contact_id'] = array('related' => array('module' => 'Contacts'));
+$GLOBALS['dataTool']['Leads']['primary_address_country'] = ['value' => "'USA'"];
+$GLOBALS['dataTool']['Leads']['alt_address_country'] = ['value' => "'USA'"];
+$GLOBALS['dataTool']['Leads']['account_id'] = ['related' => ['module' => 'Accounts']];
+$GLOBALS['dataTool']['Leads']['contact_id'] = ['related' => ['module' => 'Contacts']];
 // $GLOBALS['dataTool']['Leads']['lead_source_description'] = array('gibberish' => 8);
-$GLOBALS['dataTool']['Leads']['phone_fax'] = array('phone' => true);
-$GLOBALS['dataTool']['Leads']['phone_work'] = array('phone' => true);
-$GLOBALS['dataTool']['Leads']['phone_other'] = array('phone' => true);
-$GLOBALS['dataTool']['Leads']['phone_mobile'] = array('phone' => true);
-$GLOBALS['dataTool']['Leads']['phone_home'] = array('phone' => true);
+$GLOBALS['dataTool']['Leads']['phone_fax'] = ['phone' => true];
+$GLOBALS['dataTool']['Leads']['phone_work'] = ['phone' => true];
+$GLOBALS['dataTool']['Leads']['phone_other'] = ['phone' => true];
+$GLOBALS['dataTool']['Leads']['phone_mobile'] = ['phone' => true];
+$GLOBALS['dataTool']['Leads']['phone_home'] = ['phone' => true];
 $GLOBALS['dataTool']['Leads']['picture'] = ['skip' => true];
 $GLOBALS['dataTool']['Leads']['subscriptions'] = ['probability' => 60];
