@@ -44,10 +44,32 @@ use Sugarcrm\Tidbit\StorageAdapter\Storage\Common;
  */
 class InsertBuffer
 {
-    protected array $installData = [];
+    /**
+     * @var string
+     */
+    protected $tableName = '';
 
-    public function __construct(protected string $tableName, protected Common $storage)
+    /**
+     * @var array
+     */
+    protected $installData = array();
+
+
+    /**
+     * @var Common
+     */
+    protected $storage;
+
+    /**
+     * Constructor
+     *
+     * @param string $tableName
+     * @param Common $storage
+     */
+    public function __construct($tableName, Common $storage)
     {
+        $this->tableName = $tableName;
+        $this->storage = $storage;
     }
 
     /**
@@ -58,16 +80,15 @@ class InsertBuffer
     {
         if (!empty($this->installData)) {
             echo "\nNOTICE: It would be better to explicitly call flush() method for saving data chunks for table: '"
-                . $this->tableName
-                . "'.";
+                .$this->tableName
+                ."'.";
         }
         $this->flush();
     }
-
     /**
      * @param array $installData
      */
-    public function addInstallData($installData): void
+    public function addInstallData($installData)
     {
         $this->installData[] = $installData;
         if (count($this->installData) >= $GLOBALS['insertBatchSize']) {
@@ -78,16 +99,16 @@ class InsertBuffer
     /**
      * Clear data to save
      */
-    public function clear(): void
+    public function clear()
     {
-        $this->installData = [];
+        $this->installData = array();
     }
 
     /**
      * Flush is used for insert final chunks of data from buffer
      *
      */
-    public function flush(): void
+    public function flush()
     {
         if ($this->tableName && $this->installData) {
             $this->makeSave();
@@ -97,7 +118,7 @@ class InsertBuffer
     /**
      * rtfn
      */
-    protected function makeSave(): void
+    protected function makeSave()
     {
         $this->storage->save($this->tableName, $this->installData);
         $this->clear();

@@ -40,16 +40,24 @@ use Sugarcrm\Tidbit\Core\Relationships;
 
 class Decorator implements Generator
 {
-    public function __construct(protected Generator $parent)
+    /**
+     * Parent Generator
+     *
+     * @var Generator
+     */
+    protected $parent;
+
+    public function __construct(Generator $parent)
     {
+        $this->parent = $parent;
     }
 
-    public function clean(): void
+    public function clean()
     {
         $this->parent->clean();
     }
 
-    public function generateRecord($n): array
+    public function generateRecord($n)
     {
         return $this->parent->generateRecord($n);
     }
@@ -59,7 +67,7 @@ class Decorator implements Generator
         return $this->parent->bean();
     }
 
-    public function isUsefull(): bool
+    public function isUsefull()
     {
         return true;
     }

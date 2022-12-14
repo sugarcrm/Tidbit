@@ -13,12 +13,11 @@ use Sugarcrm\Tidbit\DataTool;
  */
 class Relationships
 {
-    public const PREFIX = 'seed-r';
+    const PREFIX = 'seed-r';
 
-    protected string $module;
-    protected DataTool $dataTool;
-    protected string $currentDateTime;
-    protected Intervals $coreIntervals;
+    protected $module;
+    protected $dataTool;
+    protected $currentDateTime;
 
     /**
      * Relationships constructor.
@@ -31,7 +30,11 @@ class Relationships
         $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
     }
 
-    public function generateRelID(int $count, string $relModule, string $relIntervalID, int $shift, $multiply): string
+    /**
+     * @param $relTable
+     * @return string
+     */
+    public function generateRelID($count, $relModule, $relIntervalID, $shift, $multiply)
     {
         static $modules;
         if (!$modules) {
@@ -55,8 +58,12 @@ class Relationships
     /**
      * Generates and saves queries to create relationships in the Sugar app, based
      * on the contents of the global array $tidbit_relationships.
+     *
+     * @param string $module
+     * @param int $n
+     * @param array $installData
      */
-    public function generate(int $n, string $baseID): array
+    public function generate($n, $baseID)
     {
         $tidbitRelationships = $GLOBALS['tidbit_relationships'];
         if (empty($tidbitRelationships[$this->module])) {
@@ -81,7 +88,7 @@ class Relationships
              */
             $thisToRelatedRatio = $this->calculateRatio($relationship, $relModule);
             for ($j = 0; $j < $thisToRelatedRatio; $j++) {
-                $multiply = $relationship['repeat'] ?? 1;
+                $multiply = isset($relationship['repeat']) ? $relationship['repeat'] : 1;
 
                 /* Normally $multiply == 1 */
                 while ($multiply--) {
@@ -91,11 +98,11 @@ class Relationships
 
                     $relID = $this->generateRelID($n, $relModule, $youN, $j, $multiply);
                     $installData = [
-                        'id' => "'" . $relID . "'",
+                        'id'                  => "'" . $relID . "'",
                         $relationship['self'] => "'" . $baseID . "'",
-                        $relationship['you'] => "'" . $youID . "'",
-                        'deleted' => 0,
-                        'date_modified' => $this->currentDateTime,
+                        $relationship['you']  => "'" . $youID . "'",
+                        'deleted'             => 0,
+                        'date_modified'       => $this->currentDateTime,
                     ];
 
                     $relationTable = $relationship['table'];
@@ -127,13 +134,18 @@ class Relationships
      *  - Ratio can specified in relation config
      *  - Ratio could be random from "min" to "max" with "random_ratio" key
      *  - Fallback: RelModule count / Current Module
+     *
+     * @param $module
+     * @param $relationship
+     * @param $relModule
+     * @return float|int
      */
-    protected function calculateRatio(array $relationship, string $relModule): float|int
+    protected function calculateRatio($relationship, $relModule)
     {
         if (!empty($relationship['ratio'])) {
             $thisToRelatedRatio = $relationship['ratio'];
         } elseif (!empty($relationship['random_ratio'])) {
-            $thisToRelatedRatio = random_int(
+            $thisToRelatedRatio = mt_rand(
                 $relationship['random_ratio']['min'],
                 $relationship['random_ratio']['max']
             );

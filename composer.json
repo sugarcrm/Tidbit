@@ -1,13 +1,9 @@
 {
-  "name": "sugarcrm/tidbit",
-  "description": "Random data generator for Sugar",
-  "license": "proprietary",
-  "version": "2.0.0",
-  "keywords": [
-    "Sugar",
-    "SugarCRM",
-    "Tidbit"
-  ],
+  "name" : "sugarcrm/tidbit",
+  "description" : "Random data generator for Sugar",
+  "license" : "proprietary",
+  "version" : "2.0.0",
+  "keywords" : ["Sugar", "SugarCRM", "Tidbit"],
   "homepage": "https://github.com/sugarcrm/tidbit",
   "authors": [
     {
@@ -16,29 +12,27 @@
     }
   ],
   "support": {
-    "wiki": "https://github.com/sugarcrm/tidbit/wiki",
-    "source": "https://github.com/sugarcrm/tidbit",
-    "issues": "https://github.com/sugarcrm/tidbit/issues"
+    "wiki" : "https://github.com/sugarcrm/tidbit/wiki",
+    "source" : "https://github.com/sugarcrm/tidbit",
+    "issues" : "https://github.com/sugarcrm/tidbit/issues"
   },
-  "require": {
+  "require" : {
     "php": ">=7.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "9.5",
+    "phpunit/phpunit": "4.*",
     "squizlabs/php_codesniffer": "2.8.1"
   },
-  "autoload": {
-    "psr-4": {
+  "autoload" : {
+    "psr-4" : {
       "Sugarcrm\\Tidbit\\": "src/",
       "Sugarcrm\\Tidbit\\Tests\\": "tests/"
     }
   },
-  "scripts": {
-    "check-style": "./vendor/bin/phpcs --standard=./ruleset.xml",
-    "tests": "./vendor/bin/phpunit",
-    "tests-ci": "./vendor/bin/phpunit --coverage-clover ./build/logs/clover.xml"
+  "scripts" : {
+    "check-style" : "./vendor/bin/phpcs --standard=./ruleset.xml",
+    "tests" : "./vendor/bin/phpunit",
+    "tests-ci" : "./vendor/bin/phpunit --coverage-clover ./build/logs/clover.xml"
   },
-  "bin": [
-    "bin/tidbit"
-  ]
+  "bin": ["bin/tidbit"]
 }

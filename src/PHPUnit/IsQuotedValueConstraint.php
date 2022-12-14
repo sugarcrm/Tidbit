@@ -6,12 +6,15 @@ namespace Sugarcrm\Tidbit\PHPUnit;
  * Class IsQuotedValueConstraint
  * @package Sugarcrm\Tidbit\PHPUnit
  */
-class IsQuotedValueConstraint extends \PHPUnit\Framework\Constraint\Constraint
+class IsQuotedValueConstraint extends \PHPUnit_Framework_Constraint
 {
     /**
      * Matches that string value is quoted
+     *
+     * @param mixed $other
+     * @return bool
      */
-    public function matches(mixed $other): bool
+    public function matches($other)
     {
         $result = false;
 
@@ -22,7 +25,10 @@ class IsQuotedValueConstraint extends \PHPUnit\Framework\Constraint\Constraint
         return $result;
     }
 
-    public function toString(): string
+    /**
+     * @return string
+     */
+    public function toString()
     {
         return 'value is quoted. Expecting first and last chars should be "\'"';
     }

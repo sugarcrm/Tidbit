@@ -2,10 +2,11 @@
 
 namespace Sugarcrm\Tidbit\Tests\Core;
 
-use Sugarcrm\Tidbit\Core\Config;
-use Sugarcrm\Tidbit\Core\Relationships;
-use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Tests\TidbitTestCase;
+use Sugarcrm\Tidbit\Core\Relationships;
+use Sugarcrm\Tidbit\Core\Config;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Sugarcrm\Tidbit\DataTool;
 
 /**
  * Class RelationshipsTest
@@ -30,51 +31,51 @@ class RelationshipsTest extends TidbitTestCase
      */
     public function testCalculateRatio($module, $relationship, $relModule, $expected)
     {
-        $GLOBALS['modules'] = [
-            'Calls' => 1000,
+        $GLOBALS['modules'] = array(
+            'Calls'    => 1000,
             'Contacts' => 400,
             'Accounts' => 100,
-        ];
+        );
 
         $relationships = new Relationships($module, new DataTool('storageType'));
         $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\Core\Relationships', 'calculateRatio');
 
-        $actual = $method->invokeArgs($relationships, [$relationship, $relModule]);
+        $actual = $method->invokeArgs($relationships, array($relationship, $relModule));
 
         $this->assertEquals($expected, $actual);
     }
 
     /**
-     * @return array
      * @see testCalculateRatio
+     * @return array
      */
     public function dataTestCalculateRatioProvider()
     {
-        return [
-            [ // Based on modules rel
+        return array(
+            array( // Based on modules rel
                 'Contacts',
-                [],
+                array(),
                 'Accounts',
                 0.25
-            ],
-            [ // Based on modules rel
+            ),
+            array( // Based on modules rel
                 'Calls',
-                [],
+                array(),
                 'Accounts',
                 0.1
-            ],
-            [ // Rel definition contains "ratio"
+            ),
+            array( // Rel definition contains "ratio"
                 'Calls',
-                ['ratio' => 5],
+                array('ratio' => 5),
                 'Accounts',
                 5
-            ],
-            [ // Rel definition contains "random_ratio", for test put min and max the same
+            ),
+            array( // Rel definition contains "random_ratio", for test put min and max the same
                 'Calls',
-                ['random_ratio' => ['min' => 2, 'max' => 2]],
+                array('random_ratio' => array('min' => 2, 'max' => 2)),
                 'Accounts',
                 2
-            ],
-        ];
+            ),
+        );
     }
 }

@@ -40,11 +40,8 @@ use Sugarcrm\Tidbit\Core\Relationships;
 
 interface Generator
 {
-    public function clean(): void;
-
-    public function generateRecord($n): array;
-
+    public function clean();
+    public function generateRecord($n);
     public function bean();
-
     public function relsGen(): Relationships;
 }

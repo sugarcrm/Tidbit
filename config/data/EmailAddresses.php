@@ -35,8 +35,8 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['EmailAddresses']['email_address'] = [
+$GLOBALS['dataTool']['EmailAddresses']['email_address'] = array(
     'list' => 'last_name_array',
     'suffix' => "@example.com"
-];
-$GLOBALS['dataTool']['EmailAddresses']['email_address_caps'] = ['same' => 'email_address', 'toUpper' => true];
+);
+$GLOBALS['dataTool']['EmailAddresses']['email_address_caps'] = array('same' => 'email_address', 'toUpper' => true);

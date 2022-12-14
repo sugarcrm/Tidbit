@@ -86,13 +86,13 @@ if ($storageType == 'csv') {
     $storage = $GLOBALS['db'];
 }
 
-$relationStorageBuffers = [];
+$relationStorageBuffers = array();
 
 $storageAdapter = \Sugarcrm\Tidbit\StorageAdapter\Factory::getAdapterInstance($storageType, $storage, $logQueriesPath);
 
 $mc = count($module_keys);
 for ($mn = 1; $mn <= $mc; $mn++) {
-    $module = $module_keys[$mn - 1];
+    $module = $module_keys[$mn-1];
     $moduleTimeStart = microtime();
 
     // Check module class exists in bean factory
@@ -115,10 +115,10 @@ for ($mn = 1; $mn <= $mc; $mn++) {
     $progressLogPrefix = "$module [$mn/$mc]";
 
     echo "\nProcessing Module $module"
-        . (isset($tidbit_relationships[$module])
-            ? " with relationships to " . implode(", ", array_keys($tidbit_relationships[$module]))
-            : "")
-        . ":\n";
+        .(isset($tidbit_relationships[$module])
+            ? " with relationships to ".implode(", ", array_keys($tidbit_relationships[$module]))
+            :"")
+        .":\n";
 
     echo "Inserting ${total} records.\n";
     $bean = BeanFactory::getBean($module);

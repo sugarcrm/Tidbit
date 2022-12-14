@@ -35,4 +35,4 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['product_bundle_quote']['bundle_index'] = ['increment' => ['min' => 0, 'max' => 0]];
+$GLOBALS['dataTool']['product_bundle_quote']['bundle_index'] = array('increment' => array('min'=> 0, 'max'=>0));

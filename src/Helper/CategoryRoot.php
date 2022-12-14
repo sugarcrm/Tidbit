@@ -37,11 +37,11 @@
 
 namespace Sugarcrm\Tidbit\Helper;
 
-use Sugarcrm\Tidbit\Core\Factory;
+use \Sugarcrm\Tidbit\Core\Factory;
 
 class CategoryRoot
 {
-    public static function setRoot(): void
+    public static function setRoot()
     {
         $idGenerator = Factory::getComponent('intervals');
         $rootID = $idGenerator->generateTidbitID(0, 'Categories');

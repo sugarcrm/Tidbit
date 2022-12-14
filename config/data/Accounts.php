@@ -35,15 +35,15 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Accounts']['annual_revenue'] = ['range' => ['min' => 10000, 'max' => 500000000]];
-$GLOBALS['dataTool']['Accounts']['employees'] = ['range' => ['min' => 3, 'max' => 50000]];
-$GLOBALS['dataTool']['Accounts']['website'] = ['value' => "'www.example.com'"];
-$GLOBALS['dataTool']['Accounts']['name'] = [
+$GLOBALS['dataTool']['Accounts']['annual_revenue'] = array('range' => array('min' => 10000, 'max' => 500000000));
+$GLOBALS['dataTool']['Accounts']['employees'] = array('range' => array('min' => 3, 'max' => 50000));
+$GLOBALS['dataTool']['Accounts']['website'] = array('value' => "'www.example.com'");
+$GLOBALS['dataTool']['Accounts']['name'] = array(
     'list' => 'last_name_array',
-    'prefixlist' => ['companyPre'],
-    'suffixlist' => ['companyExt']
-];
-$GLOBALS['dataTool']['Accounts']['phone_alternate'] = ['phone' => true];
-$GLOBALS['dataTool']['Accounts']['phone_fax'] = ['phone' => true];
-$GLOBALS['dataTool']['Accounts']['phone_office'] = ['phone' => true];
+    'prefixlist' => array('companyPre'),
+    'suffixlist' => array('companyExt')
+);
+$GLOBALS['dataTool']['Accounts']['phone_alternate'] = array('phone' => true);
+$GLOBALS['dataTool']['Accounts']['phone_fax'] = array('phone' => true);
+$GLOBALS['dataTool']['Accounts']['phone_office'] = array('phone' => true);
 $GLOBALS['dataTool']['Accounts']['subscriptions'] = ['probability' => 30];

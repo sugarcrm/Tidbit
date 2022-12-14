@@ -35,28 +35,28 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['Tasks']['contact_id'] = ['related' => ['module' => 'Contacts']];
-$GLOBALS['dataTool']['Tasks']['parent_id'] = ['related' => ['module' => 'Accounts']];
-$GLOBALS['dataTool']['Tasks']['parent_type'] = ['value' => "'Accounts'"];
-$GLOBALS['dataTool']['Tasks']['status'] = ['meeting_probability' => true];
-$GLOBALS['dataTool']['Tasks']['contact_phone'] = ['phone' => true];
+$GLOBALS['dataTool']['Tasks']['contact_id'] = array('related' => array('module' => 'Contacts'));
+$GLOBALS['dataTool']['Tasks']['parent_id'] = array('related' => array('module' => 'Accounts'));
+$GLOBALS['dataTool']['Tasks']['parent_type'] = array('value' => "'Accounts'");
+$GLOBALS['dataTool']['Tasks']['status'] = array('meeting_probability' => true);
+$GLOBALS['dataTool']['Tasks']['contact_phone'] = array('phone' => true);
 
 /* We want tasks to be in the past 90% of the time. */
-$GLOBALS['dataTool']['Tasks']['date_start'] = [
-    'range' => ['min' => -400, 'max' => 36],
-    'type' => 'datetime',
+$GLOBALS['dataTool']['Tasks']['date_start'] = array(
+    'range'    => array('min' => -400, 'max' => 36),
+    'type'     => 'datetime',
     'units' => 'days',
-];
+);
 
-$GLOBALS['dataTool']['Tasks']['date_due'] = [
+$GLOBALS['dataTool']['Tasks']['date_due'] = array(
     'same_datetime' => 'date_start',
-    'modify' => [
-        'days' => [
+    'modify' => array(
+        'days' => array(
             'field' => 'duration_days'
-        ],
+        ),
         'days' => '30'
-    ]
-];
+    )
+);
 $GLOBALS['dataTool']['Tasks']['subscriptions'] = ['probability' => 30];
 $GLOBALS['dataTool']['Tasks']['dri_workflow_id'] = ['skip' => true];
 $GLOBALS['dataTool']['Tasks']['dri_workflow_template_id'] = ['skip' => true];

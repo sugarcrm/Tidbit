@@ -36,13 +36,11 @@
 
 namespace Sugarcrm\Tidbit\Generator;
 
-use Sugarcrm\Tidbit\Core\Factory;
+use \Sugarcrm\Tidbit\Core\Factory;
 
 class TeamSetsGenerator extends ModuleGenerator
 {
-    protected TeamSetCore $teamSetCore;
-
-    protected $idGenerator;
+    protected $teamSetCore;
 
     public function __construct(\SugarBean $bean)
     {
@@ -51,7 +49,7 @@ class TeamSetsGenerator extends ModuleGenerator
         $this->idGenerator = Factory::getComponent('intervals');
     }
 
-    public function generateRecord($n): array
+    public function generateRecord($n)
     {
         $data = parent::generateRecord($n);
 
@@ -70,8 +68,8 @@ class TeamSetsGenerator extends ModuleGenerator
         }
 
         $stats = $this->teamSetCore->getStatistics($teams);
-        $data['data'][$this->bean()->getTableName()][0]['team_md5'] = "'" . $stats['team_md5'] . "'";
-        $data['data'][$this->bean()->getTableName()][0]['name'] = "'" . $stats['team_md5'] . "'";
+        $data['data'][$this->bean()->getTableName()][0]['team_md5'] = "'".$stats['team_md5']."'";
+        $data['data'][$this->bean()->getTableName()][0]['name'] = "'".$stats['team_md5']."'";
         $data['data'][$this->bean()->getTableName()][0]['team_count'] = count($teams);
 
         return $data;

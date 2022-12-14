@@ -35,4 +35,4 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-$GLOBALS['dataTool']['emails_beans']['bean_module'] = ['getmodule' => true];
+$GLOBALS['dataTool']['emails_beans']['bean_module'] = array('getmodule' => true);

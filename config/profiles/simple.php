@@ -1,6 +1,6 @@
 <?php
 
-$modules = [
+$modules = array(
     'Tags' => 100,
     'EmailAddresses' => 12000,
     'ACLRoles' => 10,
@@ -37,9 +37,9 @@ $modules = [
     'PurchasedLineItems' => 1000,
     'RevenueLineItems' => 14000,
     'Manufacturers' => 100,
-];
+);
 $tidbit_relationships['TeamSets']['Teams']['degree'] = 3;
 
-$profile_opts = [
+$profile_opts = array(
 
-];
+);

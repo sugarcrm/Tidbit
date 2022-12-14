@@ -41,18 +41,34 @@ use Sugarcrm\Tidbit\StorageAdapter\Storage\Csv;
 
 class ForkingController
 {
-    protected string $progressLogPrefix;
+    /**
+     * Generatro
+     *
+     * @var Generator
+     */
+    protected $g;
 
-    public function __construct(protected Generator $g, protected $threads)
+    /**
+     * Threads count
+     *
+     * @var int
+     */
+    protected $threads;
+
+    protected $progressLogPrefix;
+
+    public function __construct(Generator $g, $threads)
     {
+        $this->g = $g;
+        $this->threads = $threads;
     }
 
-    public function setProgressLogPrefix(string $progressLogPrefix): void
+    public function setProgressLogPrefix($progressLogPrefix)
     {
         $this->progressLogPrefix = $progressLogPrefix;
     }
 
-    public function generate($total): void
+    public function generate($total)
     {
         $GLOBALS['db']->disconnect();
         $pids = [];
@@ -66,7 +82,7 @@ class ForkingController
                 $GLOBALS['db']->connect();
                 $chunk = round($total / $this->threads);
                 if ($GLOBALS['storageAdapter'] instanceof Csv) {
-                    $GLOBALS['storageAdapter']->setFilenameSuffix('.' . ($i + 1));
+                    $GLOBALS['storageAdapter']->setFilenameSuffix('.'.($i + 1));
                 }
                 $this->doGenerate($i * $chunk, min(($i + 1) * $chunk, $total), $i);
                 exit(0);
@@ -86,7 +102,7 @@ class ForkingController
         $GLOBALS['db']->connect();
     }
 
-    protected function doGenerate($from, $to, $thread): void
+    protected function doGenerate($from, $to, $thread)
     {
         $buffers = [];
         $this->showProgress($thread, $from, $from, $to);
@@ -119,15 +135,15 @@ class ForkingController
         $this->showProgress($thread, $from, $to, $to);
     }
 
-    protected function showProgress($thread, $from, $i, $to): void
+    protected function showProgress($thread, $from, $i, $to)
     {
-        $toMFrom = ($to - $from);
+        $toMFrom = ($to-$from);
         printf(
             "\t{$this->progressLogPrefix} [%3d] %d/%d (%d%%) [%d:%d)\n",
-            $thread + 1,
-            $i - $from,
-            $to - $from,
-            ($i - $from) / ($toMFrom == 0 ? 1 : $toMFrom) * 100,
+            $thread+1,
+            $i-$from,
+            $to-$from,
+            ($i-$from)/($toMFrom == 0 ? 1 : $toMFrom)*100,
             $from,
             $to
         );
