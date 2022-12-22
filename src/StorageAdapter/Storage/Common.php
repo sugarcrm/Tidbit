@@ -60,7 +60,7 @@ abstract class Common
      * @param mixed $storageResource
      * @param string $logQueryPath
      */
-    public function __construct(protected mixed $storageResource, string $logQueryPath = '')
+    public function __construct($storageResource, string $logQueryPath = '')
     {
         if ($logQueryPath) {
             $this->logQueriesFile = fopen($logQueryPath, 'a');

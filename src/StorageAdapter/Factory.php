@@ -67,7 +67,7 @@ class Factory
      */
     public static function getAdapterInstance(
         string $storageType,
-        mixed  $storageResource,
+        $storageResource,
         string $logQueryPath = ''
     ): Common
     {

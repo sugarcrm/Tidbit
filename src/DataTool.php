@@ -561,7 +561,7 @@ class DataTool
      * @param $length - could be "integer" or float length value, f.e. "5,2"
      * @return string
      */
-    protected function truncateDataByLength(mixed $value, string $length): string
+    protected function truncateDataByLength($value, string $length): string
     {
         [$baseLength] = explode(",", $length, 2);
 
@@ -656,7 +656,7 @@ class DataTool
      * Get hash from field according current sugar
      * hashing settings
      */
-    protected function getSugarHash(mixed $value): string
+    protected function getSugarHash($value): string
     {
         if (is_string($value)) {
             $value = substr($value, 1, strlen($value) - 2);

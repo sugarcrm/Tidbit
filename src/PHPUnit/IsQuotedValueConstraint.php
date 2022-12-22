@@ -11,7 +11,7 @@ class IsQuotedValueConstraint extends \PHPUnit\Framework\Constraint\Constraint
     /**
      * Matches that string value is quoted
      */
-    public function matches(mixed $other): bool
+    public function matches($other): bool
     {
         $result = false;
 

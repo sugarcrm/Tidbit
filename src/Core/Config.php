@@ -24,7 +24,7 @@ class Config
     /**
      * Get config item
      */
-    public function get(string $item): mixed
+    public function get(string $item)
     {
         return $this->config[$item] ?? null;
     }
