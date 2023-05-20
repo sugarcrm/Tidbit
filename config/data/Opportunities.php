@@ -44,3 +44,6 @@ $GLOBALS['dataTool']['Opportunities']['probability'] = array(
 );
 $GLOBALS['dataTool']['Opportunities']['date_closed_timestamp'] = ['skip' => true];
 $GLOBALS['dataTool']['Opportunities']['subscriptions'] = ['probability' => 60];
+$GLOBALS['dataTool']['Opportunities']['ai_opp_conv_score_absolute'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
+$GLOBALS['dataTool']['Opportunities']['ai_opp_conv_bin_accuracy'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
+$GLOBALS['dataTool']['Opportunities']['ai_opp_conv_multiplier'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
