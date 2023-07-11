@@ -120,7 +120,7 @@ for ($mn = 1; $mn <= $mc; $mn++) {
             : "")
         . ":\n";
 
-    echo "Inserting ${total} records.\n";
+    echo 'Inserting ' . $total . ' records.' . PHP_EOL;
     $bean = BeanFactory::getBean($module);
 
     $generatorClass = "\Sugarcrm\Tidbit\Generator\\{$module}Generator";
