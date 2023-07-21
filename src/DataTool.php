@@ -258,18 +258,18 @@ class DataTool
             return $typeData['value'];
         }
         if (!empty($typeData['increment'])) {
-            static $inc = -1;
+            static $incTypeIncrement = -1;
 
             if ($resetStatic) {
-                $inc = -1;
+                $incTypeIncrement = -1;
             }
 
-            $inc++;
+            $incTypeIncrement++;
             if ($typeData['increment']['max']) {
                 return $typeData['increment']['min'] +
-                    ($inc % ($typeData['increment']['max'] - $typeData['increment']['min']));
+                    ($incTypeIncrement % ($typeData['increment']['max'] - $typeData['increment']['min']));
             } else {
-                return $typeData['increment']['min'] + $inc;
+                return $typeData['increment']['min'] + $incTypeIncrement;
             }
         }
         /* This gets used for usernames, which need to be
@@ -293,14 +293,14 @@ class DataTool
 
         /* This type alternates between two specified options */
         if (!empty($typeData['binary_enum'])) {
-            static $inc = -1;
+            static $incTypeBinEnum = -1;
 
             if ($resetStatic) {
-                $inc = -1;
+                $incTypeBinEnum = -1;
             }
 
-            $inc++;
-            return $typeData['binary_enum'][$inc % 2];
+            $incTypeBinEnum++;
+            return $typeData['binary_enum'][$incTypeBinEnum % 2];
         }
         if (!empty($typeData['sum'])) {
             $sum = 0;
