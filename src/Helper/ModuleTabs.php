@@ -70,7 +70,7 @@ class ModuleTabs
         }
 
         $enabledModules = $db->quoted(base64_encode(serialize($moduleTabs)));
-        $db->query("UPDATE config SET value={$enabledModules} WHERE category='MySettings' AND name='tab'");
+        $db->query("UPDATE config SET value={$enabledModules} WHERE category='MySettings' AND name='tab' AND NOT (platform='portal' AND platform IS NOT NULL)");
 
         // Clear sugar cache
         sugar_cache_clear('admin_settings_cache');
