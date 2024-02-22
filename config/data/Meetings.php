@@ -71,3 +71,4 @@ $GLOBALS['dataTool']['Meetings']['dri_workflow_template_id'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['dri_subworkflow_id'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['dri_subworkflow_template_id'] = ['skip' => true];
 $GLOBALS['dataTool']['Meetings']['dri_workflow_task_template_id'] = ['skip' => true];
+$GLOBALS['dataTool']['Meetings']['external_id'] = ['value' => 'null'];

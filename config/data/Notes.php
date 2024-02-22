@@ -42,3 +42,4 @@ $GLOBALS['dataTool']['Notes']['filename'] = ['skip' => true];
 $GLOBALS['dataTool']['Notes']['file_mime_type'] = ['skip' => true];
 $GLOBALS['dataTool']['Notes']['contact_phone'] = ['phone' => true];
 $GLOBALS['dataTool']['Notes']['subscriptions'] = ['probability' => 90];
+$GLOBALS['dataTool']['Notes']['external_id'] = ['value' => 'null'];
