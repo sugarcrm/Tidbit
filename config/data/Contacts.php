@@ -65,3 +65,4 @@ $GLOBALS['dataTool']['Contacts']['phone_mobile'] = ['phone' => true];
 $GLOBALS['dataTool']['Contacts']['phone_home'] = ['phone' => true];
 $GLOBALS['dataTool']['Contacts']['picture'] = ['skip' => true];
 $GLOBALS['dataTool']['Contacts']['subscriptions'] = ['probability' => 7];
+$GLOBALS['dataTool']['Contacts']['external_user_id'] = ['value' => 'null'];

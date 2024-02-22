@@ -69,3 +69,4 @@ $GLOBALS['dataTool']['Leads']['ai_conv_multiplier'] = ['range' => ['min' => 1, '
 $GLOBALS['dataTool']['Leads']['ai_icp_fit_score_absolute'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
 $GLOBALS['dataTool']['Leads']['ai_icp_fit_bin_accuracy'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
 $GLOBALS['dataTool']['Leads']['ai_icp_fit_multiplier'] = ['range' => ['min' => 1, 'max' => 30], 'multiply' => 3.321];
+$GLOBALS['dataTool']['Leads']['external_user_id'] = ['value' => 'null'];
