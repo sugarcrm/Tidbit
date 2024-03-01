@@ -59,4 +59,4 @@ $GLOBALS['dataTool']['Users']['phone_other'] = ['phone' => true];
 $GLOBALS['dataTool']['Users']['phone_mobile'] = ['phone' => true];
 $GLOBALS['dataTool']['Users']['phone_home'] = ['phone' => true];
 $GLOBALS['dataTool']['Users']['cookie_consent'] = ['value' => "1"];
-$GLOBALS['dataTool']['Users']['license_type'] = ['value' => "'[\"SUGAR_SERVE\",\"CURRENT\",\"SUGAR_SELL_ADVANCED_BUNDLE\"]'"];
+$GLOBALS['dataTool']['Users']['license_type'] = ['value' => "'[\"SUGAR_SERVE\",\"SUGAR_SELL_ADVANCED_BUNDLE\"]'"];
