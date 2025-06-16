@@ -69,8 +69,7 @@ class Factory
         string $storageType,
         mixed  $storageResource,
         string $logQueryPath = ''
-    ): Common
-    {
+    ): Common {
         if (!in_array($storageType, self::$availableTypes)) {
             throw new Exception('Unsupported storage type');
         }

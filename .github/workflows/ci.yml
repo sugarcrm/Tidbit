@@ -1,0 +1,38 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Allow all matrix jobs to complete even if one fails, like Travis `fast_finish: true` (inverted logic here)
+      matrix:
+        php-versions: ['8.2', '8.3', '8.4']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: json, mbstring
+          coverage: xdebug
+
+      - name: Cache Composer global cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache # Cache the global composer cache directory
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction
+
+      - name: Run style checks
+        run: composer check-style
+
+      - name: Run tests
+        run: composer tests

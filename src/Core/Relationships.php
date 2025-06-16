@@ -14,19 +14,14 @@ use Sugarcrm\Tidbit\DataTool;
 class Relationships
 {
     public const PREFIX = 'seed-r';
-
-    protected string $module;
-    protected DataTool $dataTool;
     protected string $currentDateTime;
     protected Intervals $coreIntervals;
 
     /**
      * Relationships constructor.
      */
-    public function __construct(string $module, DataTool $dataTool)
+    public function __construct(protected string $module, protected DataTool $dataTool)
     {
-        $this->module = $module;
-        $this->dataTool = $dataTool;
         $this->coreIntervals = Factory::getComponent('Intervals');
         $this->currentDateTime = "'" . date('Y-m-d H:i:s') . "'";
     }

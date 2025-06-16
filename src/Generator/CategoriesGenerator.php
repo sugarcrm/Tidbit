@@ -62,7 +62,7 @@ class CategoriesGenerator extends ModuleGenerator
 
         $leftNodes = $this->leftSubtreeNodeCount($n);
         $left = $leftNodes * 2 + ($level + 1);
-        $right = $left + ((1 - pow(self::CHILDREN, $deltaLevel + 1)) / (1 - self::CHILDREN)) * 2 - 1;
+        $right = $left + ((1 - self::CHILDREN ** ($deltaLevel + 1)) / (1 - self::CHILDREN)) * 2 - 1;
 
         $data = parent::generateRecord($n);
         $data['data'][$this->bean()->getTableName()][0]['lft'] = "'" . $left . "'";
@@ -95,7 +95,7 @@ class CategoriesGenerator extends ModuleGenerator
         $totalLevel = $this->level($total);
         $deltaLevel = $totalLevel - $level;
 
-        $result = ($n - $firstSibling) * (1 - pow(self::CHILDREN, $deltaLevel)) / (1 - self::CHILDREN);
+        $result = ($n - $firstSibling) * (1 - self::CHILDREN ** $deltaLevel) / (1 - self::CHILDREN);
         $result += $this->leftSubtreeNodeCount($parent);
 
         $this->cache[$n] = $result;

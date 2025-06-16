@@ -24,7 +24,7 @@ class OracleTest extends TidbitTestCase
         $storage = new Oracle($this->storageResource);
 
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'getSequenceFromValues'
         );
 
@@ -42,7 +42,7 @@ class OracleTest extends TidbitTestCase
         $storage = new Oracle($this->storageResource);
 
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'getSequenceFromValues'
         );
 
@@ -67,7 +67,7 @@ class OracleTest extends TidbitTestCase
         $storage = new Oracle($this->storageResource);
 
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'getSequenceFromValues'
         );
 
@@ -87,7 +87,7 @@ class OracleTest extends TidbitTestCase
      */
     public function testGetCurrentSequenceValue()
     {
-        $mock = $this->getMockBuilder('\Sugarcrm\Tidbit\Tests\SugarObject\DBManager')
+        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\Tests\SugarObject\DBManager::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['query', 'fetchByAssoc'])
             ->getMock();
@@ -103,7 +103,7 @@ class OracleTest extends TidbitTestCase
 
         $storage = new Oracle($mock);
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'getCurrentSequenceValue'
         );
 
@@ -122,7 +122,7 @@ class OracleTest extends TidbitTestCase
             ],
         ];
 
-        $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
+        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'])
             ->getMock();
@@ -133,7 +133,7 @@ class OracleTest extends TidbitTestCase
             ->willReturn([]);
 
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'patchSequenceValues'
         );
 
@@ -163,7 +163,7 @@ class OracleTest extends TidbitTestCase
             ],
         ];
 
-        $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
+        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getSequenceFromValues', 'getCurrentSequenceValue', 'setNewSequenceValue'])
             ->getMock();
@@ -184,7 +184,7 @@ class OracleTest extends TidbitTestCase
             ->willReturn(true);
 
         $method = static::accessNonPublicMethod(
-            '\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle',
+            \Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class,
             'patchSequenceValues'
         );
 
@@ -206,7 +206,7 @@ class OracleTest extends TidbitTestCase
     public function testPrepareQueryException($tableName, $installData)
     {
         $this->expectException(\Sugarcrm\Tidbit\Exception::class);
-        $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
+        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['patchSequenceValues'])
             ->getMock();
@@ -214,7 +214,7 @@ class OracleTest extends TidbitTestCase
         $mock->expects($this->never())
             ->method('patchSequenceValues');
 
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle', 'prepareQuery');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class, 'prepareQuery');
         $method->invokeArgs($mock, [$tableName, $installData]);
     }
 
@@ -222,7 +222,7 @@ class OracleTest extends TidbitTestCase
      * @return array
      * @see testPrepareQueryException
      */
-    public function dataTestPrepareQueryExceptionProvider()
+    public static function dataTestPrepareQueryExceptionProvider()
     {
         return [
             [
@@ -260,7 +260,7 @@ class OracleTest extends TidbitTestCase
             ],
         ];
 
-        $mock = $this->getMockBuilder('Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle')
+        $mock = $this->getMockBuilder(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['patchSequenceValues'])
             ->getMock();
@@ -269,11 +269,11 @@ class OracleTest extends TidbitTestCase
             ->method('patchSequenceValues')
             ->with($installData);
 
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle', 'prepareQuery');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\StorageAdapter\Storage\Oracle::class, 'prepareQuery');
         $actual = $method->invokeArgs($mock, ['some_table', $installData]);
 
         $this->assertStringContainsString('INSERT /*+APPEND*/ ALL', $actual);
-        $this->assertEquals(3, substr_count($actual, 'VALUES ('));
+        $this->assertEquals(3, substr_count((string) $actual, 'VALUES ('));
         $this->assertStringContainsString('SELECT * FROM dual', $actual);
     }
 }

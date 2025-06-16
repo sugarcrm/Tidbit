@@ -20,8 +20,8 @@ class Factory
     public static function getComponent($component)
     {
         if (!isset(static::$instances[$component])) {
-            $methodName = 'configure' . ucfirst($component);
-            if (method_exists('Sugarcrm\Tidbit\Core\Factory', 'configure' . $component)) {
+            $methodName = 'configure' . ucfirst((string) $component);
+            if (method_exists(\Sugarcrm\Tidbit\Core\Factory::class, 'configure' . $component)) {
                 static::$instances[$component] = Factory::$methodName();
             } else {
                 throw new Exception('Component "' . $component . '" is not defined in core classes');

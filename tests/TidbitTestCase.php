@@ -16,7 +16,9 @@ class TidbitTestCase extends \PHPUnit\Framework\TestCase
 
     protected function tearDown(): void
     {
-        $GLOBALS = $this->globals;
+        foreach ($this->globals as $key => $value) {
+            $GLOBALS[$key] = $value;
+        }
         parent::tearDown();
     }
 

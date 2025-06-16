@@ -22,7 +22,7 @@ class PhoneTest extends TidbitTestCase
     public function testGetReturnsPhoneNumberFromList()
     {
         $phone = new Phone();
-        $phonesList = static::getNonPublicProperty('\Sugarcrm\Tidbit\FieldData\Phone', 'phonesList', $phone);
+        $phonesList = static::getNonPublicProperty(\Sugarcrm\Tidbit\FieldData\Phone::class, 'phonesList', $phone);
         $this->assertTrue(in_array($phone->get(), $phonesList));
     }
 
@@ -33,12 +33,12 @@ class PhoneTest extends TidbitTestCase
     {
         $neededCount = 25;
         $neededPattern = '###-###-###';
-        $phonesMock = $this->getMockBuilder('\Sugarcrm\Tidbit\FieldData\Phone')
-            ->setMethods(['generatePhone'])
+        $phonesMock = $this->getMockBuilder(\Sugarcrm\Tidbit\FieldData\Phone::class)
+            ->onlyMethods(['generatePhone'])
             ->getMock();
         $phonesMock->expects($this->exactly($neededCount))->method('generatePhone')->with($neededPattern);
 
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'generatePhones');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'generatePhones');
         $method->invokeArgs($phonesMock, [$neededCount, $neededPattern]);
     }
 
@@ -48,10 +48,11 @@ class PhoneTest extends TidbitTestCase
     public function testGeneratePhone()
     {
         $phone = new Phone();
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'generatePhone');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'generatePhone');
 
         $this->assertMatchesRegularExpression('/^\d{4}$/', $method->invokeArgs($phone, ['####']));
-        $this->assertMatchesRegularExpression('/^\(\d{3}\)\-\d{4}$/', $method->invokeArgs($phone, ['({{areaCode}})-####']));
+        $args = ['({{areaCode}})-####'];
+        $this->assertMatchesRegularExpression('/^\(\d{3}\)\-\d{4}$/', $method->invokeArgs($phone, $args));
         $this->assertMatchesRegularExpression(
             '/^\d{3}\-33\-\-\d{3}$/',
             $method->invokeArgs($phone, ['{{areaCode}}-33--{{exchangeCode}}'])
@@ -64,14 +65,14 @@ class PhoneTest extends TidbitTestCase
     public function testAreaCode()
     {
         $phone = new Phone();
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'areaCode');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'areaCode');
         $code = $method->invokeArgs($phone, []);
 
-        $this->assertTrue(strlen($code) == 3);
+        $this->assertTrue(strlen((string) $code) == 3);
 
-        $digit1 = intval(substr($code, 0, 1));
-        $digit2 = intval(substr($code, 1, 1));
-        $digit3 = intval(substr($code, 2, 1));
+        $digit1 = intval(substr((string) $code, 0, 1));
+        $digit2 = intval(substr((string) $code, 1, 1));
+        $digit3 = intval(substr((string) $code, 2, 1));
 
         $this->assertTrue($digit1 >= 2 && $digit1 <= 9);
         $this->assertTrue($digit2 >= 0 && $digit2 <= 9);
@@ -85,14 +86,14 @@ class PhoneTest extends TidbitTestCase
     public function testExchangeCode()
     {
         $phone = new Phone();
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'exchangeCode');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'exchangeCode');
         $code = $method->invokeArgs($phone, []);
 
-        $this->assertTrue(strlen($code) == 3);
+        $this->assertTrue(strlen((string) $code) == 3);
 
-        $digit1 = intval(substr($code, 0, 1));
-        $digit2 = intval(substr($code, 1, 1));
-        $digit3 = intval(substr($code, 2, 1));
+        $digit1 = intval(substr((string) $code, 0, 1));
+        $digit2 = intval(substr((string) $code, 1, 1));
+        $digit3 = intval(substr((string) $code, 2, 1));
 
         $this->assertTrue($digit1 >= 2 && $digit1 <= 9);
         $this->assertTrue($digit2 >= 0 && $digit2 <= 9);
@@ -108,7 +109,7 @@ class PhoneTest extends TidbitTestCase
     public function testGetRandomDigitNot()
     {
         $phone = new Phone();
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'getRandomDigitNot');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'getRandomDigitNot');
         $testDigit = 5;
         $digit = $method->invokeArgs($phone, [$testDigit]);
 
@@ -123,7 +124,7 @@ class PhoneTest extends TidbitTestCase
     public function testGetRandomDigit()
     {
         $phone = new Phone();
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\FieldData\Phone', 'getRandomDigit');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\FieldData\Phone::class, 'getRandomDigit');
         $digit = $method->invokeArgs($phone, []);
 
         $this->assertTrue(is_int($digit));

@@ -15,7 +15,7 @@ class SameTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-   protected function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');

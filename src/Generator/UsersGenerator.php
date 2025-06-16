@@ -74,7 +74,7 @@ class UsersGenerator extends ModuleGenerator
 
         $userID = $data['id'];
         $data['data']['user_preferences'][] = [
-            'id' => "'" . md5($userID) . "'",
+            'id' => "'" . md5((string) $userID) . "'",
             'category' => "'global'",
             'date_entered' => $this->currentDateTime,
             'date_modified' => $this->currentDateTime,
@@ -84,8 +84,10 @@ class UsersGenerator extends ModuleGenerator
 
         $privateTeamID = $this->idGenerator->generateTidbitID($n, 'TeamsPr');
         $userData = $data['data']['users'][0];
-        $fullName = sprintf("'%s %s'", trim($userData['first_name'], "'"), trim($userData['last_name'], "'"));
-        $description = sprintf("'Private team for %s'", trim($userData['user_name'], "'"));
+        $firstName = trim((string) $userData['first_name'], "'");
+        $lastName = trim((string) $userData['last_name'], "'");
+        $fullName = sprintf("'%s %s'", $firstName, $lastName);
+        $description = sprintf("'Private team for %s'", trim((string) $userData['user_name'], "'"));
 
         $managerID = $this->idGenerator->generateTidbitID(($n - ($n % 10)) + 1, 'Users');
 
@@ -131,11 +133,15 @@ class UsersGenerator extends ModuleGenerator
 
         $teamSetN = $this->idGenerator->decodeTidbitID($data['data']['users'][0]['team_set_id'], 'TeamSets');
         $teamSetsTeamsRelConfig = $GLOBALS['tidbit_relationships']['TeamSets']['Teams'];
+        $modules = $GLOBALS['modules'];
+        $degree = $teamSetsTeamsRelConfig['degree'];
+        $teamSetsModule = $modules['TeamSets'];
+        $teamsModule = $modules['Teams'];
         $teamNs = CombinationsHelper::get(
             $teamSetN,
-            $teamSetsTeamsRelConfig['degree'],
-            $GLOBALS['modules']['TeamSets'],
-            $GLOBALS['modules']['Teams']
+            $degree,
+            $teamSetsModule,
+            $teamsModule
         );
         foreach ($teamNs as $teamN) {
             $teamMembershipRows[] = [

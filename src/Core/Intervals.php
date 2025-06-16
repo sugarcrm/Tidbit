@@ -56,10 +56,10 @@ class Intervals
         $this->ensureIdPrefixCache($module);
         $id = substr($id, 1, -1);
         $prefix = $this->assembleIdCache[$module];
-        if (substr($id, 0, strlen($prefix)) != $prefix) {
+        if (!str_starts_with($id, (string) $prefix)) {
             throw new \Exception("id $id of module $module doesn't start with $prefix");
         }
-        $id = substr($id, strlen($prefix));
+        $id = substr($id, strlen((string) $prefix));
         return (int) $id;
     }
 

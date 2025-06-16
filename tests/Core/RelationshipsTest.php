@@ -37,7 +37,7 @@ class RelationshipsTest extends TidbitTestCase
         ];
 
         $relationships = new Relationships($module, new DataTool('storageType'));
-        $method = static::accessNonPublicMethod('\Sugarcrm\Tidbit\Core\Relationships', 'calculateRatio');
+        $method = static::accessNonPublicMethod(\Sugarcrm\Tidbit\Core\Relationships::class, 'calculateRatio');
 
         $actual = $method->invokeArgs($relationships, [$relationship, $relModule]);
 
@@ -48,7 +48,7 @@ class RelationshipsTest extends TidbitTestCase
      * @return array
      * @see testCalculateRatio
      */
-    public function dataTestCalculateRatioProvider()
+    public static function dataTestCalculateRatioProvider()
     {
         return [
             [ // Based on modules rel

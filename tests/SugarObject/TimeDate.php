@@ -65,18 +65,11 @@ class TimeDate extends \DateTime
             $args[] = $setGMT;
         }
 
-        switch ($type) {
-            case "date":
-                return call_user_func_array([$this, 'asDbDate'], $args);
-                break;
-            case 'time':
-                return $this->asDbTime($date);
-                break;
-            case 'datetime':
-            case 'datetimecombo':
-            default:
-                return call_user_func_array([$this, 'asDb'], $args);
-        }
+        return match ($type) {
+            "date" => call_user_func_array($this->asDbDate(...), $args),
+            'time' => $this->asDbTime($date),
+            default => call_user_func_array($this->asDb(...), $args),
+        };
     }
 
     /**

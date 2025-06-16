@@ -15,7 +15,7 @@ class HandleBasicTest extends TidbitTestCase
     /** @var DataTool */
     protected $dataTool;
 
-   protected function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dataTool = new DataTool('mysql');
@@ -57,7 +57,7 @@ class HandleBasicTest extends TidbitTestCase
      * @return array
      * @see testValueType
      */
-    public function dataTestValueType()
+    public static function dataTestValueType()
     {
         return [
             [5, 5],

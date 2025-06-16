@@ -97,8 +97,8 @@ class Oracle extends Common
     protected function getSequenceFromValues(array $values): array
     {
         foreach ($values as $k => $v) {
-            if (substr($v, -12) == '_SEQ.NEXTVAL') {
-                return ['field' => $k, 'name' => substr($v, 0, -8)];
+            if (str_ends_with((string) $v, '_SEQ.NEXTVAL')) {
+                return ['field' => $k, 'name' => substr((string) $v, 0, -8)];
             }
         }
         return [];

@@ -180,20 +180,20 @@ or call PHPUnit directly
 
     $ ./vendor/bin/phpunit -c ./phpunit.xml.dist
 
-There are automated PR checks enabled on TravisCI (https://travis-ci.org/sugarcrm/Tidbit)
+There are automated PR checks enabled using GitHub Actions.
 For each PR code-style and phpunit tests will be executed for verification
 
-[Master image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=master
+[Master image]: https://github.com/sugarcrm/Tidbit/actions/workflows/ci.yml/badge.svg?branch=master
 
-[Master]: https://travis-ci.org/sugarcrm/Tidbit
+[Master]: https://github.com/sugarcrm/Tidbit/actions/workflows/ci.yml?query=branch%3Amaster
 
 [Master coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=master
 
 [Master coverage]: https://coveralls.io/github/sugarcrm/Tidbit?branch=master
 
-[Develop image]: https://api.travis-ci.org/sugarcrm/Tidbit.svg?branch=develop
+[Develop image]: https://github.com/sugarcrm/Tidbit/actions/workflows/ci.yml/badge.svg?branch=develop
 
-[Develop]: https://github.com/sugarcrm/Tidbit/tree/develop
+[Develop]: https://github.com/sugarcrm/Tidbit/actions/workflows/ci.yml?query=branch%3Adevelop
 
 [Develop coverage image]: https://coveralls.io/repos/github/sugarcrm/Tidbit/badge.svg?branch=develop
 

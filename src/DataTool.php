@@ -340,7 +340,7 @@ class DataTool
                 }
                 return "'" . md5($value) . "'";
             } else {
-                return "'" . md5($typeData['same_hash']) . "'";
+                return "'" . md5((string) $typeData['same_hash']) . "'";
             }
         }
         if (!empty($typeData['related'])) {
@@ -477,7 +477,7 @@ class DataTool
                 $rtn = $typeData['same'];
             }
             $isQuote = false;
-            $baseValue = @trim($rtn);
+            $baseValue = @trim((string) $rtn);
         }
 
         if (!empty($typeData['suffixlist'])) {
@@ -520,11 +520,11 @@ class DataTool
         }
 
         if (!empty($typeData['toUpper'])) {
-            $baseValue = strtoupper($baseValue);
+            $baseValue = strtoupper((string) $baseValue);
         }
 
         if (!empty($typeData['toLower'])) {
-            $baseValue = strtolower($baseValue);
+            $baseValue = strtolower((string) $baseValue);
         }
 
         if (!empty($typeData['suffix'])) {
@@ -534,12 +534,12 @@ class DataTool
             $baseValue = $typeData['prefix'] . $baseValue;
         }
 
-        if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen($baseValue)) {
+        if (!empty($GLOBALS['fieldData']['len']) && $GLOBALS['fieldData']['len'] < strlen((string) $baseValue)) {
             $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
         }
 
         if ($isQuote || !empty($typeData['isQuoted'])) {
-            $baseValue = "'" . @trim($baseValue) . "'";
+            $baseValue = "'" . @trim((string) $baseValue) . "'";
         }
 
         // Run db convert only for specific types. see DBManager::convert()
@@ -565,7 +565,7 @@ class DataTool
     {
         [$baseLength] = explode(",", $length, 2);
 
-        return substr($value, 0, (int) $baseLength);
+        return substr((string) $value, 0, (int) $baseLength);
     }
 
     /**
@@ -663,7 +663,7 @@ class DataTool
         }
 
         if (version_compare($GLOBALS['sugar_config']['sugar_version'], '7.7.0', '<')) {
-            $password = "'" . md5($value) . "'";
+            $password = "'" . md5((string) $value) . "'";
         } else {
             require_once SUGAR_PATH . '/src/Security/Password/Hash.php';
             $hash = \Sugarcrm\Sugarcrm\Security\Password\Hash::getInstance();

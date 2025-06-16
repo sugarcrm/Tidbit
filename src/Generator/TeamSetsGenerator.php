@@ -65,7 +65,7 @@ class TeamSetsGenerator extends ModuleGenerator
         $teams = [];
         foreach ($teamNs as $teamN) {
             $teamID = $this->idGenerator->generateTidbitID($teamN, 'Teams');
-            $teamID = substr($teamID, 1, strlen($teamID) - 2);
+            $teamID = substr((string) $teamID, 1, strlen((string) $teamID) - 2);
             $teams[] = $teamID;
         }
 

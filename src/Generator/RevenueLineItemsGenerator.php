@@ -64,9 +64,9 @@ class RevenueLineItemsGenerator extends ModuleGenerator
         $data = parent::generateRecord($n);
         $rliData = $data['data']['revenue_line_items'][0];
         $rliData['date_closed_timestamp'] = "'" . $this->getTimestampFromDateByFormat(
-                trim($rliData['date_closed'], "'to_date()YMD- ,"),
-                $this->dateClosedFormat
-            ) . "'";
+            trim((string) $rliData['date_closed'], "'to_date()YMD- ,"),
+            $this->dateClosedFormat
+        ) . "'";
         $data['data']['revenue_line_items'][0]['date_closed_timestamp'] =
             $rliData['date_closed_timestamp'];
 

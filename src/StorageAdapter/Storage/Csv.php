@@ -101,7 +101,7 @@ class Csv extends Common
             if ($v === 'null' || $v === 'NULL') {
                 $values[$k] = '';
             } else {
-                $values[$k] = $quote . trim($v) . $quote;
+                $values[$k] = $quote . trim((string) $v) . $quote;
             }
         }
         return join(',', $values) . "\n";
@@ -120,7 +120,6 @@ class Csv extends Common
      */
     public function commitQuery()
     {
-
     }
 
     /**
@@ -131,6 +130,5 @@ class Csv extends Common
      */
     public function executeQuery($query, $quote = true)
     {
-
     }
 }

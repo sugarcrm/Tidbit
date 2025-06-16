@@ -46,7 +46,7 @@ class IntervalsTest extends TidbitTestCase
      * @return array
      * @see testGetAlias
      */
-    public function dataGetAliasProvider()
+    public static function dataGetAliasProvider()
     {
         return [
             [ // Generic module, length is less than 10
@@ -99,7 +99,7 @@ class IntervalsTest extends TidbitTestCase
      * @return array
      * @see testAssembleId
      */
-    public function dataTestAssembleIdProvider()
+    public static function dataTestAssembleIdProvider()
     {
         return [
             [ // generic module case
@@ -141,7 +141,7 @@ class IntervalsTest extends TidbitTestCase
      * @return array
      * @see testGetRelatedIdRelAndBaseAreTheSame
      */
-    public function dataTestGetRelatedIdProvider()
+    public static function dataTestGetRelatedIdProvider()
     {
         return [
             [ // Initial values
@@ -178,7 +178,7 @@ class IntervalsTest extends TidbitTestCase
     /**
      * @see testGenerateRelatedTidbitID
      */
-    public function dataTestGenerateRelatedTidbitIDProvider()
+    public static function dataTestGenerateRelatedTidbitIDProvider()
     {
         return [
             [

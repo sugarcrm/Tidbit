@@ -45,7 +45,7 @@ class CategoryRoot
     {
         $idGenerator = Factory::getComponent('intervals');
         $rootID = $idGenerator->generateTidbitID(0, 'Categories');
-        $rootID = substr($rootID, 1, strlen($rootID) - 2);
+        $rootID = substr((string) $rootID, 1, strlen((string) $rootID) - 2);
 
         $apiUser = new \User();
         $apiUser->is_admin = '1';
