@@ -17,8 +17,13 @@ Tidbit.**
 
 Requirements
 ------------
-PHP 5.6+
-Sugar Already installed (7.8+ versions)
+
+| Tidbit Version | PHP Version | Sugar Version |
+| -------------- | ----------- | ------------- |
+| [develop](https://github.com/sugarcrm/Tidbit/tree/develop) | >=8.2+ | TBD |
+| [v2.2.0](https://github.com/sugarcrm/Tidbit/releases/tag/v2.2.0) | >=8.0, <=8.3 | TBD |
+| [v2.1.1](https://github.com/sugarcrm/Tidbit/releases/tag/v2.1.1) | >=7.0, <=8.3 | TBD |
+| [v2.0.0](https://github.com/sugarcrm/Tidbit/releases/tag/v2.0.0) | >=5.6 | >=7.8 |
 
 Installation
 ------------
