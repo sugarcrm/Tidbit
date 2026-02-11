@@ -129,7 +129,7 @@ function includeDataInDir($path, $files_pattern = '/^[\w]+\.php$/')
  */
 function showProgress($prefix, $done, $total, $size = 40)
 {
-    $perc = (double) ($done / $total);
+    $perc = (float) ($done / $total);
     $bar = floor($perc * $size);
     $progress = str_repeat("=", $bar);
     $arrow = "";
