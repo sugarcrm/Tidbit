@@ -35,3 +35,4 @@ $GLOBALS['dataTool']['RevenueLineItems']['date_closed'] = [
     'type' => 'date',
     'units' => 'days',
 ];
+$GLOBALS['dataTool']['RevenueLineItems']['base_rate'] = ['value' => 1];

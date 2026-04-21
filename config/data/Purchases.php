@@ -9,6 +9,7 @@ $GLOBALS['dataTool']['Purchases']['account_id'] = [
         'module' => 'Accounts',
     ]
 ];
+$GLOBALS['dataTool']['Purchases']['base_rate'] = ['value' => 1];
 
 // relationships
 $GLOBALS['tidbit_relationships']['Purchases'] = [
