@@ -36,7 +36,10 @@
  ********************************************************************************/
 
 $GLOBALS['dataTool']['EmailAddresses']['email_address'] = [
-    'list' => 'last_name_array',
-    'suffix' => "@example.com"
+    'same' => 'id',
+    'suffix' => "@example.com",
+    'strReplace' => ['search' => "'", 'replace' => ''],
+    'toLower' => true,
+    'isQuoted' => true
 ];
 $GLOBALS['dataTool']['EmailAddresses']['email_address_caps'] = ['same' => 'email_address', 'toUpper' => true];

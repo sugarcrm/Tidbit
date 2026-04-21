@@ -538,6 +538,14 @@ class DataTool
             $baseValue = $this->truncateDataByLength($baseValue, (string) $GLOBALS['fieldData']['len']);
         }
 
+        if (!empty($typeData['strReplace'])) {
+            $baseValue = str_replace(
+                (string) $typeData['strReplace']['search'],
+                (string) $typeData['strReplace']['replace'],
+                (string) $baseValue
+            );
+        }
+
         if ($isQuote || !empty($typeData['isQuoted'])) {
             $baseValue = "'" . @trim((string) $baseValue) . "'";
         }
