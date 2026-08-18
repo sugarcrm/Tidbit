@@ -2,6 +2,7 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
+use Sugarcrm\Tidbit\Core\Random;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Tests\SugarObject\TimeDate;
 use Sugarcrm\Tidbit\Tests\TidbitTestCase;
@@ -24,6 +25,7 @@ class RangeTest extends TidbitTestCase
 
     protected function tearDown(): void
     {
+        Random::reset();
         parent::tearDown();
         unset($GLOBALS['dataTool']);
     }
@@ -52,6 +54,33 @@ class RangeTest extends TidbitTestCase
 
         $this->assertTrue(is_numeric($actual));
         $this->assertEquals(18.5, $actual);
+    }
+
+    /**
+     * Ranges are the most common random field type, so they are what --base_time
+     * has to keep stable: the same seed must regenerate the same values.
+     *
+     * @covers ::handleType
+     */
+    public function testRangeIsReproducibleForTheSameSeed()
+    {
+        $type = ['range' => ['min' => 1, 'max' => 1000000]];
+
+        Random::seed(1451606400);
+        $first = [];
+        for ($i = 0; $i < 20; $i++) {
+            $this->dataTool->count = $i;
+            $first[] = $this->dataTool->handleType($type, 'int', 'amount', true);
+        }
+
+        Random::seed(1451606400);
+        $second = [];
+        for ($i = 0; $i < 20; $i++) {
+            $this->dataTool->count = $i;
+            $second[] = $this->dataTool->handleType($type, 'int', 'amount', true);
+        }
+
+        $this->assertSame($first, $second);
     }
 
     /**

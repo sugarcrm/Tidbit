@@ -168,6 +168,8 @@ if (isset($opts['base_time'])) {
         exitWithError('base_time value should be an integer');
     }
     $GLOBALS['baseTime'] = intval($opts['base_time']);
+    \Sugarcrm\Tidbit\Core\Random::seed($GLOBALS['baseTime']);
+    // Sugar code called during generation still draws from the mt_rand() engine
     mt_srand($GLOBALS['baseTime']);
 }
 

@@ -2,11 +2,41 @@
 
 namespace Sugarcrm\Tidbit\Tests\FieldData;
 
+use Sugarcrm\Tidbit\Core\Random;
 use Sugarcrm\Tidbit\FieldData\Phone;
 use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
 class PhoneTest extends TidbitTestCase
 {
+    protected function tearDown(): void
+    {
+        Random::reset();
+        parent::tearDown();
+    }
+
+    /**
+     * Phone numbers are drawn field by field while records are generated, so they
+     * have to come out the same way for the same --base_time seed.
+     *
+     * @covers Sugarcrm\Tidbit\FieldData\Phone::generatePhones
+     * @covers Sugarcrm\Tidbit\FieldData\Phone::generatePhone
+     */
+    public function testGeneratedPhonesAreReproducibleForTheSameSeed()
+    {
+        Random::seed(1451606400);
+        $first = static::getNonPublicProperty(Phone::class, 'phonesList', new Phone());
+
+        Random::seed(1451606400);
+        $second = static::getNonPublicProperty(Phone::class, 'phonesList', new Phone());
+
+        $this->assertSame($first, $second);
+
+        Random::seed(1451606401);
+        $third = static::getNonPublicProperty(Phone::class, 'phonesList', new Phone());
+
+        $this->assertNotSame($first, $third);
+    }
+
     /**
      * @covers Sugarcrm\Tidbit\FieldData\Phone::getNumber
      */
