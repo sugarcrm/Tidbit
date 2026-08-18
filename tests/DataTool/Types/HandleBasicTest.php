@@ -2,6 +2,7 @@
 
 namespace Sugarcrm\Tidbit\Tests\DataTool\Types;
 
+use Sugarcrm\Tidbit\Core\Random;
 use Sugarcrm\Tidbit\DataTool;
 use Sugarcrm\Tidbit\Tests\TidbitTestCase;
 
@@ -23,6 +24,7 @@ class HandleBasicTest extends TidbitTestCase
 
     protected function tearDown(): void
     {
+        Random::reset();
         parent::tearDown();
         unset($GLOBALS['dataTool']);
     }
@@ -198,6 +200,24 @@ class HandleBasicTest extends TidbitTestCase
         // actual will be text with 10 words separated by space char
         $this->assertCount(10, explode(' ', $actual));
         $this->assertIsQuoted($actual);
+    }
+
+    /**
+     * The word pool is kept in a static and re-shuffled on every call, so two
+     * calls in a row must not return the same words.
+     *
+     * @covers ::handleType
+     */
+    public function testGibberishTypeReshufflesWordPoolBetweenCalls()
+    {
+        $type = ['gibberish' => 5];
+
+        Random::seed(1451606400);
+        $first = $this->dataTool->handleType($type, '', '', true);
+        $second = $this->dataTool->handleType($type, '', '', true);
+
+        $this->assertCount(5, explode(' ', $first));
+        $this->assertNotEquals($first, $second);
     }
 
     /**

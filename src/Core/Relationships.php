@@ -128,7 +128,7 @@ class Relationships
         if (!empty($relationship['ratio'])) {
             $thisToRelatedRatio = $relationship['ratio'];
         } elseif (!empty($relationship['random_ratio'])) {
-            $thisToRelatedRatio = random_int(
+            $thisToRelatedRatio = Random::getInt(
                 $relationship['random_ratio']['min'],
                 $relationship['random_ratio']['max']
             );
